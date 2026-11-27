@@ -3,12 +3,12 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-DDS-002 |
-| 버전 | 0.2 (1차 설계 리뷰 반려 조치본) |
+| 버전 | 0.3 (2차 설계 리뷰 반려 조치본) |
 | 상태 | 초안 (재리뷰 대기) |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | DOC-ARC-002 v0.2, DOC-DDS-001 v0.2 (공통 규칙), DOC-SRS-001 v1.0 |
 
-- **인터페이스 정의 기준 수준**: 다른 모듈이 호출하는 함수가 하나라도 있는 모듈은 인터페이스(DD-I)를 정의한다. DD-M-014~016은 모두 대상이고 ARCH-I-008~010과 1:1이다. `web_main.c`(DD-M-017)는 호출되는 함수가 없는 진입점이라 기준 미만이다.
+- **인터페이스 정의 기준 수준**: 다른 모듈이 호출하는 함수가 하나라도 있는 모듈은 인터페이스(DD-I)를 정의한다. DD-M-014~016은 ARCH-I-008~010과 1:1이고, web_handler가 호출하는 DD-M-018, 019는 같은 컴포넌트(ARCH-C-016) 내부 인터페이스 DD-I-011, 012를 가진다. `web_main.c`(DD-M-017)는 호출되는 함수가 없는 진입점이라 기준 미만이다.
 - 공통 규칙은 DOC-DDS-001과 같다: 모든 함수는 `Status_t` 또는 정수를 반환하고 `void`가 없으며 반환 1회, CCN 10 이하, 80라인 이하, 전역 가변 데이터 없음. 문자열 이름은 반환값이 아니라 출력 인자(`const char **`)로 돌려준다.
 - 전제: DOC-ARC-002 ARCH-D-08에 따라 Iter-1의 `CycleResult_t`에 `priority_reason_summary`, `reason_code_summary`를 추가한다 (DOC-DDS-001 DD-F-028 개정).
 
@@ -18,16 +18,17 @@
 |------|------|
 | VALIDITY_ITEM_COUNT | 13 (입력 유효성 항목 수, `status_presenter.h`) |
 | WEB_BODY_CAPACITY | 16384 (응답 본문 버퍼 바이트, `web_handler.h`. 이력 100건 JSON도 담을 수 있는 크기) |
+| WEB_DEFAULT_PORT | 8081 (`web_handler.h`, 어댑터의 기본 포트) |
 | WebRoute_t | ROUTE_PAGE=0, ROUTE_STATUS=1, ROUTE_HISTORY=2, ROUTE_STEP=3, ROUTE_RESET=4, ROUTE_COUNT=5 |
 | PresentedStatus_t | lock_left, lock_right, state, priority_reason, reason_code, warning_code(문자열 포인터), validity[VALIDITY_ITEM_COUNT](문자열 포인터) |
 | EventEntry_t | id(uint64_t), timestamp_s(double), lock_left, lock_right(Output_t), state(State_t), reason_code(ReasonCode_t) |
 | Event_t | entries[HISTORY_CAPACITY], head, count, next_id(uint64_t), initialized, prev_output[2], prev_state, prev_reason(ReasonCode_t, 요약 값) |
 | WebRequest_t | method, path, body (모두 널이 아닌 `const char *`, 본문이 없으면 `""`) |
 | WebResponse_t | status(int), content_type(`const char *`), body(`char[WEB_BODY_CAPACITY]`) |
-| Web_t | initialized, control(Control_t), events(Event_t), last(CycleResult_t), has_last, cycle(int) |
+| Web_t | initialized, control(Control_t), events(Event_t), last(CycleResult_t), has_last, cycle(int), body_limit(size_t, 응답 본문 상한. 기본 WEB_BODY_CAPACITY이며 시험이 줄일 수 있다) |
 | WebField_t | name(const char *), kind(WEB_KIND_NUMBER/BOOLEAN/ENUM), offset(size_t, RawInput_t 안의 RawValue_t 위치 = `offsetof`) |
 
-입력 유효성 이름 13개(순서 고정): speed, gear, source_timestamp, crash, approach_left, approach_right, fire, overtemp, adult, isofix_left, isofix_right, ignition, sensor_fault. 비트 i가 항목 i에 대응한다 (DD-F-028과 같은 순서의 마스크 비트 0~12).
+입력 유효성 항목 13개의 이름과 비트 순서는 DOC-DDS-001의 "input_validity 비트 순서" 표를 그대로 쓴다 (비트 i가 i번째 항목).
 
 **필드 표 (`WEB_FIELDS`, 16개)**:
 
@@ -51,7 +52,9 @@
 |----|-------------|----------|------|-----------|------|--------|
 | DD-M-014 | present/status_presenter.c/.h | ARCH-C-014 | 결과를 표시 항목과 JSON으로 만든다 | DD-I-008 Presenter_Build, Presenter_Serialize | common | 열거형 이름 표(상수) |
 | DD-M-015 | history/event_recorder.c/.h | ARCH-C-015 | 이벤트를 기록하고 조회한다 | DD-I-009 Event_Init, Event_Record, Event_Query | common | Event_t |
-| DD-M-016 | web/web_handler.c/.h | ARCH-C-016 | HTTP 요청을 처리해 제어 주기, 이력, 표시를 조합한다 | DD-I-010 Web_Init, Web_Handle | DD-M-013, 014, 015 공개 헤더 | Web_t, 필드 표, 경로 표, HTML 상수 |
+| DD-M-016 | web/web_handler.c/.h | ARCH-C-016 | 경로와 메서드를 검사해 제어 주기, 이력, 표시를 조합한 응답을 만든다 | DD-I-010 Web_Init, Web_Handle | DD-M-013, 014, 015, 018, 019 공개 헤더 | Web_t, 경로 표 |
+| DD-M-018 | web/web_page.c/.h | ARCH-C-016 | 시험 화면(HTML)을 제공한다 | DD-I-011 WebPage_Get | 없음 | HTML 상수 |
+| DD-M-019 | web/web_request_parser.c/.h | ARCH-C-016 | 요청 본문(`이름=값&...`)을 제어 입력으로 해석한다 | DD-I-012 WebParser_ParseBody | common | 필드 표 `WEB_FIELDS` |
 | DD-M-017 | web/web_main.c | ARCH-C-016 | 소켓으로 요청을 받아 Web_Handle에 넘기고 응답을 보낸다 | 기준 미만(진입점) | DD-M-016 공개 헤더, POSIX 소켓 | 없음 |
 
 ## 3. 함수
@@ -60,7 +63,7 @@
 
 | ID | 시그니처 | 동작 | 추적 |
 |----|----------|------|------|
-| DD-F-040 | `Status_t Presenter_Build(const CycleResult_t *res, PresentedStatus_t *out)` | 널이면 ERR_PARAM. 출력 이름, state 이름, 요약 priority_reason/reason_code 이름은 DD-F-041로 변환하고 경고코드는 res->warning_code가 1이면 "W-001", 아니면 "NONE", validity는 res->input_validity의 비트 i가 1이면 "VALID", 아니면 "INVALID" | SRS-F-018, 019, 022 |
+| DD-F-040 | `Status_t Presenter_Build(const CycleResult_t *res, PresentedStatus_t *out)` | 널이면 ERR_PARAM. 출력 이름, state 이름, 요약 priority_reason/reason_code 이름은 DD-F-041로 변환하고 경고코드는 res->warning_code가 1이면 "W-001", 아니면 "NONE", validity는 res->input_validity의 비트 i(DOC-DDS-001 비트 순서 표)가 1이면 "VALID", 아니면 "INVALID" | SRS-F-018, 019, 022 |
 | DD-F-041 | `static Status_t Presenter_Name(const char *const *table, int count, int index, const char **name)` | index가 0 미만이거나 count 이상이면 *name="UNKNOWN", 아니면 table[index]. 항상 STATUS_OK | SRS-F-019 |
 | DD-F-042 | `Status_t Presenter_Serialize(const PresentedStatus_t *st, char *buf, size_t cap, int *http_status)` | http_status가 널이면 ERR_PARAM. st/buf가 널이거나 cap이 0이면 *http_status=500 후 ERR_PARAM. 아니면 DD-F-043으로 JSON을 쓰고 실패하면 buf[0]=0, 500, 성공이면 200 (반환 STATUS_OK) | SRS-F-023, 018 |
 | DD-F-043 | `static int Presenter_Write(const PresentedStatus_t *st, char *buf, size_t cap)` | `pos=0`에서 DD-F-044(텍스트 덧붙이기)로 다음을 이어 쓴다: `{"lock_left":"..","lock_right":"..","state":"..","priority_reason":"..","reason_code":"..","warning_code":"..","input_validity":{` + DD-F-045 + `}}`. 성공이면 1, 용량 부족이면 0 | SRS-F-018, 019, 022 |
@@ -81,19 +84,20 @@
 
 | ID | 시그니처 | 동작 | 추적 |
 |----|----------|------|------|
-| DD-F-051 | `Status_t Web_Init(Web_t *ctx)` | 널이면 ERR_PARAM. Control_Init, Event_Init, has_last=0, cycle=0, initialized=1 | SRS-C-004 |
+| DD-F-051 | `Status_t Web_Init(Web_t *ctx)` | 널이면 ERR_PARAM. Control_Init, Event_Init, has_last=0, cycle=0, body_limit=WEB_BODY_CAPACITY, initialized=1 | SRS-C-004 |
 | DD-F-052 | `Status_t Web_Handle(Web_t *ctx, const WebRequest_t *req, WebResponse_t *resp)` | ctx/req/resp 또는 req의 method/path/body가 널이거나 미초기화면 ERR_PARAM(미초기화는 ERR_STATE). 아니면 DD-F-053으로 경로 번호를 찾아 없으면 404, DD-F-054로 메서드를 검사해 다르면 405, 아니면 DD-F-055로 경로별 처리 | SRS-C-004, SRS-F-018 |
 | DD-F-053 | `static int Web_FindRoute(const char *path)` | 경로 표 `ROUTES[ROUTE_COUNT] = {{"/","GET"},{"/status","GET"},{"/history","GET"},{"/step","POST"},{"/reset","POST"}}`에서 경로가 같은 항목의 번호, 없으면 -1 | SRS-C-004 |
 | DD-F-054 | `static int Web_MethodAllowed(int route, const char *method)` | ROUTES[route].method와 같으면 1 | SRS-C-004 |
 | DD-F-055 | `static Status_t Web_Dispatch(Web_t *ctx, int route, const char *body, WebResponse_t *resp)` | route에 따라 DD-F-056(화면), 057(상태), 058(이력), 059(step), 060(reset) 호출 | SRS-C-004 |
-| DD-F-056 | `static Status_t Web_RespondPage(WebResponse_t *resp)` | HTML 상수(`WEB_PAGE`, 입력 폼 16개 필드와 결과 표시, fetch 스크립트)를 본문에 복사하고 200, `text/html`. 상수 길이가 버퍼보다 크면 500 | SRS-C-004 |
-| DD-F-057 | `static Status_t Web_RespondStatus(const Web_t *ctx, WebResponse_t *resp)` | has_last가 0이면 초기 결과(RELEASE, NORMAL, NONE, 경고 0, 입력 유효성 전부 VALID(비트 0x1FFF))로, 아니면 last로 Presenter_Build/Serialize. http_status 500이면 resp->status=500 | SRS-F-018, 023 |
-| DD-F-058 | `static Status_t Web_RespondHistory(const Web_t *ctx, WebResponse_t *resp)` | Event_Query로 가져와 JSON 배열 `[{"id":..,"timestamp_s":..,"lock_left":..,"lock_right":..,"state":..,"reason_code":..},...]`을 DD-F-062로 쓴다. 쓰기 실패 또는 Event_Query 오류면 500 | SRS-F-021, 024 |
-| DD-F-059 | `static Status_t Web_RespondStep(Web_t *ctx, const char *body, WebResponse_t *resp)` | DD-F-063으로 본문을 입력으로 변환(실패 시 400 `{"error":"bad request"}`). 성공하면 DD-F-064로 한 주기 실행(실패 시 500). 이어 DD-F-057 | SRS-C-004, SRS-F-025 |
+| DD-F-056 | `static Status_t Web_RespondPage(const Web_t *ctx, WebResponse_t *resp)` | DD-F-070으로 HTML을 얻어 본문 상한(ctx->body_limit)보다 길면 500, 아니면 복사하고 200, `text/html` | SRS-C-004 |
+| DD-F-057 | `static Status_t Web_RespondStatus(const Web_t *ctx, WebResponse_t *resp)` | has_last가 0이면 초기 결과(출력 RELEASE, state NORMAL, 이유 NONE, 경고 0, input_validity 0 = 전부 INVALID: 아직 입력이 관측되지 않음, ARCH-D-12)로, 아니면 last로 Presenter_Build한 뒤 ctx->body_limit를 용량으로 Presenter_Serialize. http_status 500이면 resp->status=500 | SRS-F-018, 023 |
+| DD-F-058 | `static Status_t Web_RespondHistory(const Web_t *ctx, WebResponse_t *resp)` | HISTORY_CAPACITY 크기의 지역 배열로 Event_Query를 호출(오류가 없다, ARCH-D-11)하고 JSON 배열 `[{"id":..,"timestamp_s":..,"lock_left":..,"lock_right":..,"state":..,"reason_code":..},...]`을 DD-F-062로 쓴다. 쓰기가 본문 상한(ctx->body_limit)을 넘으면 500 | SRS-F-021, 024 |
+| DD-F-059 | `static Status_t Web_RespondStep(Web_t *ctx, const char *body, WebResponse_t *resp)` | WebParser_ParseBody(DD-F-063)로 본문을 입력으로 변환(실패 시 400 `{"error":"bad request"}`). 성공하면 DD-F-064로 한 주기를 실행하고 DD-F-057로 응답 | SRS-C-004, SRS-F-025 |
 | DD-F-060 | `static Status_t Web_RespondReset(Web_t *ctx, WebResponse_t *resp)` | Web_Init 후 `{"reset":true}` 200 | SRS-C-004 |
 | DD-F-062 | `static int Web_AppendEvent(char *buf, size_t cap, size_t *pos, const EventEntry_t *e, int first)` | 이벤트 하나를 JSON 객체로 이어 쓴다 (snprintf, 용량 부족이면 0) | SRS-F-024 |
-| DD-F-063 | `static int Web_ParseBody(const char *body, int cycle, RawInput_t *raw)` | DD-F-065로 기본 입력을 만든 뒤 본문을 `&`로 쪼개 쌍마다 DD-F-066으로 적용. 구문·이름 오류면 0, 모두 적용하면 1 | SRS-C-004, SRS-Q-003 |
-| DD-F-064 | `static Status_t Web_ExecuteCycle(Web_t *ctx, const RawInput_t *raw)` | Control_Step(오류면 그 오류 반환), 성공하면 last 갱신(has_last=1), Event_Record(오류면 그 오류 반환), cycle++ | SRS-C-004, SRS-F-025 |
+| DD-F-063 | `int WebParser_ParseBody(const char *body, int cycle, RawInput_t *raw)` (DD-M-019, 인자가 널이면 0) | DD-F-065로 기본 입력을 만든 뒤 본문을 `&`로 쪼개 쌍마다 DD-F-066으로 적용. 구문·이름 오류면 0, 모두 적용하면 1 | SRS-C-004, SRS-Q-003 |
+| DD-F-064 | `static Status_t Web_ExecuteCycle(Web_t *ctx, const RawInput_t *raw)` | Control_Step으로 last를 갱신하고(has_last=1), Event_Record로 이력을 기록하고, cycle++ 한다. Web_Init과 단조 시각이 보장되어(ARCH-D-11) 하위 호출은 오류를 반환하지 않으므로 반환값으로 분기하지 않고 항상 STATUS_OK | SRS-C-004, SRS-F-025 |
+| DD-F-070 | `Status_t WebPage_Get(const char **html, size_t *length)` (DD-M-018) | 널이면 ERR_PARAM. 아니면 HTML 상수(`WEB_PAGE`: 입력 폼 16개 필드, 전송과 결과 표시 fetch 스크립트)와 그 길이를 돌려준다 | SRS-C-004 |
 | DD-F-065 | `static Status_t Web_DefaultRaw(int cycle, RawInput_t *raw)` | cycle×CYCLE_PERIOD_S 시각의 정상 입력(속도 0, gear P, 충돌 NONE, 접근위험·화재·과온·성인·ISOFIX·sensor_fault FALSE, ignition TRUE, source_timestamp는 시각과 같음, 명령 없음) | SRS-C-004 |
 | DD-F-066 | `static int Web_ApplyField(RawInput_t *raw, const char *name, size_t name_len, const char *value)` | `WEB_FIELDS`에서 이름이 같은 항목을 찾아(없으면 0) DD-F-067로 값을 변환해 `(RawValue_t *)((char *)raw + offset)`에 대입하고 1 | SRS-C-004 |
 | DD-F-067 | `static Status_t Web_ParseValue(int kind, const char *text, RawValue_t *out)` | text가 "absent"이면 RAW_ABSENT. NUMBER는 DD-F-068, BOOLEAN과 ENUM은 DD-F-069로 구문 분석해 성공하면 각각 RAW_NUMBER(number), RAW_BOOLEAN(boolean), RAW_ENUM(enum_id), 실패하면 RAW_OTHER | SRS-C-004, SSR-007 |
@@ -104,7 +108,7 @@
 
 ### DD-M-017 web_main
 
-`main(int argc, char **argv)`: 포트(기본 8081)로 TCP 수신 소켓을 열고, 연결마다 요청 라인과 Content-Length 본문을 읽어 WebRequest_t를 만든다(본문이 없으면 `""`). Web_Handle 결과를 HTTP/1.1 응답으로 보낸다. 요청 1건씩 직렬 처리한다. 호출되는 함수가 없는 진입점이라 인터페이스 정의 기준 미만이고, 시연으로 검증한다.
+`main(int argc, char **argv)`: 포트(기본 `WEB_DEFAULT_PORT`)로 TCP 수신 소켓을 열고, 연결마다 요청 라인과 Content-Length 본문을 읽어 WebRequest_t를 만든다(본문이 없으면 `""`). Web_Handle 결과를 HTTP/1.1 응답으로 보낸다. 요청 1건씩 직렬 처리한다. 호출되는 함수가 없는 진입점이라 인터페이스 정의 기준 미만이고, 시연으로 검증한다.
 
 ## 4. 크기와 복잡도 계획 (CCN 10 이하, 80라인 이하)
 
@@ -132,14 +136,14 @@
 | SRS-Q-002 | DD-F-049, DD-F-058 |
 | SRS-Q-003 | DD-F-043, DD-F-063 |
 | SRS-L-006 | DD-F-049 |
-| SRS-C-004 | DD-F-051, DD-F-052, DD-F-053, DD-F-054, DD-F-055, DD-F-056, DD-F-059, DD-F-060, DD-F-063, DD-F-064, DD-F-065, DD-F-066, DD-F-067 |
+| SRS-C-004 | DD-F-051, DD-F-052, DD-F-053, DD-F-054, DD-F-055, DD-F-056, DD-F-059, DD-F-060, DD-F-063, DD-F-064, DD-F-065, DD-F-066, DD-F-067, DD-F-070 |
 
 ## 6. 점검표 결과
 
 | 항목 | 결과 |
 |------|------|
-| 인터페이스 | DD-M-014~016 모두 정의, ARCH-I-008~010과 1:1. web_main은 기준 미만 |
+| 인터페이스 | DD-M-014~016 ARCH-I-008~010과 1:1, DD-M-018, 019는 컴포넌트 내부 인터페이스(DD-I-011, 012). web_main은 기준 미만 |
 | 의존 | web_handler만 다른 모듈(ControlCycle, Presenter, EventRecorder)의 공개 헤더를 호출한다 |
-| 단일 책임 | 요청 처리를 라우팅, 화면, 상태, 이력, step, reset으로 분리. step 안에서도 파싱, 실행, 응답을 분리 |
+| 단일 책임 | 모듈: 요청 처리(web_handler), 화면(web_page), 입력 해석(web_request_parser) 분리. 요청 처리 안에서도 라우팅, 상태, 이력, step, reset 분리 |
 | 반환·추적 | 모든 함수가 Status_t 또는 정수 반환, 단일 반환 |
 | 상수 | VALIDITY_ITEM_COUNT, WEB_BODY_CAPACITY, ROUTE_COUNT, 필드 수는 이름 있는 상수 |

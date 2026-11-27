@@ -71,7 +71,7 @@ flowchart LR
 | Door_t | DOOR_LEFT=0, DOOR_RIGHT=1 (배열 인덱스) |
 | Validity_t | VALIDITY_VALID, VALIDITY_INVALID |
 | RawValue_t | kind(ABSENT, NUMBER, BOOLEAN, ENUM_ID, OTHER), number(double), boolean(int), enum_id(int). OTHER는 형식 오류를 나타낸다 |
-| RawInput_t | timestamp_s(double, VehicleSnapshot 시각), 입력 필드별 RawValue_t (speed, gear, source_timestamp, crash_status, approach_risk[2], fire, overtemp, adult, isofix[2], ignition_on, sensor_fault), 명령 필드(side, action, source, present) |
+| RawInput_t | timestamp_s(double, VehicleSnapshot 시각), 입력 필드별 RawValue_t: speed, gear, source_timestamp, crash, approach[2], fire, overtemp, adult, isofix[2], ignition, sensor_fault, 명령 필드 cmd_side, cmd_action, cmd_source (명령 존재 여부는 세 필드 중 하나라도 ABSENT가 아닌지로 판단) |
 | Snapshot_t | timestamp_s, 필드별 값과 Validity_t, stale 표시, 명령(valid, side, action, source) |
 | State_t | STATE_OFF, STATE_NORMAL, STATE_DEGRADED, STATE_FAULT |
 | ReasonCode_t | SRS 6.2의 reason_code 17개 값 |
