@@ -11,7 +11,7 @@ import pathlib
 import re
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-VERSION = "1.5 (Iter-1, Iter-2 설계 반영)"
+VERSION = "1.7 (Iter-1, Iter-2 설계 반영)"
 ID_RE = re.compile(r"(?:SRS-[FQLC]-\d{3}|SSR-\d{3})")
 RANGE_RE = re.compile(r"(SRS-[FQLC]-|SSR-)(\d{3})~(\d{3})")
 
