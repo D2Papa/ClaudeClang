@@ -22,7 +22,11 @@ find_package(GTest REQUIRED)
 
 # 제품 코드: src/<모듈>/ 아래의 .c 파일을 모두 하나의 라이브러리로 묶는다.
 file(GLOB_RECURSE PRODUCT_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/*.c)
+# web_main.c는 소켓 어댑터(진입점)라서 제품 라이브러리와 테스트에서 제외하고 별도 실행 파일로 만든다.
+list(FILTER PRODUCT_SOURCES EXCLUDE REGEX "web_main\.c$")
 add_library(product STATIC ${PRODUCT_SOURCES})
+add_executable(web_simulator ${CMAKE_SOURCE_DIR}/src/web/web_main.c)
+target_link_libraries(web_simulator PRIVATE product)
 target_include_directories(product PUBLIC ${CMAKE_SOURCE_DIR}/src)
 
 # 테스트 스위트: tdd / unit / integration / system 은 서로 분리된 실행 파일과 결과로 만든다.

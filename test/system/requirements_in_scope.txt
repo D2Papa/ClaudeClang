@@ -43,3 +43,18 @@ SSR-013
 SSR-014
 SSR-015
 SSR-016
+# --- Iter-2: 표시, 이력, Web ---
+SRS-F-018
+SRS-F-019
+SRS-F-020
+SRS-F-021
+SRS-F-022
+SRS-F-023
+SRS-F-024
+SRS-F-025
+SRS-F-026
+SRS-F-032
+SRS-Q-002
+SRS-Q-003
+SRS-L-006
+SRS-C-004 inspect-present docs/test/DEMO-web.md 시연 결과: 성공
