@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-TRC-001 |
-| 버전 | 0.8 (Iter-0, 7차 리뷰 반려 조치본) |
+| 버전 | 0.9 (Iter-0, 8차 리뷰 반려 조치본) |
 | 상태 | 초안 (재리뷰 대기) |
 
 하향 추적(아키텍처, 상세 설계, 소스, 테스트)은 후속 단계에서 채운다. 현재 단계: Iter-0 (SWE.1). ID는 항상 접두사를 포함한 전체 표기를 쓴다.
@@ -18,7 +18,7 @@
 | SRS-C-004 | SRS | OEM-SWR-001 3장, OEM-FR-004 |  |  |  |  |  |
 | SRS-C-005 | SRS | OEM-NFR-001, OEM-SR-001, OEM-SR-003 |  |  |  |  |  |
 | SRS-F-001 | SRS | OEM-FR-001, OEM-IF-004 |  |  |  |  |  |
-| SRS-F-002 | SRS | OEM-FR-001, OEM-IF-005 |  |  |  |  |  |
+| SRS-F-002 | SRS | OEM-FR-001, OEM-IF-004, OEM-IF-005 |  |  |  |  |  |
 | SRS-F-003 | SRS | OEM-FR-001, OEM-IF-001 |  |  |  |  |  |
 | SRS-F-004 | SRS | OEM-FR-002, OEM-IF-001 |  |  |  |  |  |
 | SRS-F-007 | SRS | OEM-FR-003, OEM-SR-002 |  |  |  |  |  |
@@ -38,7 +38,7 @@
 | SRS-F-027 | SRS | OEM-FR-007, OEM-IF-009 |  |  |  |  |  |
 | SRS-F-028 | SRS | OEM-FR-004, OEM-IF-006 |  |  |  |  |  |
 | SRS-F-029 | SRS | OEM-FR-003, OEM-IF-006 |  |  |  |  |  |
-| SRS-F-030 | SRS | OEM-FR-003, OEM-SR-002, OEM-FR-002 |  |  |  |  |  |
+| SRS-F-030 | SRS | OEM-FR-003, OEM-SR-002, OEM-FR-002, OEM-IF-004 |  |  |  |  |  |
 | SRS-F-031 | SRS | OEM-FR-007, OEM-IF-009 |  |  |  |  |  |
 | SRS-L-004 | SRS | OEM-FR-002 |  |  |  |  |  |
 | SRS-L-005 | SRS | OEM-FR-003 |  |  |  |  |  |
@@ -84,7 +84,7 @@
 | OEM-IF-001 | SRS-F-003, SRS-F-004, SRS-L-007, SRS-Q-003, SSR-007 |
 | OEM-IF-002 | SRS-Q-003, SSR-001, SSR-003, SSR-007 |
 | OEM-IF-003 | SRS-Q-003, SSR-004, SSR-005, SSR-006, SSR-007 |
-| OEM-IF-004 | SRS-F-001, SRS-Q-003, SSR-007 |
+| OEM-IF-004 | SRS-F-001, SRS-F-002, SRS-F-030, SRS-Q-003, SSR-007 |
 | OEM-IF-005 | SRS-C-002, SRS-F-002, SRS-Q-003 |
 | OEM-IF-006 | SRS-F-019, SRS-F-022, SRS-F-023, SRS-F-028, SRS-F-029, SRS-Q-003 |
 | OEM-IF-007 | SRS-C-003, SRS-F-014, SRS-Q-003, SSR-007 |
@@ -97,7 +97,7 @@
 |------|-----------|------|
 | 구현 언어 C17/Clang (OEM-SWR-001 3장은 Python 3.12) | SRS-C-001 | 사용자 승인(OEM 대행), OEM 확인 대기 (A-11) |
 | 모호성 해소 가정 | A-01, A-02, A-03, A-04, A-05, A-06, A-07, A-08, A-09 | 사용자 "제안안" 승인(OEM 대행), OEM 확인 대기 |
-| 리뷰 지적으로 추가된 가정 | A-13, A-14, A-15, A-16, A-17, A-18 | 사용자 위임 "모두 너의 관장안으로", OEM 확인 대기 |
+| 리뷰 지적으로 추가된 가정 | A-13, A-14, A-15, A-16, A-17, A-18 | 사용자 위임 "모두 너의 관장안으로"에 따른 작성자 결정, 사용자 확인 대기, OEM 확인 대기 |
 
 ## 4. 추적 누락 목록
 

@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-SRS-001 |
-| 버전 | 0.8 (Iter-0, 7차 리뷰 반려 조치본) |
+| 버전 | 0.9 (Iter-0, 8차 리뷰 반려 조치본) |
 | 상태 | 초안 (재리뷰 대기) |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | OEM-SWR-001 Rev 1.0 (OEM-A 공급자 입력, 교육용 가상 사양) |
@@ -19,7 +19,7 @@
 | ID | 제목 | 기술 (shall) | 근거 | 검증 방법 / 합격 기준 | 우선순위 | 상위 추적 | OEM SWR | 상태 |
 |----|------|--------------|------|-----------------------|----------|-----------|---------|------|
 | SRS-F-001 | 운전자 명령 수신 | SW는 physical_button, avn, voice, mobile_app 네 source로 수신한 side(left/right/all)와 action(lock/unlock) 명령을 수신하고, 요청 시각으로 VehicleSnapshot.timestamp_s를 사용해야 한다. | 운전자 조작 경로, 요청 시각 계약 | 시험: 4 source × 3 side × 2 action = 24개 조합이 수신되고 요청 시각이 해당 평가주기의 VehicleSnapshot.timestamp_s와 같다 | 필수 | OEM-FR-001, OEM-IF-004 | SWR-001 | 초안 |
-| SRS-F-002 | 선택 도어 출력 적용 | SW는 적용이 허용된 운전자 명령을 side가 지정한 도어 출력에만 적용하고 reason_code CMD_APPLIED를 기록해야 한다. | 좌우 독립 제어 | 시험: 차속 0 km/h, 정상 입력에서 source 4종 각각에 대해 left→좌만, right→우만, all→양쪽이 LOCK/RELEASE로 변경되고 선택되지 않은 출력은 변화 없음, reason_code CMD_APPLIED | 필수 | OEM-FR-001, OEM-IF-005 | SWR-002 | 초안 |
+| SRS-F-002 | 선택 도어 출력 적용 | SW는 적용이 허용된 운전자 명령을 side가 지정한 도어 출력에만 적용하고 reason_code CMD_APPLIED를 기록해야 한다. | 좌우 독립 제어 | 시험: 차속 0 km/h, 정상 입력에서 source 4종 각각에 대해 left→좌만, right→우만, all→양쪽이 LOCK/RELEASE로 변경되고 선택되지 않은 출력은 변화 없음, reason_code CMD_APPLIED | 필수 | OEM-FR-001, OEM-IF-004, OEM-IF-005 | SWR-002 | 초안 |
 | SRS-F-003 | 일반 해제 허용 조건 | SW는 운전자 unlock 명령을 유효 차속이 SRS-L-004 미만일 때만 적용하고, 적용하지 않은 명령은 reason_code CMD_REJECTED_SPEED로 기록해야 한다. | 주행 중 의도치 않은 해제 방지 (A-06) | 시험: 2.9 km/h 적용, 3.0 km/h 미적용+CMD_REJECTED_SPEED | 필수 | OEM-FR-001, OEM-IF-001 | SWR-004 | 초안 |
 | SRS-F-004 | 속도 자동 잠금 | SW는 유효 차속이 SRS-L-004 이상이 된 첫 평가주기부터 그 상태가 유지되는 동안 매 평가주기에 좌, 우 출력을 LOCK으로 하는 규칙을 활성으로 하고 reason_code AUTO_LOCK을 기록해야 한다. 히스테리시스는 없다(A-08). | 이동 시작 시 자동 보호. NORMAL, FAULT, DEGRADED에서 같은 지속 기간으로 적용(SSR-016) | 시험: 2.9 km/h 미동작, 3.0 km/h 첫 평가주기부터 100주기 동안 두 출력 LOCK+AUTO_LOCK | 필수 | OEM-FR-002, OEM-IF-001 | SWR-003 | 초안 |
 | SRS-F-007 | 해제 override | SW는 접근위험으로 해제가 억제(SSR-005)된 도어에 대해 억제 시점부터 SRS-L-005 이하의 평가주기 안에 같은 도어의 같은 unlock 명령이 재입력되고 유효 차속이 SRS-L-004 미만이면 해당 도어를 RELEASE해야 한다. override는 SSR-004, SSR-005의 LOCK과 억제에 대한 예외이며 6.3의 다른 순위(ISOFIX 등)와 SSR-010, SSR-011의 명령 미적용은 바꾸지 않는다. | 운전자의 명시적 의도 (A-03) | 시험(접근위험 TRUE, state NORMAL, 속도 < 3.0 km/h): 억제 후 1,000주기 이하 재입력 → RELEASE, 1,001주기 재입력 → 미적용(LOCK 유지), 속도 3.0 km/h → 미적용, 같은 도어에 ISOFIX TRUE → LOCK, sensor_fault TRUE 또는 DEGRADED → 명령 미적용 | 필수 | OEM-FR-003, OEM-SR-002 | SWR-006 | 초안 |
@@ -28,7 +28,7 @@
 | SRS-F-016 | ignition off 해제 | SW는 ignition_on이 유효한 FALSE인 동안 매 평가주기에 좌, 우 출력을 RELEASE로 하고 state를 OFF, reason_code를 IGNITION_OFF로 해야 한다. | 시동 꺼짐 시 초기 상태 (A-14) | 시험: ignition_on=FALSE 첫 주기와 이후 100주기에서 RELEASE, state=OFF, IGNITION_OFF (ISOFIX TRUE, 접근위험 TRUE, 속도 3.0 km/h 동시 입력에서도 동일) | 필수 | OEM-FR-007, OEM-IF-009 | SWR-020 | 초안 |
 | SRS-F-017 | 우선순위 중재 | SW는 둘 이상의 규칙이 서로 다른 출력을 요구하면 6.3 우선순위 표에서 순위가 높은 규칙의 효과를 적용해야 한다. | 결정론적 충돌 해소 (A-01) | 시험: 6.3의 순위 1~7 규칙 중 2개를 동시에 활성화하는 21쌍(i<j) 중 순위 3과 순위 4~7의 4쌍((3,4), (3,5), (3,6), (3,7))은 OFF 중 순위 4~7을 적용하지 않으므로(SRS-F-031) 이 시험에서 제외하고 SRS-F-031 시험으로 검증한다. 나머지 17쌍 전부에서 출력이 순위 i 규칙의 효과이다. 순위 3이 포함된 쌍((1,3), (2,3))은 state OFF, 그 외 쌍은 state NORMAL에서 시험한다. 순위 6(운전자 명령)은 unlock 명령을 쓰되, 순위 7과의 쌍은 순위 7이 속도 3.0 km/h 이상을 요구해 unlock이 허용되지 않으므로 lock 명령을 쓴다. 효과가 같은 쌍은 직전 출력을 반대 값으로 두고 SRS-F-028로 구분한다 | 필수 | OEM-SR-001, OEM-SR-002, OEM-FR-002, OEM-FR-005, OEM-FR-006, OEM-FR-007 | (파생) | 초안 |
 | SRS-F-028 | priority_reason 기록 | SW는 출력을 결정한 규칙(6.3 중 가장 높은 순위의 활성 규칙)의 reason_code를 priority_reason으로 기록해야 한다. | 결정 이유 표시 (A-01) | 시험: SRS-F-017의 17쌍 모두 priority_reason이 순위 i 규칙의 reason_code(CRASH_CONFIRMED, 긴급 입력별 코드, IGNITION_OFF, APPROACH_RISK_LOCK 또는 APPROACH_RISK_SUPPRESSED, ISOFIX_LOCK, CMD_APPLIED 또는 OVERRIDE, AUTO_LOCK)이다 | 필수 | OEM-FR-004, OEM-IF-006 | (파생) | 초안 |
-| SRS-F-030 | override 지속 | SW는 override가 성립한 도어에 대해 SSR-004의 LOCK을 적용하지 않고 6.3 순위 6 규칙으로 RELEASE를 유지해야 한다. 이 지속은 해당 도어의 접근위험이 FALSE가 되거나, 유효 차속이 SRS-L-004 이상이 되거나, 해당 도어에 적용되는 운전자 lock 명령이 입력되면 끝난다. 끝난 주기에는 운전자 lock 명령이면 SRS-F-002에 따라 LOCK하고, 그 외에는 6.3에 따라 평가하며 활성 규칙이 없으면 직전 출력을 유지한다. | override 효과의 지속과 종료 정의 (A-03, A-18). 자동 잠금, 운전자 명령과의 충돌 방지 | 시험: override 성립 후 접근위험 TRUE인 100주기 동안 해당 도어 RELEASE(같은 도어에 ISOFIX TRUE이면 순위 5에 따라 LOCK), 접근위험 FALSE가 되면 종료(출력 유지, reason_code NONE), 이후 접근위험 TRUE 재상승 시 LOCK, 지속 중 속도 3.0 km/h가 되면 종료하고 자동 잠금으로 LOCK, 지속 중 같은 도어 lock 명령 시 LOCK+CMD_APPLIED로 종료하고 이후 접근위험이 TRUE이면 LOCK 유지 | 필수 | OEM-FR-003, OEM-SR-002, OEM-FR-002 | SWR-006 | 초안 |
+| SRS-F-030 | override 지속 | SW는 override가 성립한 도어에 대해 SSR-004의 LOCK을 적용하지 않고 6.3 순위 6 규칙으로 RELEASE를 유지해야 한다. 이 지속은 해당 도어의 접근위험이 FALSE가 되거나, 유효 차속이 SRS-L-004 이상이 되거나, 해당 도어에 실제로 적용되는 운전자 lock 명령(SSR-010, SSR-011, SRS-F-031로 미적용되는 명령은 제외)이 입력되면 끝난다. 끝난 주기에는 운전자 lock 명령이면 SRS-F-002에 따라 LOCK하고, 그 외에는 6.3에 따라 평가하며 활성 규칙이 없으면 직전 출력을 유지한다. | override 효과의 지속과 종료 정의 (A-03, A-18). 자동 잠금, 운전자 명령과의 충돌 방지 | 시험: override 성립 후 접근위험 TRUE인 100주기 동안 해당 도어 RELEASE(같은 도어에 ISOFIX TRUE이면 순위 5에 따라 LOCK), 접근위험 FALSE가 되면 종료(출력 유지, reason_code NONE), 이후 접근위험 TRUE 재상승 시 LOCK, 지속 중 속도 3.0 km/h가 되면 종료하고 자동 잠금으로 LOCK, 지속 중 같은 도어 lock 명령 시 LOCK+CMD_APPLIED로 종료하고 이후 접근위험이 TRUE이면 LOCK 유지, DEGRADED 또는 FAULT 중 lock 명령은 미적용이므로 지속 유지 | 필수 | OEM-FR-003, OEM-SR-002, OEM-FR-002, OEM-IF-004 | SWR-006 | 초안 |
 | SRS-F-031 | OFF 중 명령·규칙 미적용 | SW는 state가 OFF인 동안 운전자 명령(OEM-IF-004)과 6.3 순위 4~7의 규칙을 적용하지 않고, 운전자 명령은 reason_code IGNITION_OFF로 기록해야 한다. | OFF = 기능 비활성 (A-14) | 시험: OFF 중 lock 명령, 접근위험, ISOFIX, 속도 3.0 km/h 입력에도 출력 RELEASE 유지, 명령 주기의 reason_code IGNITION_OFF | 필수 | OEM-FR-007, OEM-IF-009 | SWR-020 | 초안 |
 | SRS-F-029 | override 표시 | SW는 override가 성립한 주기와 SRS-F-030에 따라 override가 출력을 결정하는 모든 주기에 priority_reason과 reason_code를 OVERRIDE로 해야 한다. | OEM의 "override 상태" 표시 (A-03) | 시험: SRS-F-007의 RELEASE 주기와 SRS-F-030의 지속 주기 100주기 모두 priority_reason, reason_code가 OVERRIDE | 필수 | OEM-FR-003, OEM-IF-006 | SWR-006 | 초안 |
 | SRS-F-018 | 상태 조회 응답 | SW는 상태 조회 요청에 OEM-IF-005의 좌, 우 출력과 SRS-F-019의 표시 항목을 응답해야 한다. | 표시 및 진단 | 통합 시험: 응답에 좌 출력, 우 출력, state, priority_reason, reason_code, input_validity가 있고 값이 마지막 평가 결과와 같다 | 필수 | OEM-FR-004 | SWR-014 | 초안 |
@@ -96,7 +96,7 @@
 | fresh | IF-001: timestamp_s − source_timestamp_s ≤ 200 ms. 그 외 필수 입력: 현재 논리 시각 − 마지막 수신 논리 시각 ≤ 200 ms (DOC-SAF-001 SSR-008) |
 | 필수 입력 | OEM-IF-001의 vehicle_speed_kph와 source_timestamp_s, OEM-IF-002, 003, 007, 008, 009의 모든 필드. gear와 IF-004 명령은 제외한다 |
 | 유효 차속 | 유효한 vehicle_speed_kph |
-| 활성 규칙 | 해당 평가주기에 조건이 성립해 출력 효과를 요구하는 6.3의 규칙(순위 1~7). 활성 규칙이 없으면 순위 8 |
+| 활성 규칙 | 해당 평가주기에 조건이 성립해 출력 효과를 요구하는 6.3의 규칙(순위 1~7). state OFF에서 순위 4~7(SRS-F-031), DEGRADED 또는 FAULT에서 순위 6 운전자 명령(SSR-010, SSR-011)처럼 적용이 억제된 규칙은 활성 규칙이 아니다. 활성 규칙이 없으면 순위 8 |
 | 결정 | 출력, state, reason_code 중 하나가 직전 주기와 달라진 평가주기 (SRS-F-025) |
 | 직전 출력 | 직전 평가주기에 확정된 좌, 우 출력. 초기값은 RELEASE |
 | 공개 결과 | 평가주기마다 OEM-IF-005 출력과 OEM-IF-006 항목(state, priority_reason, reason_code, input_validity)을 고정 순서로 직렬화한 값 |
