@@ -11,7 +11,7 @@ import pathlib
 import re
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-VERSION = "1.4 (Iter-1, Iter-2 설계 반영)"
+VERSION = "1.5 (Iter-1, Iter-2 설계 반영)"
 ID_RE = re.compile(r"(?:SRS-[FQLC]-\d{3}|SSR-\d{3})")
 RANGE_RE = re.compile(r"(SRS-[FQLC]-|SSR-)(\d{3})~(\d{3})")
 
@@ -164,7 +164,8 @@ def main():
             "| 구현 언어 C17/Clang (OEM-SWR-001 3장은 Python 3.12) | SRS-C-001 | 사용자 승인(OEM 대행), OEM 확인 대기 (A-11) |",
             "| 모호성 해소 가정 | A-01, A-02, A-03, A-04, A-05, A-06, A-07, A-08, A-09 | 사용자 \"제안안\" 승인(OEM 대행), OEM 확인 대기 |",
             "| SRS-F-003과 SRS-F-022 충돌 해소 | A-19 | 사용자 선택 \"F-022에 예외 추가 (추천)\" (2026-11-27), OEM 확인 대기 |",
-            "| 리뷰 지적과 구현 중 추가된 가정 | A-13, A-14, A-15, A-16, A-17, A-18, A-20, A-21, A-22, A-23, A-24, A-25 | 작성자 결정(사용자 위임 \"모두 너의 관장안으로\"), 사용자 확인 대기, OEM 확인 대기 |", "",
+            "| 형식 오류 명령 reason과 상태 이유 충돌 해소 | A-25 | 사용자 선택 \"상태 이유 우선 (추천)\" (2026-11-27), 편차(SSR-007의 INPUT_INVALID 기록은 NORMAL에서만), OEM 확인 대기 |",
+            "| 리뷰 지적과 구현 중 추가된 가정 | A-13, A-14, A-15, A-16, A-17, A-18, A-20, A-21, A-22, A-23, A-24 | 작성자 결정(사용자 위임 \"모두 너의 관장안으로\"), 사용자 확인 대기, OEM 확인 대기 |", "",
             "## 4. 추적 누락 목록", "",
             "- 고아 요구(상위 없음): 없음 (SRS-F-017은 파생 요구로 상위 OEM 요구를 명시)",
             "- OEM 요구 중 도출 요구 없음: " + (", ".join(missing) if missing else "없음 (OEM-SR 4, FR 7, NFR 2, IF 9 모두 도출됨)"),

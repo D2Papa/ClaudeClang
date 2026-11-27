@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-SRS-001 |
-| 버전 | 1.5 (v1.0 승인 후 SRS-F-002, 003, 018, 022, 030, 031, 6.3 변경) |
+| 버전 | 1.6 (v1.0 승인 후 SRS-F-002, 003, 018, 022, 030, 031, 032 신설, 6.3 변경) |
 | 상태 | 요구별 상태 값: "승인(v1.0)" = v1.0에서 aspice-reviewer가 승인한 내용(10차, 2026-11-27), "초안 (재리뷰 대기)" = 승인 후 변경되어 재리뷰 대기. "승인됨"은 OEM 수용 후에 쓴다 |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | OEM-SWR-001 Rev 1.0 (OEM-A 공급자 입력, 교육용 가상 사양) |
@@ -20,7 +20,7 @@
 |----|------|--------------|------|-----------------------|----------|-----------|---------|------|
 | SRS-F-001 | 운전자 명령 수신 | SW는 physical_button, avn, voice, mobile_app 네 source로 수신한 side(left/right/all)와 action(lock/unlock) 명령을 수신하고, 요청 시각으로 VehicleSnapshot.timestamp_s를 사용해야 한다. | 운전자 조작 경로, 요청 시각 계약 | 시험: 4 source × 3 side × 2 action = 24개 조합이 수신되고 요청 시각이 해당 평가주기의 VehicleSnapshot.timestamp_s와 같다 | 필수 | OEM-FR-001, OEM-IF-004 | SWR-001 | 승인(v1.0) |
 | SRS-F-002 | 선택 도어 출력 적용 | SW는 적용이 허용된 운전자 명령을 side가 지정한 도어 출력에만 적용하고, 운전자 명령 규칙이 출력을 결정하는 주기에는 reason_code CMD_APPLIED를 기록해야 한다 (더 높은 순위 규칙이 결정하면 그 규칙의 값, SRS-F-028). | 좌우 독립 제어 | 시험: 차속 0 km/h, 정상 입력에서 source 4종 각각에 대해 left→좌만, right→우만, all→양쪽이 LOCK/RELEASE로 변경되고 선택되지 않은 출력은 변화 없음, reason_code CMD_APPLIED. 더 높은 순위 규칙(예: ISOFIX 도어)이 결정하는 주기에는 그 규칙의 reason_code | 필수 | OEM-FR-001, OEM-IF-004, OEM-IF-005 | SWR-002 | 초안 (재리뷰 대기) |
-| SRS-F-003 | 일반 해제 허용 조건 | SW는 운전자 unlock 명령을 유효 차속이 SRS-L-004 미만일 때만 적용하고, 적용하지 않은 명령은 reason_code CMD_REJECTED_SPEED로 기록해야 한다. 다른 규칙이 출력을 결정하는 경우의 기록은 SRS-F-022를 따른다. 형식 오류가 아닌 운전자 명령이 state OFF여서 적용되지 않는 주기의 reason_code는 IGNITION_OFF(SRS-F-031)이고, DEGRADED 또는 FAULT여서 적용되지 않는 주기에는 다른 규칙이 출력을 결정하지 않으면 reason_code가 각각 DEGRADED_STALE(SSR-009), SENSOR_FAULT(SSR-012)이다 (다른 규칙이 결정하면 그 규칙의 값). | 주행 중 의도치 않은 해제 방지 (A-06) | 시험: 2.9 km/h 적용, 3.0 km/h 미적용+reason_code CMD_REJECTED_SPEED(자동 잠금이 결정해도 priority_reason은 AUTO_LOCK), OFF 상태의 3.0 km/h unlock은 IGNITION_OFF, DEGRADED(다른 규칙 없음)의 unlock은 DEGRADED_STALE, FAULT(다른 규칙 없음)의 unlock은 SENSOR_FAULT, DEGRADED 또는 FAULT에서 속도 3.0 km/h의 unlock은 자동 잠금이 결정하므로 reason_code AUTO_LOCK | 필수 | OEM-FR-001, OEM-IF-001 | SWR-004 | 초안 (재리뷰 대기) |
+| SRS-F-003 | 일반 해제 허용 조건 | SW는 운전자 unlock 명령을 유효 차속이 SRS-L-004 미만일 때만 적용하고, 적용하지 않은 명령은 reason_code CMD_REJECTED_SPEED로 기록해야 한다. 다른 규칙이 출력을 결정하는 경우의 기록은 SRS-F-032를 따른다. state OFF여서 운전자 명령이 적용되지 않는 주기의 reason_code는 IGNITION_OFF(SRS-F-031)이고, DEGRADED 또는 FAULT여서 적용되지 않는 주기에는 다른 규칙이 출력을 결정하지 않으면 reason_code가 각각 DEGRADED_STALE(SSR-009), SENSOR_FAULT(SSR-012)이다 (다른 규칙이 결정하면 그 규칙의 값). | 주행 중 의도치 않은 해제 방지 (A-06) | 시험: 2.9 km/h 적용, 3.0 km/h 미적용+reason_code CMD_REJECTED_SPEED(자동 잠금이 결정해도 priority_reason은 AUTO_LOCK), OFF 상태의 3.0 km/h unlock은 IGNITION_OFF, DEGRADED(다른 규칙 없음)의 unlock은 DEGRADED_STALE, FAULT(다른 규칙 없음)의 unlock은 SENSOR_FAULT, DEGRADED 또는 FAULT에서 속도 3.0 km/h의 unlock은 자동 잠금이 결정하므로 reason_code AUTO_LOCK | 필수 | OEM-FR-001, OEM-IF-001 | SWR-004 | 초안 (재리뷰 대기) |
 | SRS-F-004 | 속도 자동 잠금 | SW는 유효 차속이 SRS-L-004 이상이 된 첫 평가주기부터 그 상태가 유지되는 동안 매 평가주기에 좌, 우 출력을 LOCK으로 하는 규칙을 활성으로 하고 reason_code AUTO_LOCK을 기록해야 한다. 히스테리시스는 없다(A-08). | 이동 시작 시 자동 보호. NORMAL, FAULT, DEGRADED에서 같은 지속 기간으로 적용(SSR-016) | 시험: 2.9 km/h 미동작, 3.0 km/h 첫 평가주기부터 100주기 동안 두 출력 LOCK+AUTO_LOCK | 필수 | OEM-FR-002, OEM-IF-001 | SWR-003 | 승인(v1.0) |
 | SRS-F-007 | 해제 override | SW는 접근위험으로 해제가 억제(SSR-005)된 도어에 대해 억제 시점부터 SRS-L-005 이하의 평가주기 안에 같은 도어의 같은 unlock 명령이 재입력되고 유효 차속이 SRS-L-004 미만이면 해당 도어를 RELEASE해야 한다. override는 SSR-004, SSR-005의 LOCK과 억제에 대한 예외이며 6.3의 다른 순위(ISOFIX 등)와 SSR-010, SSR-011의 명령 미적용은 바꾸지 않는다. | 운전자의 명시적 의도 (A-03) | 시험(접근위험 TRUE, state NORMAL, 속도 < 3.0 km/h): 억제 후 1,000주기 이하 재입력 → RELEASE, 1,001주기 재입력 → 미적용(LOCK 유지), 속도 3.0 km/h → 미적용, 같은 도어에 ISOFIX TRUE → LOCK, sensor_fault TRUE 또는 DEGRADED → 명령 미적용 | 필수 | OEM-FR-003, OEM-SR-002 | SWR-006 | 승인(v1.0) |
 | SRS-F-014 | 긴급 강제 해제 | SW는 fire_detected, overtemperature_detected, adult_present 중 하나가 유효한 TRUE이면 다음 평가주기부터 그 입력이 TRUE인 동안 매 평가주기에 좌, 우 출력을 RELEASE로 하고 입력별 reason_code(FIRE, OVERTEMP, ADULT_PRESENT)를 기록해야 한다. 입력이 모두 FALSE가 된 주기부터는 6.3에 따라 평가하며 활성 규칙이 없으면 직전 출력을 유지한다 (A-17). | 화재, 과온, 성인 탑승 시 탈출 확보 | 시험: 3개 입력 단독 주입 시 다음 주기부터 입력이 TRUE인 100주기 동안 RELEASE+해당 이유코드(속도 3.0 km/h 이상에서도 동일), 입력이 FALSE가 되면 활성 규칙이 없을 때 출력 유지, 속도 3.0 km/h 이상이면 자동 잠금으로 LOCK | 필수 | OEM-FR-005, OEM-IF-007 | SWR-017 | 승인(v1.0) |
@@ -29,13 +29,14 @@
 | SRS-F-017 | 우선순위 중재 | SW는 둘 이상의 규칙이 서로 다른 출력을 요구하면 6.3 우선순위 표에서 순위가 높은 규칙의 효과를 적용해야 한다. | 결정론적 충돌 해소 (A-01) | 시험: 6.3의 순위 1~7 규칙 중 2개를 동시에 활성화하는 21쌍(i<j) 중 순위 3과 순위 4~7의 4쌍((3,4), (3,5), (3,6), (3,7))은 OFF 중 순위 4~7을 적용하지 않으므로(SRS-F-031) 이 시험에서 제외하고 SRS-F-031 시험으로 검증한다. 나머지 17쌍 전부에서 출력이 순위 i 규칙의 효과이다. 순위 3이 포함된 쌍((1,3), (2,3))은 state OFF, 그 외 쌍은 state NORMAL에서 시험한다. 순위 6(운전자 명령)은 unlock 명령을 쓰되, 순위 7과의 쌍은 순위 7이 속도 3.0 km/h 이상을 요구해 unlock이 허용되지 않으므로 lock 명령을 쓴다. 효과가 같은 쌍은 직전 출력을 반대 값으로 두고 SRS-F-028로 구분한다 | 필수 | OEM-SR-001, OEM-SR-002, OEM-FR-002, OEM-FR-005, OEM-FR-006, OEM-FR-007 | (파생) | 승인(v1.0) |
 | SRS-F-028 | priority_reason 기록 | SW는 출력을 결정한 규칙(6.3 중 가장 높은 순위의 활성 규칙)의 reason_code를 priority_reason으로 기록해야 한다. | 결정 이유 표시 (A-01) | 시험: SRS-F-017의 17쌍 모두 priority_reason이 순위 i 규칙의 reason_code(CRASH_CONFIRMED, 긴급 입력별 코드, IGNITION_OFF, APPROACH_RISK_LOCK 또는 APPROACH_RISK_SUPPRESSED, ISOFIX_LOCK, CMD_APPLIED 또는 OVERRIDE, AUTO_LOCK)이다 | 필수 | OEM-FR-004, OEM-IF-006 | (파생) | 승인(v1.0) |
 | SRS-F-030 | override 지속 | SW는 override가 성립한 도어에 대해 SSR-004의 LOCK을 적용하지 않고 6.3 순위 6 규칙으로 RELEASE를 유지해야 한다. 이 지속은 해당 도어의 접근위험이 FALSE가 되거나, 유효 차속이 SRS-L-004 이상이 되거나, 해당 도어에 실제로 적용되는 운전자 lock 명령(SSR-010, SSR-011, SRS-F-031로 미적용되는 명령은 제외)이 입력되면 끝난다. 끝난 주기에는 운전자 lock 명령이면 SRS-F-002에 따라 LOCK하고, 그 외에는 6.3에 따라 평가하며 활성 규칙이 없으면 직전 출력을 유지한다. | override 효과의 지속과 종료 정의 (A-03, A-18). 자동 잠금, 운전자 명령과의 충돌 방지 | 시험: override 성립 후 접근위험 TRUE인 100주기 동안 해당 도어 RELEASE(같은 도어에 ISOFIX TRUE이면 순위 5에 따라 LOCK), 접근위험 FALSE가 되면 종료(출력 유지, reason_code NONE), 이후 접근위험 TRUE 재상승 시 LOCK, 지속 중 속도 3.0 km/h가 되면 종료하고 6.3에 따라 LOCK(접근위험이 TRUE이면 접근위험 LOCK, 아니면 자동 잠금), 지속 중 같은 도어 lock 명령 시 종료하고 LOCK(접근위험이 TRUE이면 APPROACH_RISK_LOCK), 이후에도 접근위험이 TRUE이면 LOCK 유지, DEGRADED 또는 FAULT 중 lock 명령은 미적용이므로 지속 유지 | 필수 | OEM-FR-003, OEM-SR-002, OEM-FR-002, OEM-IF-004 | SWR-006 | 초안 (재리뷰 대기) |
-| SRS-F-031 | OFF 중 명령·규칙 미적용 | SW는 state가 OFF인 동안 운전자 명령(OEM-IF-004)과 6.3 순위 4~7의 규칙을 적용하지 않고, 형식 오류가 아닌 운전자 명령은 reason_code IGNITION_OFF로 기록해야 한다 (형식 오류 명령은 SRS-F-022의 INPUT_INVALID 규칙). | OFF = 기능 비활성 (A-14) | 시험: OFF 중 lock 명령, 접근위험, ISOFIX, 속도 3.0 km/h 입력에도 출력 RELEASE 유지, 명령 주기의 reason_code IGNITION_OFF | 필수 | OEM-FR-007, OEM-IF-009 | SWR-020 | 초안 (재리뷰 대기) |
+| SRS-F-031 | OFF 중 명령·규칙 미적용 | SW는 state가 OFF인 동안 운전자 명령(OEM-IF-004)과 6.3 순위 4~7의 규칙을 적용하지 않고, 운전자 명령은 reason_code IGNITION_OFF로 기록해야 한다. | OFF = 기능 비활성 (A-14) | 시험: OFF 중 lock 명령, 접근위험, ISOFIX, 속도 3.0 km/h 입력에도 출력 RELEASE 유지, 명령 주기의 reason_code IGNITION_OFF | 필수 | OEM-FR-007, OEM-IF-009 | SWR-020 | 초안 (재리뷰 대기) |
+| SRS-F-032 | 운전자 명령 이유 덮어쓰기 | SW는 state가 NORMAL일 때 (a) 속도 조건으로 거절된 운전자 unlock이 있으면 reason_code를 CMD_REJECTED_SPEED로, (b) 입력 검증으로 거절된 운전자 명령(SSR-007의 누락, 형식, 범위, 값 집합 오류)이 있으면 reason_code를 INPUT_INVALID로 하고 priority_reason은 결정한 규칙의 값(없으면 NONE)을 유지해야 한다. state가 OFF, DEGRADED, FAULT이면 명령이 적용되지 않으므로 덮어쓰지 않고 상태 이유(IGNITION_OFF, DEGRADED_STALE, SENSOR_FAULT) 또는 결정 규칙의 reason을 따른다. | 거절된 명령의 가시성(A-19, A-25). 상태 진단 이유를 우선함(사용자 선택 2026-11-27) | 시험: NORMAL에서 속도 3.0 km/h unlock → priority_reason AUTO_LOCK, reason_code CMD_REJECTED_SPEED. NORMAL에서 side 범위 밖 명령 → reason_code INPUT_INVALID, priority_reason NONE(또는 결정 규칙). DEGRADED, FAULT, OFF 각각에서 같은 명령 → INPUT_INVALID가 아니라 DEGRADED_STALE, SENSOR_FAULT, IGNITION_OFF(규칙이 결정하면 그 규칙의 reason). FAULT 첫 주기에 형식 오류 명령이 있어도 SENSOR_FAULT | 필수 | OEM-FR-001, OEM-IF-004, OEM-IF-006 | (파생) | 초안 (재리뷰 대기) |
 | SRS-F-029 | override 표시 | SW는 override가 성립한 주기와 SRS-F-030에 따라 override가 출력을 결정하는 모든 주기에 priority_reason과 reason_code를 OVERRIDE로 해야 한다. | OEM의 "override 상태" 표시 (A-03) | 시험: SRS-F-007의 RELEASE 주기와 SRS-F-030의 지속 주기 100주기 모두 priority_reason, reason_code가 OVERRIDE | 필수 | OEM-FR-003, OEM-IF-006 | SWR-006 | 승인(v1.0) |
 | SRS-F-018 | 상태 조회 응답 | SW는 평가된 주기가 있을 때 상태 조회 요청에 OEM-IF-005의 좌, 우 출력과 SRS-F-019의 표시 항목을 응답해야 한다. 평가된 주기가 아직 없으면 값을 만들지 않고 "결과 없음"(HTTP 204)으로 응답해야 한다 (A-22). | 표시 및 진단 | 통합 시험: 응답에 좌 출력, 우 출력, state, priority_reason, reason_code, input_validity가 있고 값이 마지막 평가 결과와 같다. 평가 전에는 HTTP 204와 빈 본문 | 필수 | OEM-FR-004 | SWR-014 | 초안 (재리뷰 대기) |
 | SRS-F-019 | 표시 항목 제공 | SW는 표시 인터페이스에 state, priority_reason, reason_code, input_validity를 6.2 열거형 값으로 제공해야 한다. | 표시 계약 | 통합 시험: 4개 항목이 응답에 있고 6.2 열거형 값 집합에 속한다 | 필수 | OEM-FR-004, OEM-IF-006 | SWR-015 | 승인(v1.0) |
 | SRS-F-020 | 이벤트 ID 부여 | SW는 제어 결정마다 이전에 부여한 적이 없는 고유 이벤트 ID를 부여해야 한다. | 결정 추적 | 시험: 1,000건 기록에서 이벤트 ID 중복 0건 | 필수 | OEM-NFR-002 | SWR-010 | 승인(v1.0) |
 | SRS-F-021 | 결정 이력 보존 | SW는 최근 SRS-L-006 건의 결정 이벤트를 오래된 순서대로 조회할 수 있게 보존해야 한다. | 이력 조회 | 시험: 101건 입력 후 최신 100건만 시간순 조회 | 필수 | OEM-NFR-002 | SWR-012 | 승인(v1.0) |
-| SRS-F-022 | priority_reason 매핑 | SW는 priority_reason 값을 같은 값의 reason_code로도 제공해야 한다. 단, state가 NORMAL이고 속도 조건으로 거절된 운전자 unlock이 있으면(SRS-F-003) reason_code는 CMD_REJECTED_SPEED로 하고 priority_reason은 결정한 규칙의 값을 유지한다 (state가 OFF, DEGRADED, FAULT여서 명령이 적용되지 않는 주기에는 이 예외를 적용하지 않는다). 또한 운전자 명령이 형식 오류(SSR-007)이면 state와 무관하게 reason_code는 INPUT_INVALID로 하고 priority_reason은 결정한 규칙의 값(없으면 NONE)을 유지한다 (A-25). | OEM-IF-006 매핑 요구 | 통합 시험: 6.2의 모든 reason_code 값에서 priority_reason 설정 시 reason_code가 같은 값. 예외 시험: 형식 오류 명령(예: side 범위 밖)은 NORMAL, DEGRADED, FAULT, OFF 각각에서 reason_code가 INPUT_INVALID이고 priority_reason은 결정 규칙의 값(규칙이 없으면 NONE). state NORMAL, 속도 3.0 km/h에서 unlock을 거절당하는 주기에 자동 잠금이 결정하면 priority_reason은 AUTO_LOCK, reason_code는 CMD_REJECTED_SPEED. state가 DEGRADED 또는 FAULT이면 예외 없이 reason_code도 AUTO_LOCK | 필수 | OEM-IF-006 | SWR-015 | 초안 (재리뷰 대기) |
+| SRS-F-022 | priority_reason 매핑 | SW는 priority_reason 값을 같은 값의 reason_code로도 제공해야 한다. 단, SRS-F-032의 덮어쓰기 예외는 제외한다. | OEM-IF-006 매핑 요구 | 통합 시험: 6.2의 모든 reason_code 값에서 priority_reason 설정 시 reason_code가 같은 값 (SRS-F-032의 경우 제외) | 필수 | OEM-IF-006 | SWR-015 | 초안 (재리뷰 대기) |
 | SRS-F-023 | 직렬화 실패 응답 | SW는 표시 인터페이스 응답을 6.4의 OEM-IF-006 형식으로 변환하는 직렬화가 오류를 반환하면 HTTP 500으로 응답해야 한다. | OEM-IF-006 오류 처리 | 통합 시험: 직렬화 오류 주입 시 HTTP 상태 500, 정상 시 200 | 필수 | OEM-IF-006 | SWR-015 | 승인(v1.0) |
 | SRS-F-024 | 이벤트 필드 한정 | SW는 이벤트에 이벤트 ID, 논리 시각, 좌 출력, 우 출력, state, reason_code 필드만 기록해야 한다. (개인정보 비저장은 SRS-Q-002) | 허용 필드 한정 (A-09) | 시험: 모든 이벤트의 필드 집합이 정의된 6개와 정확히 일치 | 필수 | OEM-NFR-002 | SWR-011 | 승인(v1.0) |
 | SRS-F-025 | 결정 기록 조건 | SW는 출력, state, reason_code 중 하나라도 직전 평가주기와 달라진 평가주기를 하나의 결정으로 보고 이벤트를 기록해야 한다. | "결정" 단위 정의 (A-15) | 시험: 변화 없는 100주기에 이벤트 0건, 변화가 있는 주기마다 이벤트 1건 | 필수 | OEM-NFR-002 | SWR-010 | 승인(v1.0) |
@@ -124,7 +125,7 @@
 | 5 | SRS-F-015 ISOFIX | SRS-F-015, SSR-016 |
 | 6 | SRS-F-002, SRS-F-003, SRS-F-007 운전자 명령, SRS-F-030 override 지속 | 각 요구(override 지속의 reason_code는 OVERRIDE), 명령 미적용은 SSR-010, SSR-011 |
 | 7 | SRS-F-004 자동 잠금 | SRS-F-004, SSR-016 |
-| 8 | 해당 규칙 없음 | 직전 출력 유지. reason_code는 state NORMAL이면 NONE(정보성 이유가 있으면 그 값), DEGRADED이면 DEGRADED_STALE(SSR-009), FAULT이면 SENSOR_FAULT(SSR-012). OFF에서는 순위 3 규칙이 결정하므로 순위 8이 아니다. 형식 오류 운전자 명령(SSR-007)이 있으면 어느 state에서든 reason_code는 INPUT_INVALID이다 (SRS-F-022) |
+| 8 | 해당 규칙 없음 | 직전 출력 유지. reason_code는 state NORMAL이면 NONE(정보성 이유가 있으면 그 값), DEGRADED이면 DEGRADED_STALE(SSR-009), FAULT이면 SENSOR_FAULT(SSR-012). OFF에서는 순위 3 규칙이 결정하므로 순위 8이 아니다. 운전자 명령 관련 덮어쓰기는 SRS-F-032 |
 
 - state DEGRADED 또는 FAULT의 영향은 순위 6(운전자 명령)에만 있으며 SSR-010, SSR-011이 정한다. 나머지 규칙은 SSR-013, SSR-016에 따라 상태와 무관하게 적용한다.
 - state OFF인 동안 순위 4~7은 적용하지 않는다(SRS-F-031).
@@ -155,17 +156,18 @@ gear는 형식(P/N/D/R) 검증만 하고 제어 판정과 freshness·DEGRADED �
 | 1.2 | SRS-F-003(예외 기술을 F-022로 일원화, 상태 억제 시 reason 규칙, 시험 보강), SRS-F-002(CMD_APPLIED 기록 조건), SRS-F-018(평가 전 응답 HTTP 204, A-22), SRS-F-022(예외 시험 보강) | 재리뷰 지적(S-03, S-04, S-05, S-06, G-08) 조치 | 2차 재리뷰에서 반려 |
 | 1.3 | SRS-F-003(DEGRADED, FAULT 중 미적용 명령의 reason_code 값 정의), SRS-F-002(상위 규칙 결정 시 reason_code 시험) | 재리뷰 지적(T-01, T-04) 조치 | 3차 재리뷰에서 반려 |
 | 1.4 | SRS-F-022(CMD_REJECTED_SPEED 예외를 state NORMAL로 한정, A-23), SRS-F-003(시험 보강), 6.3 순위 8(활성 규칙이 없을 때의 reason_code를 state별로 명시, A-24) | 재리뷰 지적(U-01, U-02) 조치 | 4차 재리뷰에서 반려 |
-| 1.5 | SRS-F-022(형식 오류 명령은 state와 무관하게 reason_code INPUT_INVALID, A-25), SRS-F-003, SRS-F-031, 6.3 순위 8(문구) | 재리뷰 지적(W-01) 조치. SSR-007 문구("reason_code INPUT_INVALID를 기록한다")를 그대로 따름 | 재리뷰 대기 |
+| 1.5 | SRS-F-022(형식 오류 명령은 state와 무관하게 reason_code INPUT_INVALID, A-25), SRS-F-003, SRS-F-031, 6.3 순위 8(문구) | 재리뷰 지적(W-01) 조치 | 5차 재리뷰에서 반려 |
+| 1.6 | SRS-F-032 신설(덮어쓰기 예외 (a), (b)를 F-022에서 분리, INPUT_INVALID는 state NORMAL에서만), SRS-F-022(매핑만 남김), SRS-F-003, SRS-F-031, 6.3 순위 8 | 재리뷰 지적(X-01, X-02, Y-02) 조치, 사용자 선택 "상태 이유 우선" (2026-11-27) | 재리뷰 대기 |
 
 ## 7. 개수 요약
 
 | 분류 | 개수 |
 |------|------|
-| 기능 (SRS-F) | 23 |
+| 기능 (SRS-F) | 24 |
 | 품질 (SRS-Q) | 3 |
 | 제한 (SRS-L) | 4 |
 | 제약 (SRS-C) | 5 |
-| 합계 | 35 |
+| 합계 | 36 |
 | 안전 요구 (SSR, 별도 문서) | 16 |
 
 ## 8. ID 이력 (1차 초안 v0.1 → 현재)
@@ -179,4 +181,4 @@ gear는 형식(P/N/D/R) 검증만 하고 제어 판정과 freshness·DEGRADED �
 - 의미가 유지된 ID(SRS-F-001~003, 014~016, 018, 021, SRS-Q-001, 002, SRS-L-004~007, SRS-C-001~005)는 1차 초안과 같은 ID를 쓴다.
 - 내용이 변경된 ID: SRS-F-004(첫 평가주기 LOCK에서 지속 규칙으로, 5차 리뷰 조치. 효과는 같고 지속 기간만 명확화), SRS-F-014(입력 지속 중 매 주기 적용과 종료 후 동작 추가, 6차 리뷰 조치), SRS-F-016(첫 평가주기에서 OFF 지속 중 매 주기로, 4차 리뷰 조치).
 - 범위가 축소된 ID: SRS-F-007(override 출력만 남김, 표시는 SRS-F-029, 지속은 SRS-F-030), SRS-F-017(우선순위 적용만 남김, 이유 기록은 SRS-F-028), SRS-F-019(표시 항목만 남김, 매핑·직렬화는 SRS-F-022, 023), SRS-F-020(이벤트 ID 부여만 남김, 필드·기록 조건은 SRS-F-024, 025). 축소 부분은 신규 ID로 이관했다.
-- 이후 신규 요구는 SRS-F-032, SRS-L-008 등 미사용 번호를 쓴다.
+- 이후 신규 요구는 SRS-F-033, SRS-L-008 등 미사용 번호를 쓴다.

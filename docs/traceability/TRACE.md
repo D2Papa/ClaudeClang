@@ -3,9 +3,9 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-TRC-001 |
-| 버전 | 1.4 (Iter-1, Iter-2 설계 반영) |
+| 버전 | 1.5 (Iter-1, Iter-2 설계 반영) |
 | 상태 | scripts/docs/gen_trace.py로 생성 (리뷰 생략: Iter-1은 사용자 지시) |
-| 입력 문서 버전 | SRS v1.5, SAFETY-REQ v1.0, ASSUMPTIONS v1.4, ARCH v0.6, ARCH-iter2 v0.5, DDS v0.6, DDS-iter2 v0.5 |
+| 입력 문서 버전 | SRS v1.6, SAFETY-REQ v1.0, ASSUMPTIONS v1.5, ARCH v0.7, ARCH-iter2 v0.5, DDS v0.7, DDS-iter2 v0.5 |
 
 하향 추적은 문서와 코드의 추적 표기에서 스크립트로 생성한다. 빈 칸은 해당 이터레이션 범위 밖이거나 누락이다.
 ID는 항상 접두사를 포함한 전체 표기를 쓴다.
@@ -32,7 +32,7 @@ ID는 항상 접두사를 포함한 전체 표기를 쓴다.
 | SRS-F-019 | SRS | OEM-FR-004, OEM-IF-006 | ARCH-C-014 | DD-F-040, DD-F-041, DD-F-043, DD-F-045 | control_cycle.c | UT-083 |  |  |
 | SRS-F-020 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-046, DD-F-047, DD-F-049 |  |  |  |  |
 | SRS-F-021 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-049, DD-F-050, DD-F-058 |  |  |  |  |
-| SRS-F-022 | SRS | OEM-IF-006 | ARCH-C-014 | DD-F-021, DD-F-029, DD-F-040, DD-F-043 |  |  |  |  |
+| SRS-F-022 | SRS | OEM-IF-006 | ARCH-C-014 | DD-F-021, DD-F-040, DD-F-043 |  |  |  |  |
 | SRS-F-023 | SRS | OEM-IF-006 | ARCH-C-014 | DD-F-042, DD-F-044, DD-F-057, DD-F-070 |  |  |  |  |
 | SRS-F-024 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-047, DD-F-049, DD-F-058, DD-F-062 |  |  |  |  |
 | SRS-F-025 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-046, DD-F-047, DD-F-048, DD-F-059, DD-F-064 |  |  |  |  |
@@ -42,6 +42,7 @@ ID는 항상 접두사를 포함한 전체 표기를 쓴다.
 | SRS-F-029 | SRS | OEM-FR-003, OEM-IF-006 | ARCH-C-009, ARCH-C-011, ARCH-C-012 | DD-F-019, DD-F-023 | arbiter.c, override_manager.c, override_manager.h | UT-077, UT-088 | IT-002 | ST-004 |
 | SRS-F-030 | SRS | OEM-FR-003, OEM-SR-002, OEM-FR-002, OEM-IF-004 | ARCH-C-011 | DD-F-020, DD-F-023 | arbiter.c, override_manager.c, override_manager.h | UT-046, UT-064, UT-077, UT-088, UT-089 | IT-002 | ST-004 |
 | SRS-F-031 | SRS | OEM-FR-007, OEM-IF-009 | ARCH-C-012 | DD-F-021, DD-F-022 | arbiter.c, arbiter.h | UT-075 | IT-005 | ST-007 |
+| SRS-F-032 | SRS | OEM-FR-001, OEM-IF-004, OEM-IF-006 | ARCH-C-012 | DD-F-021, DD-F-029 |  |  |  |  |
 | SRS-L-004 | SRS | OEM-FR-002 | ARCH-C-009, ARCH-C-010 | DD-F-015, DD-F-017 | auto_lock_rule.c, auto_lock_rule.h, driver_command_rule.c, driver_command_rule.h, params.h | UT-052 |  | ST-002, ST-003 |
 | SRS-L-005 | SRS | OEM-FR-003 | ARCH-C-011 | DD-F-020 | override_manager.c, override_manager.h, params.h | UT-063 |  | ST-004 |
 | SRS-L-006 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-049 | params.h |  |  |  |
@@ -74,7 +75,7 @@ ID는 항상 접두사를 포함한 전체 표기를 쓴다.
 | OEM-SR-002 | SRS-F-007, SRS-F-017, SRS-F-030, SSR-004, SSR-005, SSR-006, SSR-016 |
 | OEM-SR-003 | SRS-C-005, SSR-007, SSR-008, SSR-009, SSR-010, SSR-013, SSR-014, SSR-015, SSR-016 |
 | OEM-SR-004 | SSR-011, SSR-012, SSR-013, SSR-014, SSR-015, SSR-016 |
-| OEM-FR-001 | SRS-F-001, SRS-F-002, SRS-F-003 |
+| OEM-FR-001 | SRS-F-001, SRS-F-002, SRS-F-003, SRS-F-032 |
 | OEM-FR-002 | SRS-F-004, SRS-F-017, SRS-F-030, SRS-L-004, SSR-016 |
 | OEM-FR-003 | SRS-F-007, SRS-F-029, SRS-F-030, SRS-L-005 |
 | OEM-FR-004 | SRS-C-004, SRS-F-018, SRS-F-019, SRS-F-028 |
@@ -86,9 +87,9 @@ ID는 항상 접두사를 포함한 전체 표기를 쓴다.
 | OEM-IF-001 | SRS-F-003, SRS-F-004, SRS-L-007, SRS-Q-003, SSR-007 |
 | OEM-IF-002 | SRS-Q-003, SSR-001, SSR-003, SSR-007 |
 | OEM-IF-003 | SRS-Q-003, SSR-004, SSR-005, SSR-006, SSR-007 |
-| OEM-IF-004 | SRS-F-001, SRS-F-002, SRS-F-030, SRS-Q-003, SSR-007 |
+| OEM-IF-004 | SRS-F-001, SRS-F-002, SRS-F-030, SRS-F-032, SRS-Q-003, SSR-007 |
 | OEM-IF-005 | SRS-C-002, SRS-F-002, SRS-Q-003 |
-| OEM-IF-006 | SRS-F-019, SRS-F-022, SRS-F-023, SRS-F-028, SRS-F-029, SRS-Q-003 |
+| OEM-IF-006 | SRS-F-019, SRS-F-022, SRS-F-023, SRS-F-028, SRS-F-029, SRS-F-032, SRS-Q-003 |
 | OEM-IF-007 | SRS-C-003, SRS-F-014, SRS-Q-003, SSR-007 |
 | OEM-IF-008 | SRS-F-015, SRS-Q-003, SSR-007 |
 | OEM-IF-009 | SRS-F-016, SRS-F-027, SRS-F-031, SRS-Q-003, SSR-007, SSR-011, SSR-012 |
@@ -100,12 +101,13 @@ ID는 항상 접두사를 포함한 전체 표기를 쓴다.
 | 구현 언어 C17/Clang (OEM-SWR-001 3장은 Python 3.12) | SRS-C-001 | 사용자 승인(OEM 대행), OEM 확인 대기 (A-11) |
 | 모호성 해소 가정 | A-01, A-02, A-03, A-04, A-05, A-06, A-07, A-08, A-09 | 사용자 "제안안" 승인(OEM 대행), OEM 확인 대기 |
 | SRS-F-003과 SRS-F-022 충돌 해소 | A-19 | 사용자 선택 "F-022에 예외 추가 (추천)" (2026-11-27), OEM 확인 대기 |
-| 리뷰 지적과 구현 중 추가된 가정 | A-13, A-14, A-15, A-16, A-17, A-18, A-20, A-21, A-22, A-23, A-24, A-25 | 작성자 결정(사용자 위임 "모두 너의 관장안으로"), 사용자 확인 대기, OEM 확인 대기 |
+| 형식 오류 명령 reason과 상태 이유 충돌 해소 | A-25 | 사용자 선택 "상태 이유 우선 (추천)" (2026-11-27), 편차(SSR-007의 INPUT_INVALID 기록은 NORMAL에서만), OEM 확인 대기 |
+| 리뷰 지적과 구현 중 추가된 가정 | A-13, A-14, A-15, A-16, A-17, A-18, A-20, A-21, A-22, A-23, A-24 | 작성자 결정(사용자 위임 "모두 너의 관장안으로"), 사용자 확인 대기, OEM 확인 대기 |
 
 ## 4. 추적 누락 목록
 
 - 고아 요구(상위 없음): 없음 (SRS-F-017은 파생 요구로 상위 OEM 요구를 명시)
 - OEM 요구 중 도출 요구 없음: 없음 (OEM-SR 4, FR 7, NFR 2, IF 9 모두 도출됨)
 - 시스템 테스트 칸이 빈 요구 중 Iter-2(표시, 이력, Web) 설계 범위(구현 전): SRS-C-004, SRS-F-018, SRS-F-019, SRS-F-020, SRS-F-021, SRS-F-022, SRS-F-023, SRS-F-024, SRS-F-025, SRS-F-026, SRS-L-006, SRS-Q-002, SRS-Q-003
-- 시스템 테스트 칸이 빈 요구 중 Iter-2 범위가 아닌 것(누락): 없음
+- 시스템 테스트 칸이 빈 요구 중 Iter-2 범위가 아닌 것(누락): SRS-F-032
 - OEM SWR-019: 결번 (OEM 추적표에 없음)
