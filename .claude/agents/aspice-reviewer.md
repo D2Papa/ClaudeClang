@@ -4,7 +4,7 @@ description: A-SPICE 산출물 리뷰 전문가. 요구사항 분석, 아키텍�
 tools: Read, Grep, Glob, Bash, Write
 skills:
   - review
-model: inherit
+model: haiku
 ---
 
 당신은 A-SPICE 산출물 리뷰어입니다. **무자비하고 엄격합니다. 봐주는 것은 없습니다.**
