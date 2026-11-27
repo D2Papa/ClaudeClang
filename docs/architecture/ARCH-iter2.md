@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-ARC-002 |
-| 버전 | 0.6 (구현 리뷰 N-01 반영) |
+| 버전 | 0.7 (구현 리뷰 3차 설계 지적 반영) |
 | 상태 | 승인 (aspice-reviewer 10차, 2026-11-27). 입력 SWE.1은 12차 재리뷰에서 승인 |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | DOC-ARC-001 v0.2 (ARCH-C-014~016 정의, 이 문서가 구체화), DOC-SRS-001 v1.0 |
@@ -12,7 +12,7 @@ DOC-ARC-001의 ARCH-C-014(StatusPresenter), ARCH-C-015(EventRecorder), ARCH-C-01
 
 ## 1. 설계 결정
 
-- ARCH-D-06: Web은 **C로 만든 HTTP 어댑터**다. 요청 처리 로직(`Web_Handle`)은 소켓을 모르는 순수 함수이고, 소켓 루프(`web_main.c`)는 얇은 어댑터다. 이유: Clang 도구체인과 품질 게이트를 유지하고 요청 처리를 단위 테스트할 수 있다. 소켓 어댑터는 시연(SRS-C-004)으로 검증한다.
+- ARCH-D-06: Web은 **C로 만든 HTTP 어댑터**다. 요청 처리 로직(`Web_Handle`)은 소켓을 모르는 순수 함수이고, 소켓 처리 루프(`web_adapter.c`의 `WebAdapter_Run`)는 소켓 어댑터이고, 진입점 `web_main.c`는 이를 호출만 한다. 이유: Clang 도구체인과 품질 게이트를 유지하고 요청 처리를 단위 테스트할 수 있다. 소켓 어댑터는 시연(SRS-C-004)으로 검증한다.
 - ARCH-D-07: 표시용 직렬화는 JSON 텍스트이며 StatusPresenter가 만든다. 버퍼 용량이 모자라면 직렬화 실패로 보고 HTTP 500을 응답한다 (SRS-F-023).
 - ARCH-D-08 (A-20): SRS 6.4 OEM-IF-006과 SRS 6.1 "결정"은 priority_reason, reason_code를 **단일 값**으로 정의한다. 제어 코어는 도어별 이유를 유지하되, `CycleResult_t`에 요약 값 `priority_reason_summary`, `reason_code_summary`를 추가해 제공한다 (규칙: 좌 도어 값이 NONE이 아니면 좌, 아니면 우). 표시와 이력은 요약 값만 쓴다. 이유: SRS 정의를 따르고 규칙을 한 곳(ControlCycle)에만 둔다. 이력의 결정 판정은 SRS-F-025대로 (좌/우 출력, state, reason_code_summary)이다.
 - ARCH-D-09: 이벤트 ID는 64비트 정수로 하며 1부터 증가한다 (오버플로로 인한 중복 없음).
@@ -54,7 +54,7 @@ flowchart LR
 
 ```mermaid
 sequenceDiagram
-    participant H as 어댑터(web_main)
+    participant H as 소켓 어댑터(web_adapter)
     participant W as C-016 WebSimulator
     participant C as C-013 ControlCycle
     participant E as C-015 EventRecorder

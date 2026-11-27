@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-DDS-002 |
-| 버전 | 0.6 (구현 리뷰 N-01 반영: 소켓 어댑터 모듈 분리) |
+| 버전 | 0.7 (구현 리뷰 3차 설계 지적 반영) |
 | 상태 | 승인 (aspice-reviewer 10차, 2026-11-27). 입력 SWE.1은 12차 재리뷰에서 승인 |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | DOC-ARC-002 v0.2, DOC-DDS-001 v0.2 (공통 규칙), DOC-SRS-001 v1.0 |
@@ -157,6 +157,6 @@
 |------|------|
 | 인터페이스 | DD-M-014~016 ARCH-I-008~010과 1:1, DD-M-018, 019, 020은 컴포넌트 내부 인터페이스(DD-I-011, 012, 013). web_main은 기준 미만 |
 | 의존 | web_handler만 다른 모듈(ControlCycle, Presenter, EventRecorder)의 공개 헤더를 호출한다 |
-| 단일 책임 | 모듈: 요청 처리(web_handler), 화면(web_page), 입력 해석(web_request_parser) 분리. 요청 처리 안에서도 라우팅, 상태, 이력, step, reset 분리 |
+| 단일 책임 | 모듈: 요청 처리(web_handler), 화면(web_page), 입력 해석(web_request_parser), 소켓 처리(web_adapter), 진입점(web_main) 분리. 요청 처리 안에서도 라우팅, 상태, 이력, step, reset 분리 |
 | 반환·추적 | 모든 함수가 Status_t 또는 정수 반환, 단일 반환 |
 | 상수 | VALIDITY_ITEM_COUNT, WEB_BODY_CAPACITY, ROUTE_COUNT, 필드 수는 이름 있는 상수 |
