@@ -390,7 +390,7 @@ TEST(ArbiterUnit, Resolve_Override_AppliesAtDriverRankOnly)
     EXPECT_EQ(REASON_NONE, out.reason_code[DOOR_LEFT]);
 }
 
-/** 목적: 선택된 규칙이 없을 때 정보성 이유를 가장 높은 순위부터 고른다. 입력: info 순위 1 / 순위 6 / 둘 다 / OFF에서 제외된 순위 6 / 전부 NONE. 기대: 각각 CRASH_PENDING / CMD_REJECTED_SPEED / CRASH_PENDING / NONE(순위 1만 남음→CRASH_PENDING) / NONE. 추적: UT-078 -> DD-F-024, SSR-003, SRS-F-003. 기법: 결정표, MC/DC */
+/** 목적: 선택된 규칙이 없을 때 정보성 이유를 가장 높은 순위부터 고른다. 입력: info 순위 1 / 순위 6 / 둘 다 / OFF에서 제외된 순위 6 / 전부 NONE. 기대: 각각 CRASH_PENDING / CMD_REJECTED_SPEED / CMD_REJECTED_SPEED(거절 코드가 우선) / NONE(제외된 순위) / NONE. 추적: UT-078 -> DD-F-024, SSR-003, SRS-F-003. 기법: 결정표, MC/DC */
 TEST(ArbiterUnit, Fallback_InfoReasons_HighestRankFirst)
 {
     Decision_t out{};
@@ -407,7 +407,7 @@ TEST(ArbiterUnit, Fallback_InfoReasons_HighestRankFirst)
 
     in.rules[0].info_reason[DOOR_LEFT] = REASON_CRASH_PENDING;
     Arbiter_Resolve(&in, &out);
-    EXPECT_EQ(REASON_CRASH_PENDING, out.reason_code[DOOR_LEFT]);
+    EXPECT_EQ(REASON_CMD_REJECTED_SPEED, out.reason_code[DOOR_LEFT]); // 속도 거절 코드는 항상 덮어쓴다 (SRS-F-003)
 
     ArbiterInput_t off = ArbIn(STATE_OFF);
     off.rules[5].info_reason[DOOR_LEFT] = REASON_INPUT_INVALID;
@@ -417,6 +417,30 @@ TEST(ArbiterUnit, Fallback_InfoReasons_HighestRankFirst)
     ArbiterInput_t none = ArbIn();
     Arbiter_Resolve(&none, &out);
     EXPECT_EQ(REASON_NONE, out.reason_code[DOOR_LEFT]);
+}
+
+/** 목적: 속도 조건으로 거절된 unlock은 다른 규칙이 결정해도 reason_code에 CMD_REJECTED_SPEED로 남고 priority_reason은 결정 규칙을 유지한다 (SRS-F-003). 입력: 순위 7 활성 + 순위 6 info 거절 / OFF에서 같은 info(제외됨) / info 없음. 기대: reason_code 거절 코드, priority AUTO_LOCK / 제외 시 덮어쓰지 않음 / 덮어쓰지 않음. 추적: UT-079 -> DD-F-021, SRS-F-003. 기법: MC/DC */
+TEST(ArbiterUnit, Resolve_RejectedUnlock_ReasonCodeOverlaysPriorityReason)
+{
+    Decision_t out{};
+    ArbiterInput_t in = ArbIn();
+    Act(&in, 6, OUTPUT_LOCK, REASON_AUTO_LOCK);
+    in.rules[5].info_reason[DOOR_LEFT] = REASON_CMD_REJECTED_SPEED;
+    Arbiter_Resolve(&in, &out);
+    EXPECT_EQ(REASON_AUTO_LOCK, out.priority_reason[DOOR_LEFT]);
+    EXPECT_EQ(REASON_CMD_REJECTED_SPEED, out.reason_code[DOOR_LEFT]);
+    EXPECT_EQ(REASON_AUTO_LOCK, out.reason_code[DOOR_RIGHT]);
+
+    ArbiterInput_t off = ArbIn(STATE_OFF);
+    Act(&off, 2, OUTPUT_RELEASE, REASON_IGNITION_OFF);
+    off.rules[5].info_reason[DOOR_LEFT] = REASON_CMD_REJECTED_SPEED;
+    Arbiter_Resolve(&off, &out);
+    EXPECT_EQ(REASON_IGNITION_OFF, out.reason_code[DOOR_LEFT]);
+
+    ArbiterInput_t plain = ArbIn();
+    Act(&plain, 6, OUTPUT_LOCK, REASON_AUTO_LOCK);
+    Arbiter_Resolve(&plain, &out);
+    EXPECT_EQ(REASON_AUTO_LOCK, out.reason_code[DOOR_LEFT]);
 }
 
 } // namespace

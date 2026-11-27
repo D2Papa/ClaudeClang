@@ -143,6 +143,31 @@ static ReasonCode_t Arbiter_FallbackReason(const ArbiterInput_t *in, int d)
 }
 
 /**
+ * @brief 운전자 unlock 요청이 속도 조건으로 거절되었는지 판정한다 (순위가 제외되지 않은 경우).
+ * @param[in] in  중재 입력
+ * @param[in] d   도어 인덱스
+ * @return 거절되었으면 1
+ * @trace SRS-F-003
+ *
+ *
+ * @par AI 작성 정보
+ *   - 모델: Claude Sonnet 5.5 (claude-sonnet-5-5)
+ *   - 작성일: 2026-11-27
+ *   - 요청자: KYLee
+ * @par 사용자 리뷰
+ *   - 완료 여부: 미완료
+ *   - 리뷰일: -
+ *   - 리뷰어: -
+ */
+static int Arbiter_IsSpeedRejected(const ArbiterInput_t *in, int d)
+{
+    return ((Arbiter_IsGated(in->state, (int)RANK_DRIVER) == 0) &&
+            (in->rules[RANK_DRIVER].info_reason[d] == REASON_CMD_REJECTED_SPEED))
+               ? 1
+               : 0;
+}
+
+/**
  * @brief 한 도어의 중재 결과를 정한다.
  * @param[in]  in   중재 입력
  * @param[in]  d    도어 인덱스
@@ -181,6 +206,10 @@ static Status_t Arbiter_ResolveDoor(const ArbiterInput_t *in, int d, Decision_t 
         out->output[d] = in->rules[rank].effect[d];
         out->priority_reason[d] = in->rules[rank].reason[d];
         out->reason_code[d] = in->rules[rank].reason[d];
+    }
+    if (Arbiter_IsSpeedRejected(in, d) == 1)
+    {
+        out->reason_code[d] = REASON_CMD_REJECTED_SPEED;
     }
     return STATUS_OK;
 }
