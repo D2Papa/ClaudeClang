@@ -5,7 +5,7 @@
 | 문서 ID | DOC-TRC-001 |
 | 버전 | 1.5 (Iter-1, Iter-2 설계 반영) |
 | 상태 | scripts/docs/gen_trace.py로 생성 (리뷰 생략: Iter-1은 사용자 지시) |
-| 입력 문서 버전 | SRS v1.6, SAFETY-REQ v1.0, ASSUMPTIONS v1.5, ARCH v0.7, ARCH-iter2 v0.5, DDS v0.7, DDS-iter2 v0.5 |
+| 입력 문서 버전 | SRS v1.6, SAFETY-REQ v1.1, ASSUMPTIONS v1.6, ARCH v0.7, ARCH-iter2 v0.5, DDS v0.8, DDS-iter2 v0.5 |
 
 하향 추적은 문서와 코드의 추적 표기에서 스크립트로 생성한다. 빈 칸은 해당 이터레이션 범위 밖이거나 누락이다.
 ID는 항상 접두사를 포함한 전체 표기를 쓴다.
@@ -32,7 +32,7 @@ ID는 항상 접두사를 포함한 전체 표기를 쓴다.
 | SRS-F-019 | SRS | OEM-FR-004, OEM-IF-006 | ARCH-C-014 | DD-F-040, DD-F-041, DD-F-043, DD-F-045 | control_cycle.c | UT-083 |  |  |
 | SRS-F-020 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-046, DD-F-047, DD-F-049 |  |  |  |  |
 | SRS-F-021 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-049, DD-F-050, DD-F-058 |  |  |  |  |
-| SRS-F-022 | SRS | OEM-IF-006 | ARCH-C-014 | DD-F-021, DD-F-040, DD-F-043 |  |  |  |  |
+| SRS-F-022 | SRS | OEM-IF-006 | ARCH-C-014 | DD-F-040, DD-F-043 |  |  |  |  |
 | SRS-F-023 | SRS | OEM-IF-006 | ARCH-C-014 | DD-F-042, DD-F-044, DD-F-057, DD-F-070 |  |  |  |  |
 | SRS-F-024 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-047, DD-F-049, DD-F-058, DD-F-062 |  |  |  |  |
 | SRS-F-025 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-046, DD-F-047, DD-F-048, DD-F-059, DD-F-064 |  |  |  |  |
@@ -41,7 +41,7 @@ ID는 항상 접두사를 포함한 전체 표기를 쓴다.
 | SRS-F-028 | SRS | OEM-FR-004, OEM-IF-006 | ARCH-C-012 | DD-F-021, DD-F-023 | arbiter.c, arbiter.h | UT-072, UT-073 |  | ST-008 |
 | SRS-F-029 | SRS | OEM-FR-003, OEM-IF-006 | ARCH-C-009, ARCH-C-011, ARCH-C-012 | DD-F-019, DD-F-023 | arbiter.c, override_manager.c, override_manager.h | UT-077, UT-088 | IT-002 | ST-004 |
 | SRS-F-030 | SRS | OEM-FR-003, OEM-SR-002, OEM-FR-002, OEM-IF-004 | ARCH-C-011 | DD-F-020, DD-F-023 | arbiter.c, override_manager.c, override_manager.h | UT-046, UT-064, UT-077, UT-088, UT-089 | IT-002 | ST-004 |
-| SRS-F-031 | SRS | OEM-FR-007, OEM-IF-009 | ARCH-C-012 | DD-F-021, DD-F-022 | arbiter.c, arbiter.h | UT-075 | IT-005 | ST-007 |
+| SRS-F-031 | SRS | OEM-FR-007, OEM-IF-009 | ARCH-C-012 | DD-F-021, DD-F-022, DD-F-024, DD-F-029 | arbiter.c, arbiter.h | UT-075 | IT-005 | ST-007 |
 | SRS-F-032 | SRS | OEM-FR-001, OEM-IF-004, OEM-IF-006 | ARCH-C-012 | DD-F-021, DD-F-029 |  |  |  |  |
 | SRS-L-004 | SRS | OEM-FR-002 | ARCH-C-009, ARCH-C-010 | DD-F-015, DD-F-017 | auto_lock_rule.c, auto_lock_rule.h, driver_command_rule.c, driver_command_rule.h, params.h | UT-052 |  | ST-002, ST-003 |
 | SRS-L-005 | SRS | OEM-FR-003 | ARCH-C-011 | DD-F-020 | override_manager.c, override_manager.h, params.h | UT-063 |  | ST-004 |

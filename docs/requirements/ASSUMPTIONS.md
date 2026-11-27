@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-ASM-001 |
-| 버전 | 1.5 (A-25 사용자 선택 반영) |
+| 버전 | 1.6 (A-25 안전 요구 반영) |
 | 상태 | v1.0 aspice-reviewer 승인(10차). v1.1 이후 추가·변경(A-19 승인, A-20, A-21, A-22)은 재리뷰 대기 |
 
 OEM-SWR-001(Rev 1.0)의 모호·충돌 항목은 사용자가 승인한 제안안으로 임시 진행한다.
@@ -39,7 +39,7 @@ OEM이 다르게 확정하면 해당 요구사항과 이후 산출물을 재검�
 | A-22 | OEM-FR-004 (SRS-F-018) | 평가된 주기가 없을 때 상태 조회의 응답이 정의되지 않음 | 값을 만들지 않고 HTTP 204(빈 본문)로 응답한다. SRS-F-018에 반영함 | SRS-F-018 | 가정(작성자 결정, 사용자 확인 대기) |
 | A-23 | SRS-F-032 (구 SRS-F-022 예외) | A-19 예외의 적용 범위(state) | CMD_REJECTED_SPEED 덮어쓰기는 state가 NORMAL(운전자 명령이 평가되는 상태)일 때만 적용한다 | SRS-F-003, SRS-F-022 | 가정(작성자 결정, 사용자 확인 대기) |
 | A-24 | SRS 6.3 순위 8 | 활성 규칙이 없을 때의 reason_code가 state별로 정의되지 않음 | NORMAL은 NONE(정보성 이유가 있으면 그 값), DEGRADED는 DEGRADED_STALE, FAULT는 SENSOR_FAULT로 한다 (SSR-009, SSR-012 적용) | SRS 6.3, SSR-009, SSR-012 | 가정(작성자 결정, 사용자 확인 대기) |
-| A-25 | SSR-007 vs SSR-009, SSR-012, SRS-F-031 | 형식 오류 운전자 명령의 INPUT_INVALID 기록과 상태 이유(DEGRADED_STALE, SENSOR_FAULT, IGNITION_OFF)가 한 주기에 충돌 | 상태 이유를 우선한다. INPUT_INVALID는 state가 NORMAL일 때만 reason_code로 기록하고 priority_reason은 유지한다 (SSR-007의 INPUT_INVALID 기록은 NORMAL에서만 문구대로 지켜지는 편차, SRS-F-032) | SRS-F-032, SSR-007, SSR-009, SSR-012, SRS-F-031 | 가정(승인됨, 편차) |
+| A-25 | SSR-007 vs SSR-009, SSR-012, SRS-F-031 | 형식 오류 운전자 명령의 INPUT_INVALID 기록과 상태 이유(DEGRADED_STALE, SENSOR_FAULT, IGNITION_OFF)가 한 주기에 충돌 | 상태 이유를 우선한다. INPUT_INVALID는 state가 NORMAL일 때만 reason_code로 기록하고 priority_reason은 유지한다 (SSR-007을 이에 맞게 v1.1로 개정함: INPUT_INVALID 기록은 NORMAL에서만, SRS-F-032) | SRS-F-032, SSR-007, SSR-009, SSR-012, SRS-F-031 | 가정(승인됨, 편차) |
 
 ## 편차 및 승인 기록
 
