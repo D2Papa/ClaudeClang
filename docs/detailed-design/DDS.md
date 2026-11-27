@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-DDS-001 |
-| 버전 | 0.3 (Iter-2 설계 리뷰 반영 개정) |
+| 버전 | 0.4 (Iter-2 설계 리뷰 반영 개정) |
 | 상태 | 리뷰 생략 (사용자 지시 2026-11-27), aspice-reviewer 미검토 |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | DOC-ARC-001 v0.1 (ARCH-C-001~013), DOC-SRS-001, DOC-SAF-001 |
@@ -102,7 +102,7 @@
 | DD-F-022 | `static int Arbiter_RankGated(State_t state, int rank)` | state OFF이고 rank ≥ 4이면 1, state DEGRADED 또는 FAULT이고 rank == 6이면 1, 아니면 0 | SRS-F-031, SSR-010, 011 |
 | DD-F-023 | `static int Arbiter_PickRank(const ArbiterInput_t *in, int d, Output_t *effect, ReasonCode_t *reason)` | 순위 1~7을 순서대로 보며 gated가 아니고 active[d]인 첫 규칙을 선택. 순위 6은 규칙 결과가 비활성이고 override.active[d]이면 RELEASE, OVERRIDE로 대체. 선택한 순위(0이면 없음)를 반환 | SRS-F-017, 029, 030 |
 | DD-F-029 | `static int Arbiter_IsSpeedRejected(const ArbiterInput_t *in, int d)` | 운전자 순위가 state로 제외되지 않았고 운전자 규칙 결과의 info_reason[d]가 CMD_REJECTED_SPEED이면 1 | SRS-F-003, SRS-F-022 |
-| DD-F-024 | `static ReasonCode_t Arbiter_FallbackReason(const ArbiterInput_t *in, int d)` | 선택된 규칙이 없을 때: state FAULT → SENSOR_FAULT, DEGRADED → DEGRADED_STALE, 아니면 info_reason이 있는 가장 높은 순위의 값, 없으면 NONE | SSR-009, 012, SRS-F-003 |
+| DD-F-024 | `static ReasonCode_t Arbiter_FallbackReason(const ArbiterInput_t *in, int d)` | 선택된 규칙이 없을 때: state FAULT → SENSOR_FAULT, DEGRADED → DEGRADED_STALE, 아니면 info_reason이 있는 가장 높은 순위의 값, 없으면 NONE. DEGRADED, FAULT, OFF로 적용되지 않은 운전자 명령은 별도의 이유를 만들지 않고, 다른 규칙이 결정하지 않으면 이 함수의 state 이유(DEGRADED_STALE, SENSOR_FAULT)를, OFF에서는 규칙 순위 3의 IGNITION_OFF를 쓴다 (SRS-F-003) | SSR-009, 012, SRS-F-003 |
 
 ### DD-M-013 control_cycle
 
