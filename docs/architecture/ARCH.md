@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-ARC-001 |
-| 버전 | 0.1 (Iter-1, SWE.2 초안) |
+| 버전 | 0.2 (Iter-1, Iter-2 설계 리뷰 반영 개정) |
 | 상태 | 리뷰 생략 (사용자 지시 2026-11-27 "이번 이터레이션은 리뷰는 넘어가자"), aspice-reviewer 미검토 |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | DOC-SRS-001 v1.0, DOC-SAF-001 v1.0, DOC-ASM-001 v1.0 (모두 리뷰 승인) |
@@ -31,13 +31,12 @@ flowchart LR
     C13 -->|I-004| R[C-004..C-010 규칙 7개]
     C13 -->|I-005| C11[C-011 OverrideManager]
     C13 -->|I-006| C12[C-012 Arbiter]
-    C13 -.->|I-007 Iter-2| C15[C-015 EventRecorder]
-    C13 -.->|I-008 Iter-2| C14[C-014 StatusPresenter]
-    C16[C-016 WebSimulator] -.->|I-009| C14
-    C16 -.->|I-007| C13
+    C16[C-016 WebSimulator] -.->|I-007| C13
+    C16 -.->|I-008| C14[C-014 StatusPresenter]
+    C16 -.->|I-009| C15[C-015 EventRecorder]
 ```
 
-- 의존 방향: ControlCycle이 모든 하위 컴포넌트를 호출한다. 하위 컴포넌트끼리는 서로 호출하지 않는다(규칙은 규칙을 호출하지 않고, Arbiter는 규칙을 호출하지 않으며 결과 배열만 받는다). 순환 의존이 없다.
+- 의존 방향: ControlCycle이 모든 하위 컴포넌트를 호출한다. 표시·이력(C-014, C-015)은 ControlCycle이 아니라 WebSimulator(C-016)가 호출한다 (DOC-ARC-002). 하위 컴포넌트끼리는 서로 호출하지 않는다(규칙은 규칙을 호출하지 않고, Arbiter는 규칙을 호출하지 않으며 결과 배열만 받는다). 순환 의존이 없다.
 - 공용 타입은 `common/types.h`(데이터 정의만, 함수 없음)에 두고 인터페이스 시그니처에 노출한다.
 
 ## 3. 컴포넌트 정의
@@ -57,9 +56,9 @@ flowchart LR
 | ARCH-C-011 | OverrideManager | 접근위험 해제 억제 시점과 재입력을 추적해 도어별 override 지속 상태를 결정한다. | ARCH-I-005 | — | SRS-F-007, SRS-F-029, SRS-F-030 | SRS-L-005 주기 수 | 1 |
 | ARCH-C-012 | Arbiter | 규칙 결과를 우선순위로 합쳐 도어별 출력과 priority_reason을 결정하고 상태에 따른 억제를 적용한다. | ARCH-I-006 | — | SRS-F-017, SRS-F-028, SRS-F-031, SSR-010, SSR-011, SSR-013, SSR-016 | 결정론(SRS-Q-001) | 1 |
 | ARCH-C-013 | ControlCycle | 한 평가주기 동안 하위 컴포넌트를 정해진 순서로 호출하고 직전 출력과 컨텍스트를 관리한다. | ARCH-I-007 | I-001~I-006 | SRS-Q-001, SRS-C-001, SRS-C-002, SRS-C-005, SSR-002 | 상태는 컨텍스트에만 보관 | 1 |
-| ARCH-C-014 | StatusPresenter | 평가 결과를 표시 항목으로 구성해 조회 응답과 직렬화를 제공한다. | ARCH-I-008 | I-007 | SRS-F-011, SRS-F-012, SRS-F-013, SRS-F-018, SRS-F-019, SRS-F-022, SRS-F-023, SRS-Q-002, SRS-Q-003 | HTTP 500 처리 | 2 |
-| ARCH-C-015 | EventRecorder | 결정 이벤트를 고유 ID로 기록하고 최근 100건을 메모리에만 보존한다. | ARCH-I-009 | — | SRS-F-020, SRS-F-021, SRS-F-024, SRS-F-025, SRS-F-026, SRS-L-006, SRS-Q-002 | 휘발성, 허용 필드 한정 | 2 |
-| ARCH-C-016 | WebSimulator | 시험 입력을 주입하고 상태, 이유 코드, 이력을 화면으로 보여 준다. | ARCH-I-010 | I-007, I-008, I-009 | SRS-C-004 | 시험용(HMI 승인 범위 밖) | 2 |
+| ARCH-C-014 | StatusPresenter | (DOC-ARC-002 ARCH-iter2 3장이 이 컴포넌트를 정의한다. 아래 내용은 초안이며 대체됨) | — | — | — | — | 2 |
+| ARCH-C-015 | EventRecorder | (DOC-ARC-002 ARCH-iter2 3장이 이 컴포넌트를 정의한다. 아래 내용은 초안이며 대체됨) | — | — | — | — | 2 |
+| ARCH-C-016 | WebSimulator | (DOC-ARC-002 ARCH-iter2 3장이 이 컴포넌트를 정의한다. 아래 내용은 초안이며 대체됨) | — | — | — | — | 2 |
 
 ## 4. 인터페이스 정의
 
@@ -78,7 +77,7 @@ flowchart LR
 | ReasonCode_t | SRS 6.2의 reason_code 17개 값 |
 | RuleResult_t | 도어별 active(0/1), 도어별 effect(Output_t), reason_code, suppressed_unlock[2](ApproachRiskRule만), command_applied[2](DriverCommandRule만) |
 | Decision_t | 도어별 output, priority_reason(ReasonCode_t), reason_code |
-| CycleResult_t | output[2], state, priority_reason, reason_code, warning_code(0 또는 W-001), input_validity |
+| CycleResult_t | output[2], state, priority_reason[2], reason_code[2](도어별), priority_reason_summary, reason_code_summary(SRS 6.4 단일 값: 좌가 NONE이 아니면 좌, 아니면 우), warning_code(0 또는 1=W-001), input_validity(비트 마스크) |
 
 | ID | 이름 | 제공자 → 사용자 | 동작 (시그니처) | 사전·사후 조건 | 오류 처리 | 타이밍·자원 |
 |----|------|-----------------|-----------------|----------------|-----------|-------------|
@@ -89,9 +88,9 @@ flowchart LR
 | ARCH-I-005 | override 추적 | C-011 → C-013 | `Status_t Override_Update(Override_t *ctx /*inout*/, const OverrideInput_t *in /*in*/, OverrideStatus_t *out /*out*/)`. OverrideInput_t = 주기 번호(uint32_t), 도어별 suppressed_unlock, 도어별 접근위험 유효 TRUE 여부, 유효 차속 3.0 km/h 이상 여부, 도어별 unlock/lock 명령 적용 여부, 도어별 명령 허용 여부 | 사후: 억제 후 1,000주기 이하 재입력이면 해당 도어 override 성립, 종료 조건(접근위험 FALSE, 3.0 km/h 이상, 적용되는 lock 명령)이 성립하면 해제, OverrideStatus_t = 도어별 active | 널이면 STATUS_ERR_PARAM, 주기 번호 역행이면 STATUS_ERR_STATE | 동기, 컨텍스트 상태 보유, 주기당 1회 호출 |
 | ARCH-I-006 | 중재 | C-012 → C-013 | `Status_t Arbiter_Resolve(const ArbiterInput_t *in /*in*/, Decision_t *out /*out*/)`. ArbiterInput_t = RuleResult_t[7](순위 1~7 순서), State_t, 직전 출력[2], OverrideStatus_t | 사후: 도어별로 활성 규칙 중 가장 높은 순위의 효과, 없으면 직전 출력과 NONE. OFF이면 순위 4~7, DEGRADED/FAULT이면 순위 6을 활성에서 제외하고 억제된 명령의 reason_code를 설정. override 지속은 순위 6 효과(reason OVERRIDE)로 반영 | 널이면 STATUS_ERR_PARAM | 동기, 상태 비보유 |
 | ARCH-I-007 | 제어 주기 실행 | C-013 → C-014, C-016, 테스트 | `Status_t Control_Init(Control_t *ctx /*out*/)`, `Status_t Control_Step(Control_t *ctx /*inout*/, const RawInput_t *raw /*in*/, CycleResult_t *out /*out*/)` | 사전: Init 후 호출, raw->timestamp_s는 단조 증가(10 ms 단위). 사후: out은 6.3 규칙과 SSR/SRS 요구를 만족하는 결과, 직전 출력 갱신 | 널이면 STATUS_ERR_PARAM, 미초기화 STATUS_ERR_STATE. 하위 컴포넌트 오류는 그대로 전파하고 직전 출력은 변경하지 않음 | 동기, 주기당 1회(10 ms), 스레드 비안전(호출자가 직렬화) |
-| ARCH-I-008 | 상태 표시 | C-014 → C-016 | `Status_t Presenter_Build(const CycleResult_t *res /*in*/, PresentedStatus_t *out /*out*/)`, `Status_t Presenter_Serialize(const PresentedStatus_t *st /*in*/, char *buf /*out*/, size_t cap /*in*/, int *http_status /*out: 200 또는 500*/)` | 사후: 표시 항목 4개와 좌/우 출력 포함, 직렬화 실패 시 http_status=500 | 널 또는 cap 부족이면 STATUS_ERR_PARAM과 http_status=500 | 동기, Iter-2에서 상세화 |
-| ARCH-I-009 | 이벤트 기록 | C-015 → C-013(또는 C-016) | `Status_t Event_Record(Event_t *ctx /*inout*/, const CycleResult_t *res /*in*/, double ts /*in*/)`, `Status_t Event_Query(const Event_t *ctx, EventEntry_t *out /*out*/, size_t cap, size_t *count /*out*/)` | 사후: 직전 주기와 출력, state, reason_code 중 하나라도 다르면 고유 ID로 기록, 최근 100건만 보존 | 널이면 STATUS_ERR_PARAM | 동기, Iter-2에서 상세화 |
-| ARCH-I-010 | Web 입출력 | C-016 → 사용자 | HTTP 엔드포인트(입력 주입, 상태 조회, 이력 조회) | Iter-2에서 상세화 | — | 시험용 |
+| ARCH-I-008 | 상태 표시 | (DOC-ARC-002 4장이 정의한다) | — | — | — | — |
+| ARCH-I-009 | 이벤트 기록 | (DOC-ARC-002 4장이 정의한다) | — | — | — | — |
+| ARCH-I-010 | Web 입출력 | (DOC-ARC-002 4장이 정의한다) | — | — | — | — |
 
 ## 5. 동적 구조 (한 평가주기)
 
@@ -154,9 +153,6 @@ sequenceDiagram
 | SRS-F-003 | ARCH-C-009 |
 | SRS-F-004 | ARCH-C-010 |
 | SRS-F-007 | ARCH-C-009, ARCH-C-011 |
-| SRS-F-011 | ARCH-C-014 |
-| SRS-F-012 | ARCH-C-014 |
-| SRS-F-013 | ARCH-C-014 |
 | SRS-F-014 | ARCH-C-005 |
 | SRS-F-015 | ARCH-C-008 |
 | SRS-F-016 | ARCH-C-003, ARCH-C-006 |

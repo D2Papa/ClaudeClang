@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-DDS-001 |
-| 버전 | 0.1 |
+| 버전 | 0.2 (Iter-2 설계 리뷰 반영 개정) |
 | 상태 | 리뷰 생략 (사용자 지시 2026-11-27), aspice-reviewer 미검토 |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | DOC-ARC-001 v0.1 (ARCH-C-001~013), DOC-SRS-001, DOC-SAF-001 |
@@ -110,7 +110,7 @@
 | DD-F-025 | `Status_t Control_Init(Control_t *ctx)` | 널이면 ERR_PARAM. Freshness_Init, Override_Init, prev_output=RELEASE, cycle=0, initialized=1 | SRS-C-005, Q-001 |
 | DD-F-026 | `Status_t Control_Step(Control_t *ctx, const RawInput_t *raw, CycleResult_t *out)` | 널이면 ERR_PARAM, 미초기화면 ERR_STATE. 순서대로 Validator_Normalize, Freshness_Apply, State_Determine, DriverCommand_Evaluate, Override_Update(입력은 DD-F-027로 구성), 나머지 6개 규칙 평가, Arbiter_Resolve. 한 단계라도 오류가 나면 이후 단계를 건너뛰고 오류를 반환하며 ctx의 직전 출력은 갱신하지 않는다. 성공하면 DD-F-028로 결과를 채우고 ctx 갱신 | SRS-Q-001, SRS-C-002, SRS-C-005, SSR-002 |
 | DD-F-027 | `static Status_t Control_BuildOverrideInput(const Control_t *ctx, const Snapshot_t *snap, State_t state, const RuleResult_t *cmd, OverrideInput_t *out)` | 스냅샷의 접근위험 VALID TRUE, 차속 유효 3.0 이상 여부, cmd의 unlock_allowed, lock_requested, ctx->prev_suppressed, ctx->cycle, state를 채운다 | SRS-F-007 |
-| DD-F-028 | `static Status_t Control_FillResult(const Decision_t *dec, State_t state, int warning, const Snapshot_t *snap, CycleResult_t *out)` | 출력, state, priority_reason, reason_code, warning_code, input_validity(필수 입력과 gear의 VALID/INVALID 비트)를 채운다 | SRS-F-019 (Iter-2 표시용 데이터) |
+| DD-F-028 | `static Status_t Control_FillResult(const Decision_t *dec, State_t state, int warning, const Snapshot_t *snap, CycleResult_t *out)` | 출력, state, 도어별 priority_reason/reason_code, 요약 값 priority_reason_summary/reason_code_summary(좌 값이 NONE이 아니면 좌, 아니면 우), warning_code, input_validity(필수 입력과 gear의 VALID/INVALID 비트)를 채운다 | SRS-F-019 (Iter-2 표시용 데이터) |
 
 ## 4. 점검표 결과
 
