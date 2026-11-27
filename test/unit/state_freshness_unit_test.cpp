@@ -29,7 +29,7 @@ Snapshot_t SnapAt(double ts, double source_ts)
     return s;
 }
 
-/** 목적: 초기화 널 거절과 정상 초기화. 입력: NULL / 유효 ctx. 기대: ERR_PARAM / OK, initialized 1. 추적: UT-020 -> DD-F-006. 기법: 오류 추정 */
+/** 목적: 초기화 널 거절과 정상 초기화. 입력: NULL / 유효 ctx. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: ERR_PARAM / OK, initialized 1. 추적: UT-020 -> DD-F-006. 기법: 오류 추정 */
 TEST(FreshnessUnit, Init_NullAndValid_ReturnsExpected)
 {
     Freshness_t ctx{};
@@ -38,7 +38,7 @@ TEST(FreshnessUnit, Init_NullAndValid_ReturnsExpected)
     EXPECT_EQ(1, ctx.initialized);
 }
 
-/** 목적: 적용 함수의 인자 오류. 입력: ctx NULL / snap NULL. 기대: ERR_PARAM. 추적: UT-021 -> DD-F-007. 기법: 오류 추정(MC/DC) */
+/** 목적: 적용 함수의 인자 오류. 입력: ctx NULL / snap NULL. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: ERR_PARAM. 추적: UT-021 -> DD-F-007. 기법: 오류 추정(MC/DC) */
 TEST(FreshnessUnit, Apply_NullPointers_ReturnsParamError)
 {
     Freshness_t ctx{};
@@ -48,7 +48,7 @@ TEST(FreshnessUnit, Apply_NullPointers_ReturnsParamError)
     EXPECT_EQ(STATUS_ERR_PARAM, Freshness_Apply(&ctx, nullptr));
 }
 
-/** 목적: 초기화하지 않은 컨텍스트 거절. 입력: 0으로 채운 ctx. 기대: ERR_STATE. 추적: UT-022 -> DD-F-007. 기법: 오류 추정 */
+/** 목적: 초기화하지 않은 컨텍스트 거절. 입력: 0으로 채운 ctx. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: ERR_STATE. 추적: UT-022 -> DD-F-007. 기법: 오류 추정 */
 TEST(FreshnessUnit, Apply_Uninitialized_ReturnsStateError)
 {
     Freshness_t ctx{};
@@ -56,7 +56,7 @@ TEST(FreshnessUnit, Apply_Uninitialized_ReturnsStateError)
     EXPECT_EQ(STATUS_ERR_STATE, Freshness_Apply(&ctx, &s));
 }
 
-/** 목적: 시각 역행 거절과 동일 시각 허용. 입력: 1.0 후 0.99 / 1.0 후 1.0. 기대: ERR_STATE / OK. 추적: UT-023 -> DD-F-007. 기법: 경계값 분석 */
+/** 목적: 시각 역행 거절과 동일 시각 허용. 입력: 1.0 후 0.99 / 1.0 후 1.0. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: ERR_STATE / OK. 추적: UT-023 -> DD-F-007. 기법: 경계값 분석 */
 TEST(FreshnessUnit, Apply_TimestampMonotonic_BackwardRejected)
 {
     Freshness_t ctx{};
@@ -69,7 +69,7 @@ TEST(FreshnessUnit, Apply_TimestampMonotonic_BackwardRejected)
     EXPECT_EQ(STATUS_ERR_STATE, Freshness_Apply(&ctx, &back));
 }
 
-/** 목적: 200 ms 신선도 경계 (SSR-008). 입력: 차이 0.2(경계), 0.25(초과), -0.05(미래 시각). 기대: 0.2는 유지, 나머지는 차속과 원천 시각 INVALID. 추적: UT-024 -> DD-F-007, SSR-008. 기법: 경계값 분석 */
+/** 목적: 200 ms 신선도 경계 (SSR-008). 입력: 차이 0.2(경계), 0.25(초과), -0.05(미래 시각). 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 0.2는 유지, 나머지는 차속과 원천 시각 INVALID. 추적: UT-024 -> DD-F-007, SSR-008. 기법: 경계값 분석 */
 TEST(FreshnessUnit, Apply_SpeedAge_StaleOnlyBeyondLimit)
 {
     Freshness_t ctx{};
@@ -89,7 +89,7 @@ TEST(FreshnessUnit, Apply_SpeedAge_StaleOnlyBeyondLimit)
     EXPECT_EQ(VALIDITY_INVALID, future.speed.validity);
 }
 
-/** 목적: 차속 또는 원천 시각이 이미 무효이면 신선도 판정 대상이 아니다. 입력: 한쪽만 INVALID이고 시간 차이가 큼. 기대: 다른 쪽 유효성은 바뀌지 않음. 추적: UT-025 -> DD-F-007. 기법: 조건 독립성(MC/DC) */
+/** 목적: 차속 또는 원천 시각이 이미 무효이면 신선도 판정 대상이 아니다. 입력: 한쪽만 INVALID이고 시간 차이가 큼. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 다른 쪽 유효성은 바뀌지 않음. 추적: UT-025 -> DD-F-007. 기법: 조건 독립성(MC/DC) */
 TEST(FreshnessUnit, Apply_OneSideAlreadyInvalid_OtherUnchanged)
 {
     Freshness_t ctx{};
@@ -105,7 +105,7 @@ TEST(FreshnessUnit, Apply_OneSideAlreadyInvalid_OtherUnchanged)
     EXPECT_EQ(VALIDITY_VALID, t.speed.validity);
 }
 
-/** 목적: state 결정 인자 오류. 입력: snap/state/warning 각각 NULL. 기대: ERR_PARAM. 추적: UT-030 -> DD-F-008. 기법: 오류 추정(MC/DC) */
+/** 목적: state 결정 인자 오류. 입력: snap/state/warning 각각 NULL. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: ERR_PARAM. 추적: UT-030 -> DD-F-008. 기법: 오류 추정(MC/DC) */
 TEST(StateUnit, Determine_NullPointers_ReturnsParamError)
 {
     Snapshot_t s = NormalSnapshot();
@@ -116,7 +116,7 @@ TEST(StateUnit, Determine_NullPointers_ReturnsParamError)
     EXPECT_EQ(STATUS_ERR_PARAM, State_Determine(&s, &st, nullptr));
 }
 
-/** 목적: 모든 입력 유효이면 NORMAL, 경고 0. 입력: NormalSnapshot. 기대: STATE_NORMAL, warning 0. 추적: UT-031 -> DD-F-008, SSR-015. 기법: 동치 클래스 */
+/** 목적: 모든 입력 유효이면 NORMAL, 경고 0. 입력: NormalSnapshot. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: STATE_NORMAL, warning 0. 추적: UT-031 -> DD-F-008, SSR-015. 기법: 동치 클래스 */
 TEST(StateUnit, Determine_AllValid_Normal)
 {
     Snapshot_t s = NormalSnapshot();
@@ -127,7 +127,7 @@ TEST(StateUnit, Determine_AllValid_Normal)
     EXPECT_EQ(0, w);
 }
 
-/** 목적: 상태 우선순위 OFF > FAULT > DEGRADED (SSR-015). 입력: ignition/sensor_fault/stale 8가지 조합. 기대: 조합별 기대 state와 warning. 추적: UT-032 -> DD-F-008, SSR-015, SSR-012. 기법: 결정표(전수 2^3) */
+/** 목적: 상태 우선순위 OFF > FAULT > DEGRADED (SSR-015). 입력: ignition/sensor_fault/stale 8가지 조합. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 조합별 기대 state와 warning. 추적: UT-032 -> DD-F-008, SSR-015, SSR-012. 기법: 결정표(전수 2^3) */
 TEST(StateUnit, Determine_PriorityTable_MatchesSsr015)
 {
     for (int mask = 0; mask < 8; mask++)
@@ -163,7 +163,7 @@ TEST(StateUnit, Determine_PriorityTable_MatchesSsr015)
     }
 }
 
-/** 목적: 필수 입력 12개 각각이 무효이면 DEGRADED, gear만 무효이면 NORMAL. 입력: 필드별 INVALID. 기대: DEGRADED / NORMAL. 추적: UT-033 -> DD-F-009, SSR-009, SSR-007. 기법: 동치 클래스 */
+/** 목적: 필수 입력 12개 각각이 무효이면 DEGRADED, gear만 무효이면 NORMAL. 입력: 필드별 INVALID. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: DEGRADED / NORMAL. 추적: UT-033 -> DD-F-009, SSR-009, SSR-007. 기법: 동치 클래스 */
 TEST(StateUnit, Determine_EachRequiredInputInvalid_Degraded)
 {
     for (int field = 0; field < 13; field++)
@@ -192,7 +192,7 @@ TEST(StateUnit, Determine_EachRequiredInputInvalid_Degraded)
     }
 }
 
-/** 목적: 무효한 ignition(값 0)은 OFF가 아니라 DEGRADED, 무효한 sensor_fault는 FAULT가 아니다. 입력: ignition INVALID / sensor_fault INVALID. 기대: DEGRADED, warning 0. 추적: UT-034 -> DD-F-008. 기법: 조건 독립성(MC/DC) */
+/** 목적: 무효한 ignition(값 0)은 OFF가 아니라 DEGRADED, 무효한 sensor_fault는 FAULT가 아니다. 입력: ignition INVALID / sensor_fault INVALID. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: DEGRADED, warning 0. 추적: UT-034 -> DD-F-008. 기법: 조건 독립성(MC/DC) */
 TEST(StateUnit, Determine_InvalidFlags_NotTreatedAsValueZeroOrOne)
 {
     Snapshot_t s = NormalSnapshot();

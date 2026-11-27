@@ -231,6 +231,7 @@ Status_t Arbiter_Resolve(const ArbiterInput_t *in, Decision_t *out)
 
         for (d = 0; d < DOOR_COUNT; d++)
         {
+            /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
             Arbiter_ResolveDoor(in, d, out);
         }
         result = STATUS_OK;

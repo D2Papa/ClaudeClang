@@ -211,6 +211,7 @@ Status_t Presenter_Build(const CycleResult_t *res, PresentedStatus_t *out)
     {
         int i;
 
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Presenter_Name(OUTPUT_NAMES, 2, (int)res->output[DOOR_LEFT], &out->lock_left);
         Presenter_Name(OUTPUT_NAMES, 2, (int)res->output[DOOR_RIGHT], &out->lock_right);
         Presenter_Name(STATE_NAMES, 4, (int)res->state, &out->state);

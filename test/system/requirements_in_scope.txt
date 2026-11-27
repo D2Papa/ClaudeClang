@@ -57,4 +57,4 @@ SRS-F-032
 SRS-Q-002
 SRS-Q-003
 SRS-L-006
-SRS-C-004 inspect-present docs/test/DEMO-web.md 시연 결과: 성공
+SRS-C-004 inspect-present docs/test/DEMO-web.md \[OK\] 7 GET 70자 경로: 404[\s\S]*시연 결과: 성공

@@ -30,7 +30,7 @@ Snapshot_t Normalize(const RawInput_t &raw)
     return snap;
 }
 
-/** 목적: 널 포인터 거절. 입력: raw 또는 snap이 NULL. 기대: STATUS_ERR_PARAM. 추적: UT-001 -> DD-F-001. 기법: 오류 추정 */
+/** 목적: 널 포인터 거절. 입력: raw 또는 snap이 NULL. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: STATUS_ERR_PARAM. 추적: UT-001 -> DD-F-001. 기법: 오류 추정 */
 TEST(InputValidatorUnit, Normalize_NullPointers_ReturnsParamError)
 {
     RawInput_t raw = NormalRaw(0.0);
@@ -39,7 +39,7 @@ TEST(InputValidatorUnit, Normalize_NullPointers_ReturnsParamError)
     EXPECT_EQ(STATUS_ERR_PARAM, Validator_Normalize(&raw, nullptr));
 }
 
-/** 목적: 정상 입력이 모두 VALID로 정규화되고 시각이 복사된다. 입력: NormalRaw(2.5). 기대: 모든 validity VALID, timestamp 2.5. 추적: UT-002 -> DD-F-001, SRS-Q-003. 기법: 동치 클래스 */
+/** 목적: 정상 입력이 모두 VALID로 정규화되고 시각이 복사된다. 입력: NormalRaw(2.5). 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 모든 validity VALID, timestamp 2.5. 추적: UT-002 -> DD-F-001, SRS-Q-003. 기법: 동치 클래스 */
 TEST(InputValidatorUnit, Normalize_NormalInput_AllValid)
 {
     Snapshot_t s = Normalize(NormalRaw(2.5));
@@ -61,7 +61,7 @@ TEST(InputValidatorUnit, Normalize_NormalInput_AllValid)
     EXPECT_EQ(VALIDITY_INVALID, s.cmd.validity);
 }
 
-/** 목적: 불리언 값 집합 검사. 입력: fire=0, 1(유효), 2, -1(무효). 기대: 0/1만 VALID, 무효는 값 0. 추적: UT-003 -> DD-F-002, SSR-007. 기법: 경계값, 동치 클래스 */
+/** 목적: 불리언 값 집합 검사. 입력: fire=0, 1(유효), 2, -1(무효). 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 0/1만 VALID, 무효는 값 0. 추적: UT-003 -> DD-F-002, SSR-007. 기법: 경계값, 동치 클래스 */
 TEST(InputValidatorUnit, Flag_BooleanValues_OnlyZeroAndOneValid)
 {
     RawInput_t raw = NormalRaw(0.0);
@@ -79,7 +79,7 @@ TEST(InputValidatorUnit, Flag_BooleanValues_OnlyZeroAndOneValid)
     EXPECT_EQ(VALIDITY_INVALID, Normalize(raw).fire.validity);
 }
 
-/** 목적: 불리언 필드에 다른 종류의 값이 오면 무효. 입력: 누락, 실수, 열거, 형식 오류. 기대: INVALID. 추적: UT-004 -> DD-F-002, SSR-007, SRS-C-003. 기법: 동치 클래스 */
+/** 목적: 불리언 필드에 다른 종류의 값이 오면 무효. 입력: 누락, 실수, 열거, 형식 오류. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: INVALID. 추적: UT-004 -> DD-F-002, SSR-007, SRS-C-003. 기법: 동치 클래스 */
 TEST(InputValidatorUnit, Flag_WrongKind_Invalid)
 {
     RawInput_t raw = NormalRaw(0.0);
@@ -92,7 +92,7 @@ TEST(InputValidatorUnit, Flag_WrongKind_Invalid)
     }
 }
 
-/** 목적: 차속 범위 경계(SRS-L-007). 입력: -0.1, 0.0, 300.0, 300.1, NaN, 무한대. 기대: 0.0과 300.0만 VALID. 추적: UT-005 -> DD-F-003, SRS-L-007. 기법: 경계값 분석 */
+/** 목적: 차속 범위 경계(SRS-L-007). 입력: -0.1, 0.0, 300.0, 300.1, NaN, 무한대. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 0.0과 300.0만 VALID. 추적: UT-005 -> DD-F-003, SRS-L-007. 기법: 경계값 분석 */
 TEST(InputValidatorUnit, Number_SpeedBoundaries_ValidOnlyInRange)
 {
     RawInput_t raw = NormalRaw(0.0);
@@ -115,7 +115,7 @@ TEST(InputValidatorUnit, Number_SpeedBoundaries_ValidOnlyInRange)
     }
 }
 
-/** 목적: 차속 필드의 종류 오류. 입력: 누락, 불리언, 열거, 형식 오류. 기대: INVALID. 추적: UT-006 -> DD-F-003, SSR-007. 기법: 동치 클래스 */
+/** 목적: 차속 필드의 종류 오류. 입력: 누락, 불리언, 열거, 형식 오류. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: INVALID. 추적: UT-006 -> DD-F-003, SSR-007. 기법: 동치 클래스 */
 TEST(InputValidatorUnit, Number_WrongKind_Invalid)
 {
     RawInput_t raw = NormalRaw(0.0);
@@ -128,7 +128,7 @@ TEST(InputValidatorUnit, Number_WrongKind_Invalid)
     }
 }
 
-/** 목적: 원천 시각의 범위. 입력: -0.001(무효), 0.0, 1e12(유효), 1e12+1e6(무효). 기대: 범위 안만 VALID. 추적: UT-007 -> DD-F-003. 기법: 경계값 분석 */
+/** 목적: 원천 시각의 범위. 입력: -0.001(무효), 0.0, 1e12(유효), 1e12+1e6(무효). 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 범위 안만 VALID. 추적: UT-007 -> DD-F-003. 기법: 경계값 분석 */
 TEST(InputValidatorUnit, Number_SourceTimestampRange_ValidOnlyNonNegative)
 {
     RawInput_t raw = NormalRaw(0.0);
@@ -142,7 +142,7 @@ TEST(InputValidatorUnit, Number_SourceTimestampRange_ValidOnlyNonNegative)
     EXPECT_EQ(VALIDITY_INVALID, Normalize(raw).source_timestamp.validity);
 }
 
-/** 목적: gear와 crash 값 집합. 입력: gear -1, 0, 3, 4 / crash -1, 0, 2, 3. 기대: 집합 안만 VALID. 추적: UT-008 -> DD-F-004, SSR-007. 기법: 경계값 분석 */
+/** 목적: gear와 crash 값 집합. 입력: gear -1, 0, 3, 4 / crash -1, 0, 2, 3. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 집합 안만 VALID. 추적: UT-008 -> DD-F-004, SSR-007. 기법: 경계값 분석 */
 TEST(InputValidatorUnit, Enum_GearAndCrashBoundaries_ValidOnlyInSet)
 {
     RawInput_t raw = NormalRaw(0.0);
@@ -164,7 +164,7 @@ TEST(InputValidatorUnit, Enum_GearAndCrashBoundaries_ValidOnlyInSet)
     }
 }
 
-/** 목적: 열거 필드의 종류 오류. 입력: 숫자/불리언/누락/형식 오류. 기대: INVALID. 추적: UT-009 -> DD-F-004. 기법: 동치 클래스 */
+/** 목적: 열거 필드의 종류 오류. 입력: 숫자/불리언/누락/형식 오류. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: INVALID. 추적: UT-009 -> DD-F-004. 기법: 동치 클래스 */
 TEST(InputValidatorUnit, Enum_WrongKind_Invalid)
 {
     RawInput_t raw = NormalRaw(0.0);
@@ -176,7 +176,7 @@ TEST(InputValidatorUnit, Enum_WrongKind_Invalid)
     }
 }
 
-/** 목적: 명령이 없으면 present 0. 입력: 세 명령 필드 누락. 기대: present 0, INVALID, 지정 도어 없음. 추적: UT-010 -> DD-F-005. 기법: 동치 클래스 */
+/** 목적: 명령이 없으면 present 0. 입력: 세 명령 필드 누락. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: present 0, INVALID, 지정 도어 없음. 추적: UT-010 -> DD-F-005. 기법: 동치 클래스 */
 TEST(InputValidatorUnit, Command_AllAbsent_NotPresent)
 {
     Snapshot_t s = Normalize(NormalRaw(0.0));
@@ -186,7 +186,7 @@ TEST(InputValidatorUnit, Command_AllAbsent_NotPresent)
     EXPECT_EQ(0, s.cmd.target[DOOR_RIGHT]);
 }
 
-/** 목적: 명령 필드가 하나만 있어도 present 1 (side/action/source 각각). 입력: 한 필드만 형식 오류로 존재. 기대: present 1, INVALID. 추적: UT-011 -> DD-F-005, SRS-F-001. 기법: 조건 독립성(MC/DC) */
+/** 목적: 명령 필드가 하나만 있어도 present 1 (side/action/source 각각). 입력: 한 필드만 형식 오류로 존재. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: present 1, INVALID. 추적: UT-011 -> DD-F-005, SRS-F-001. 기법: 조건 독립성(MC/DC) */
 TEST(InputValidatorUnit, Command_SingleFieldPresent_PresentButInvalid)
 {
     RawInput_t raw = NormalRaw(0.0);
@@ -203,7 +203,7 @@ TEST(InputValidatorUnit, Command_SingleFieldPresent_PresentButInvalid)
     EXPECT_EQ(1, Normalize(raw).cmd.present);
 }
 
-/** 목적: 명령 세 필드 중 하나만 무효여도 명령 전체가 무효. 입력: 두 필드 유효 + 한 필드 범위 밖. 기대: present 1, INVALID, 지정 도어 없음. 추적: UT-012 -> DD-F-005, SSR-007. 기법: 조건 독립성(MC/DC) */
+/** 목적: 명령 세 필드 중 하나만 무효여도 명령 전체가 무효. 입력: 두 필드 유효 + 한 필드 범위 밖. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: present 1, INVALID, 지정 도어 없음. 추적: UT-012 -> DD-F-005, SSR-007. 기법: 조건 독립성(MC/DC) */
 TEST(InputValidatorUnit, Command_OneFieldOutOfRange_Invalid)
 {
     for (int bad = 0; bad < 3; bad++)
@@ -229,7 +229,7 @@ TEST(InputValidatorUnit, Command_OneFieldOutOfRange_Invalid)
     }
 }
 
-/** 목적: side에 따른 지정 도어. 입력: side=ALL/LEFT/RIGHT, 4개 source, 2개 action 전체 조합. 기대: ALL은 양쪽, LEFT는 좌만, RIGHT는 우만 지정. 추적: UT-013 -> DD-F-005, SRS-F-001, SRS-F-002. 기법: 전수 조합 (4x3x2=24) */
+/** 목적: side에 따른 지정 도어. 입력: side=ALL/LEFT/RIGHT, 4개 source, 2개 action 전체 조합. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: ALL은 양쪽, LEFT는 좌만, RIGHT는 우만 지정. 추적: UT-013 -> DD-F-005, SRS-F-001, SRS-F-002. 기법: 전수 조합 (4x3x2=24) */
 TEST(InputValidatorUnit, Command_AllCombinations_TargetsMatchSide)
 {
     int count = 0;

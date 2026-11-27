@@ -168,6 +168,7 @@ Status_t Override_Update(Override_t *ctx, const OverrideInput_t *in, OverrideSta
 
         for (d = 0; d < DOOR_COUNT; d++)
         {
+            /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
             Override_UpdateDoor(ctx, in, d);
             out->active[d] = ctx->active[d];
         }

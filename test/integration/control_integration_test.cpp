@@ -87,7 +87,7 @@ protected:
     Control_t ctx_{};
 };
 
-/** IT-001 목적: ARCH-I-001→002→003 연결. Validator의 INVALID가 Freshness와 StateManager를 거쳐 DEGRADED가 된다. 입력: 원천 시각이 0.3초 지난 차속. 기대: DEGRADED, 유효성 비트 0 비트 해제. 추적: ARCH-I-001, ARCH-I-002, ARCH-I-003, SSR-008, SSR-009 */
+/** IT-001 목적: ARCH-I-001→002→003 연결. Validator의 INVALID가 Freshness와 StateManager를 거쳐 DEGRADED가 된다. 입력: 원천 시각이 0.3초 지난 차속. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: DEGRADED, 유효성 비트 0 비트 해제. 추적: ARCH-I-001, ARCH-I-002, ARCH-I-003, SSR-008, SSR-009 */
 TEST_F(ControlIntegration, ValidatorFreshnessState_StaleSpeed_Degraded)
 {
     RawInput_t in = Raw(50);
@@ -97,7 +97,7 @@ TEST_F(ControlIntegration, ValidatorFreshnessState_StaleSpeed_Degraded)
     EXPECT_EQ(0U, r.input_validity & 5U);
 }
 
-/** IT-002 목적: 규칙→OverrideManager→Arbiter 연결 (ARCH-I-004, 005, 006). 입력: 접근위험(우) + unlock(우) 두 번 → 명령 없이 지속. 기대: SUPPRESSED → OVERRIDE → OVERRIDE, 좌 출력은 영향 없음. 추적: SRS-F-007, SRS-F-029, SRS-F-030, SSR-005 */
+/** IT-002 목적: 규칙→OverrideManager→Arbiter 연결 (ARCH-I-004, 005, 006). 입력: 접근위험(우) + unlock(우) 두 번 → 명령 없이 지속. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: SUPPRESSED → OVERRIDE → OVERRIDE, 좌 출력은 영향 없음. 추적: SRS-F-007, SRS-F-029, SRS-F-030, SSR-005 */
 TEST_F(ControlIntegration, RulesOverrideArbiter_RightDoorOverride_LeftUntouched)
 {
     RawInput_t in = Raw(0);
@@ -121,7 +121,7 @@ TEST_F(ControlIntegration, RulesOverrideArbiter_RightDoorOverride_LeftUntouched)
     EXPECT_EQ(OUTPUT_RELEASE, r.output[DOOR_LEFT]);
 }
 
-/** IT-003 목적: Validator의 명령 무효 결과가 DriverCommandRule과 Arbiter를 거쳐 INPUT_INVALID로 기록된다. 입력: side 범위 밖 명령. 기대: 출력 변화 없음, reason INPUT_INVALID. 추적: SSR-007, ARCH-I-001, ARCH-I-004, ARCH-I-006 */
+/** IT-003 목적: Validator의 명령 무효 결과가 DriverCommandRule과 Arbiter를 거쳐 INPUT_INVALID로 기록된다. 입력: side 범위 밖 명령. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 출력 변화 없음, reason INPUT_INVALID. 추적: SSR-007, ARCH-I-001, ARCH-I-004, ARCH-I-006 */
 TEST_F(ControlIntegration, ValidatorCommandArbiter_InvalidCommand_ReasonRecorded)
 {
     RawInput_t in = Raw(0);
@@ -131,7 +131,7 @@ TEST_F(ControlIntegration, ValidatorCommandArbiter_InvalidCommand_ReasonRecorded
     EXPECT_EQ(REASON_INPUT_INVALID, r.reason_code[DOOR_LEFT]);
 }
 
-/** IT-004 목적: 속도 조건이 규칙과 Arbiter를 거쳐 unlock 거절 이유로 표시된다. 입력: 속도 3.0에서 LOCK된 상태에서 unlock. 기대: LOCK 유지(자동 잠금), unlock은 순위에서 밀림. 추적: SRS-F-003, SRS-F-004, SRS-F-017 */
+/** IT-004 목적: 속도 조건이 규칙과 Arbiter를 거쳐 unlock 거절 이유로 표시된다. 입력: 속도 3.0에서 LOCK된 상태에서 unlock. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: LOCK 유지(자동 잠금), unlock은 순위에서 밀림. 추적: SRS-F-003, SRS-F-004, SRS-F-017 */
 TEST_F(ControlIntegration, SpeedRules_UnlockAtThreshold_AutoLockWins)
 {
     RawInput_t in = Raw(0);
@@ -142,7 +142,7 @@ TEST_F(ControlIntegration, SpeedRules_UnlockAtThreshold_AutoLockWins)
     EXPECT_EQ(REASON_AUTO_LOCK, r.priority_reason[DOOR_LEFT]);
 }
 
-/** IT-005 목적: StateManager의 OFF가 Arbiter의 순위 제외로 이어진다. 입력: ignition off + ISOFIX + 접근위험 + lock 명령 + 속도 3.0. 기대: RELEASE, OFF, IGNITION_OFF. 추적: SRS-F-016, SRS-F-031, ARCH-I-003, ARCH-I-006 */
+/** IT-005 목적: StateManager의 OFF가 Arbiter의 순위 제외로 이어진다. 입력: ignition off + ISOFIX + 접근위험 + lock 명령 + 속도 3.0. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: RELEASE, OFF, IGNITION_OFF. 추적: SRS-F-016, SRS-F-031, ARCH-I-003, ARCH-I-006 */
 TEST_F(ControlIntegration, StateArbiter_IgnitionOff_AllLockRulesIgnored)
 {
     for (int c = 0; c < 3; c++)
@@ -161,7 +161,7 @@ TEST_F(ControlIntegration, StateArbiter_IgnitionOff_AllLockRulesIgnored)
     }
 }
 
-/** IT-006 목적: 컨텍스트(직전 출력) 전달 인터페이스(ARCH-I-007). 입력: lock 명령 후 입력 없는 주기. 기대: 명령 결과가 이후 주기에 직전 출력으로 유지된다. 추적: ARCH-I-007, SRS-F-002 */
+/** IT-006 목적: 컨텍스트(직전 출력) 전달 인터페이스(ARCH-I-007). 입력: lock 명령 후 입력 없는 주기. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 명령 결과가 이후 주기에 직전 출력으로 유지된다. 추적: ARCH-I-007, SRS-F-002 */
 TEST_F(ControlIntegration, ControlContext_PreviousOutputCarriedAcrossCycles)
 {
     RawInput_t in = Raw(0);
@@ -174,7 +174,7 @@ TEST_F(ControlIntegration, ControlContext_PreviousOutputCarriedAcrossCycles)
     EXPECT_EQ(REASON_NONE, r.reason_code[DOOR_LEFT]);
 }
 
-/** IT-007 목적: 긴급 입력이 충돌 외 규칙들과의 중재를 통과한다. 입력: 화재 + ISOFIX + 접근위험, 이후 충돌 CONFIRMED 추가. 기대: FIRE로 RELEASE, 충돌이 추가되면 CRASH_CONFIRMED. 추적: SRS-F-014, SSR-001, SRS-F-017 */
+/** IT-007 목적: 긴급 입력이 충돌 외 규칙들과의 중재를 통과한다. 입력: 화재 + ISOFIX + 접근위험, 이후 충돌 CONFIRMED 추가. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: FIRE로 RELEASE, 충돌이 추가되면 CRASH_CONFIRMED. 추적: SRS-F-014, SSR-001, SRS-F-017 */
 TEST_F(ControlIntegration, EmergencyAndCrash_PriorityThroughStack)
 {
     RawInput_t in = Raw(0);
@@ -193,7 +193,7 @@ TEST_F(ControlIntegration, EmergencyAndCrash_PriorityThroughStack)
     EXPECT_EQ(REASON_CRASH_CONFIRMED, r.priority_reason[DOOR_LEFT]);
 }
 
-/** IT-008 목적: Freshness→State 컨텍스트 오류 전파 (ARCH-I-002). 입력: 시각이 되돌아간 입력. 기대: ERR_STATE. 추적: ARCH-I-002, ARCH-I-007 */
+/** IT-008 목적: Freshness→State 컨텍스트 오류 전파 (ARCH-I-002). 입력: 시각이 되돌아간 입력. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: ERR_STATE. 추적: ARCH-I-002, ARCH-I-007 */
 TEST_F(ControlIntegration, FreshnessError_PropagatesThroughControlStep)
 {
     Step(Raw(10));

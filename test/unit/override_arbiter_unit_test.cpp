@@ -29,7 +29,7 @@ OverrideInput_t Inp(uint32_t cycle)
     return in;
 }
 
-/** 목적: 컨텍스트 초기화/갱신의 널 거절. 입력: NULL. 기대: ERR_PARAM, 정상 초기화는 0. 추적: UT-060 -> DD-F-018, DD-F-019. 기법: 오류 추정(MC/DC) */
+/** 목적: 컨텍스트 초기화/갱신의 널 거절. 입력: NULL. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: ERR_PARAM, 정상 초기화는 0. 추적: UT-060 -> DD-F-018, DD-F-019. 기법: 오류 추정(MC/DC) */
 TEST(OverrideUnit, InitAndUpdate_NullPointers_ReturnParamError)
 {
     Override_t ctx;
@@ -44,7 +44,7 @@ TEST(OverrideUnit, InitAndUpdate_NullPointers_ReturnParamError)
     EXPECT_EQ(STATUS_ERR_PARAM, Override_Update(&ctx, &in, nullptr));
 }
 
-/** 목적: 억제 기록 조건 (직전 주기 억제 + NORMAL + 기록 없음/만료). 입력: prev_suppressed, state, 기존 기록 조합. 기대: 기록 주기 = 현재-1 또는 기존 유지. 추적: UT-061 -> DD-F-020, SRS-F-007. 기법: 결정표, MC/DC */
+/** 목적: 억제 기록 조건 (직전 주기 억제 + NORMAL + 기록 없음/만료). 입력: prev_suppressed, state, 기존 기록 조합. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 기록 주기 = 현재-1 또는 기존 유지. 추적: UT-061 -> DD-F-020, SRS-F-007. 기법: 결정표, MC/DC */
 TEST(OverrideUnit, Record_Conditions_RecordsOnlyWhenNeeded)
 {
     Override_t ctx;
@@ -87,7 +87,7 @@ TEST(OverrideUnit, Record_Conditions_RecordsOnlyWhenNeeded)
     EXPECT_EQ(1, ctx.suppressed_valid[DOOR_LEFT]);
 }
 
-/** 목적: 두 번째 unlock 재입력으로 override 성립. 입력: 주기 10 억제 후 주기 11 허용된 unlock. 기대: 주기 11에 active, 기록 해제. 추적: UT-062 -> DD-F-020, SRS-F-007. 기법: 시나리오 */
+/** 목적: 두 번째 unlock 재입력으로 override 성립. 입력: 주기 10 억제 후 주기 11 허용된 unlock. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 주기 11에 active, 기록 해제. 추적: UT-062 -> DD-F-020, SRS-F-007. 기법: 시나리오 */
 TEST(OverrideUnit, Establish_SecondUnlockAfterSuppression_Active)
 {
     Override_t ctx;
@@ -110,7 +110,7 @@ TEST(OverrideUnit, Establish_SecondUnlockAfterSuppression_Active)
     EXPECT_EQ(0, ctx.suppressed_valid[DOOR_LEFT]);
 }
 
-/** 목적: override 성립 조건 각각의 필요성과 허용 주기 경계(1,000/1,001). 입력: 기록(주기 100)이 있는 상태에서 조건을 하나씩 깨뜨림. 기대: 모두 만족할 때만 active. 추적: UT-063 -> DD-F-020, SRS-L-005. 기법: 경계값 분석, MC/DC */
+/** 목적: override 성립 조건 각각의 필요성과 허용 주기 경계(1,000/1,001). 입력: 기록(주기 100)이 있는 상태에서 조건을 하나씩 깨뜨림. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 모두 만족할 때만 active. 추적: UT-063 -> DD-F-020, SRS-L-005. 기법: 경계값 분석, MC/DC */
 TEST(OverrideUnit, Establish_EachConditionRequired_AndWindowBoundary)
 {
     struct Variant
@@ -147,7 +147,7 @@ TEST(OverrideUnit, Establish_EachConditionRequired_AndWindowBoundary)
     }
 }
 
-/** 목적: override 지속과 종료 조건 (SRS-F-030, A-18). 입력: active 상태에서 접근위험 FALSE / 속도 3.0 이상 / NORMAL에서 lock 적용 / DEGRADED에서 lock / 변화 없음. 기대: 앞의 3개는 종료, 뒤의 2개는 지속. 추적: UT-064 -> DD-F-020, SRS-F-030. 기법: 결정표, MC/DC */
+/** 목적: override 지속과 종료 조건 (SRS-F-030, A-18). 입력: active 상태에서 접근위험 FALSE / 속도 3.0 이상 / NORMAL에서 lock 적용 / DEGRADED에서 lock / 변화 없음. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 앞의 3개는 종료, 뒤의 2개는 지속. 추적: UT-064 -> DD-F-020, SRS-F-030. 기법: 결정표, MC/DC */
 TEST(OverrideUnit, EndConditions_EndOnlyWhenConditionHolds)
 {
     struct Variant
@@ -186,7 +186,7 @@ TEST(OverrideUnit, EndConditions_EndOnlyWhenConditionHolds)
     }
 }
 
-/** 목적: 접근위험이 사라지면 억제 기록을 지운다. 입력: 기록이 있고 active가 아닌 상태에서 risk 0. 기대: 기록 해제. 추적: UT-065 -> DD-F-020. 기법: MC/DC */
+/** 목적: 접근위험이 사라지면 억제 기록을 지운다. 입력: 기록이 있고 active가 아닌 상태에서 risk 0. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 기록 해제. 추적: UT-065 -> DD-F-020. 기법: MC/DC */
 TEST(OverrideUnit, RiskGone_ClearsSuppressionRecord)
 {
     Override_t ctx;
@@ -227,7 +227,7 @@ const ReasonCode_t kRankReason[RULE_COUNT] = {REASON_CRASH_CONFIRMED, REASON_FIR
                                               REASON_APPROACH_RISK_LOCK, REASON_ISOFIX_LOCK, REASON_CMD_APPLIED,
                                               REASON_AUTO_LOCK};
 
-/** 목적: 중재 입력 널 거절. 입력: in/out NULL. 기대: ERR_PARAM. 추적: UT-070 -> DD-F-021. 기법: 오류 추정(MC/DC) */
+/** 목적: 중재 입력 널 거절. 입력: in/out NULL. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: ERR_PARAM. 추적: UT-070 -> DD-F-021. 기법: 오류 추정(MC/DC) */
 TEST(ArbiterUnit, Resolve_NullPointers_ReturnParamError)
 {
     ArbiterInput_t in = ArbIn();
@@ -236,7 +236,7 @@ TEST(ArbiterUnit, Resolve_NullPointers_ReturnParamError)
     EXPECT_EQ(STATUS_ERR_PARAM, Arbiter_Resolve(&in, nullptr));
 }
 
-/** 목적: 활성 규칙이 없으면 직전 출력 유지, 이유 NONE (순위 8). 입력: previous {LOCK, RELEASE}. 기대: 같은 출력, priority/reason NONE. 추적: UT-071 -> DD-F-021, SRS-F-017. 기법: 동치 클래스 */
+/** 목적: 활성 규칙이 없으면 직전 출력 유지, 이유 NONE (순위 8). 입력: previous {LOCK, RELEASE}. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 같은 출력, priority/reason NONE. 추적: UT-071 -> DD-F-021, SRS-F-017. 기법: 동치 클래스 */
 TEST(ArbiterUnit, Resolve_NoActiveRule_HoldsPreviousOutput)
 {
     ArbiterInput_t in = ArbIn();
@@ -249,7 +249,7 @@ TEST(ArbiterUnit, Resolve_NoActiveRule_HoldsPreviousOutput)
     EXPECT_EQ(REASON_NONE, out.reason_code[DOOR_RIGHT]);
 }
 
-/** 목적: 순위 1~7 각 규칙이 단독 활성일 때의 결과. 입력: 한 순위만 활성(효과 LOCK). 기대: 해당 효과와 이유가 출력과 priority_reason으로 나온다. 추적: UT-072 -> DD-F-021, SRS-F-028. 기법: 동치 클래스 */
+/** 목적: 순위 1~7 각 규칙이 단독 활성일 때의 결과. 입력: 한 순위만 활성(효과 LOCK). 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 해당 효과와 이유가 출력과 priority_reason으로 나온다. 추적: UT-072 -> DD-F-021, SRS-F-028. 기법: 동치 클래스 */
 TEST(ArbiterUnit, Resolve_SingleRankActive_AppliesItsEffectAndReason)
 {
     for (int rank = 0; rank < RULE_COUNT; rank++)
@@ -264,7 +264,7 @@ TEST(ArbiterUnit, Resolve_SingleRankActive_AppliesItsEffectAndReason)
     }
 }
 
-/** 목적: 두 규칙이 서로 다른 출력을 요구하면 높은 순위가 이긴다 (SRS-F-017). 입력: 순위 i<j 21쌍 각각, i는 LOCK, j는 RELEASE (그리고 반대). 기대: 순위 i의 효과와 이유. 추적: UT-073 -> DD-F-021, SRS-F-017, SRS-F-028. 기법: 쌍 조합(전수 21x2) */
+/** 목적: 두 규칙이 서로 다른 출력을 요구하면 높은 순위가 이긴다 (SRS-F-017). 입력: 순위 i<j 21쌍 각각, i는 LOCK, j는 RELEASE (그리고 반대). 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 순위 i의 효과와 이유. 추적: UT-073 -> DD-F-021, SRS-F-017, SRS-F-028. 기법: 쌍 조합(전수 21x2) */
 TEST(ArbiterUnit, Resolve_AllRankPairs_HigherRankWins)
 {
     int pairs = 0;
@@ -290,7 +290,7 @@ TEST(ArbiterUnit, Resolve_AllRankPairs_HigherRankWins)
     EXPECT_EQ(21, pairs);
 }
 
-/** 목적: 도어별 독립 중재. 입력: 좌는 순위 2만, 우는 순위 5만 활성. 기대: 좌/우가 각자의 규칙 결과를 따른다. 추적: UT-074 -> DD-F-021. 기법: 동치 클래스 */
+/** 목적: 도어별 독립 중재. 입력: 좌는 순위 2만, 우는 순위 5만 활성. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 좌/우가 각자의 규칙 결과를 따른다. 추적: UT-074 -> DD-F-021. 기법: 동치 클래스 */
 TEST(ArbiterUnit, Resolve_DoorsIndependent)
 {
     ArbiterInput_t in = ArbIn();
@@ -302,7 +302,7 @@ TEST(ArbiterUnit, Resolve_DoorsIndependent)
     EXPECT_EQ(REASON_ISOFIX_LOCK, out.priority_reason[DOOR_RIGHT]);
 }
 
-/** 목적: OFF에서는 접근위험 이하 순위(4~7)를 적용하지 않고 순위 1~3은 적용한다 (SRS-F-031). 입력: state OFF, 순위 4~7만 활성 / 순위 3 포함 / 순위 1 포함. 기대: 4~7만이면 직전 출력 유지, 3 또는 1이 있으면 그 규칙. 추적: UT-075 -> DD-F-022, SRS-F-031. 기법: 결정표, MC/DC */
+/** 목적: OFF에서는 접근위험 이하 순위(4~7)를 적용하지 않고 순위 1~3은 적용한다 (SRS-F-031). 입력: state OFF, 순위 4~7만 활성 / 순위 3 포함 / 순위 1 포함. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 4~7만이면 직전 출력 유지, 3 또는 1이 있으면 그 규칙. 추적: UT-075 -> DD-F-022, SRS-F-031. 기법: 결정표, MC/DC */
 TEST(ArbiterUnit, Resolve_StateOff_GatesRanksFourToSeven)
 {
     ArbiterInput_t in = ArbIn(STATE_OFF);
@@ -325,7 +325,7 @@ TEST(ArbiterUnit, Resolve_StateOff_GatesRanksFourToSeven)
     EXPECT_EQ(REASON_CRASH_CONFIRMED, out.priority_reason[DOOR_LEFT]);
 }
 
-/** 목적: DEGRADED, FAULT에서는 운전자 명령(순위 6)만 제외하고 나머지는 적용한다 (SSR-010, 011, 013, 016). 입력: 각 state에서 순위 6 단독 / 순위 4, 5, 7 단독. 기대: 6은 직전 출력 유지+상태 이유, 4/5/7은 적용. 추적: UT-076 -> DD-F-022, SSR-010, SSR-011, SSR-016. 기법: 결정표, MC/DC */
+/** 목적: DEGRADED, FAULT에서는 운전자 명령(순위 6)만 제외하고 나머지는 적용한다 (SSR-010, 011, 013, 016). 입력: 각 state에서 순위 6 단독 / 순위 4, 5, 7 단독. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 6은 직전 출력 유지+상태 이유, 4/5/7은 적용. 추적: UT-076 -> DD-F-022, SSR-010, SSR-011, SSR-016. 기법: 결정표, MC/DC */
 TEST(ArbiterUnit, Resolve_DegradedAndFault_GateOnlyDriverCommand)
 {
     const State_t states[] = {STATE_DEGRADED, STATE_FAULT};
@@ -352,7 +352,7 @@ TEST(ArbiterUnit, Resolve_DegradedAndFault_GateOnlyDriverCommand)
     }
 }
 
-/** 목적: override 지속은 순위 6 효과(RELEASE, OVERRIDE)로 반영되고 더 높은 순위에는 지므로 ISOFIX가 우선한다. 입력: override active + 순위 6 비활성 / 순위 6 활성(LOCK) / ISOFIX 활성 / DEGRADED / override 없음. 기대: RELEASE+OVERRIDE / OVERRIDE / ISOFIX LOCK / 직전 유지 / 직전 유지. 추적: UT-077 -> DD-F-023, SRS-F-029, SRS-F-030. 기법: 결정표, MC/DC */
+/** 목적: override 지속은 순위 6 효과(RELEASE, OVERRIDE)로 반영되고 더 높은 순위에는 지므로 ISOFIX가 우선한다. 입력: override active + 순위 6 비활성 / 순위 6 활성(LOCK) / ISOFIX 활성 / DEGRADED / override 없음. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: RELEASE+OVERRIDE / OVERRIDE / ISOFIX LOCK / 직전 유지 / 직전 유지. 추적: UT-077 -> DD-F-023, SRS-F-029, SRS-F-030. 기법: 결정표, MC/DC */
 TEST(ArbiterUnit, Resolve_Override_AppliesAtDriverRankOnly)
 {
     Decision_t out{};
@@ -390,7 +390,7 @@ TEST(ArbiterUnit, Resolve_Override_AppliesAtDriverRankOnly)
     EXPECT_EQ(REASON_NONE, out.reason_code[DOOR_LEFT]);
 }
 
-/** 목적: 선택된 규칙이 없을 때 정보성 이유를 가장 높은 순위부터 고른다. 입력: info 순위 1 / 순위 6 / 둘 다 / OFF에서 제외된 순위 6 / 전부 NONE. 기대: 각각 CRASH_PENDING / CMD_REJECTED_SPEED / CMD_REJECTED_SPEED(거절 코드가 우선) / NONE(제외된 순위) / NONE. 추적: UT-078 -> DD-F-024, SSR-003, SRS-F-003. 기법: 결정표, MC/DC */
+/** 목적: 선택된 규칙이 없을 때 정보성 이유를 가장 높은 순위부터 고른다. 입력: info 순위 1 / 순위 6 / 둘 다 / OFF에서 제외된 순위 6 / 전부 NONE. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 각각 CRASH_PENDING / CMD_REJECTED_SPEED / CMD_REJECTED_SPEED(거절 코드가 우선) / NONE(제외된 순위) / NONE. 추적: UT-078 -> DD-F-024, SSR-003, SRS-F-003. 기법: 결정표, MC/DC */
 TEST(ArbiterUnit, Fallback_InfoReasons_HighestRankFirst)
 {
     Decision_t out{};
@@ -419,7 +419,7 @@ TEST(ArbiterUnit, Fallback_InfoReasons_HighestRankFirst)
     EXPECT_EQ(REASON_NONE, out.reason_code[DOOR_LEFT]);
 }
 
-/** 목적: 운전자 명령 관련 이유 덮어쓰기 (SRS-F-032). 입력: state NORMAL에서 순위 6 info가 CMD_REJECTED_SPEED / INPUT_INVALID / 다른 정보성 이유 / 없음, 그리고 OFF, DEGRADED, FAULT에서 같은 info. 기대: NORMAL의 두 거절 이유만 reason_code를 덮어쓰고 priority_reason은 결정 규칙의 값을 유지, 다른 state에서는 덮어쓰지 않는다. 추적: UT-079 -> DD-F-021, DD-F-029, SRS-F-032, SSR-007. 기법: 결정표, MC/DC */
+/** 목적: 운전자 명령 관련 이유 덮어쓰기 (SRS-F-032). 입력: state NORMAL에서 순위 6 info가 CMD_REJECTED_SPEED / INPUT_INVALID / 다른 정보성 이유 / 없음, 그리고 OFF, DEGRADED, FAULT에서 같은 info. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: NORMAL의 두 거절 이유만 reason_code를 덮어쓰고 priority_reason은 결정 규칙의 값을 유지, 다른 state에서는 덮어쓰지 않는다. 추적: UT-079 -> DD-F-021, DD-F-029, SRS-F-032, SSR-007. 기법: 결정표, MC/DC */
 TEST(ArbiterUnit, Resolve_OverlayReason_OnlyInNormalState)
 {
     Decision_t out{};
@@ -457,7 +457,7 @@ TEST(ArbiterUnit, Resolve_OverlayReason_OnlyInNormalState)
     EXPECT_EQ(REASON_IGNITION_OFF, out.reason_code[DOOR_LEFT]);
 }
 
-/** 목적: 상태 이유 우선 (A-25). 입력: 형식 오류 명령 info + FAULT / DEGRADED에서 규칙 없음. 기대: reason_code가 INPUT_INVALID가 아니라 SENSOR_FAULT / DEGRADED_STALE. 추적: UT-080A -> DD-F-024, DD-F-029, SSR-009, SSR-012. 기법: 시나리오 */
+/** 목적: 상태 이유 우선 (A-25). 입력: 형식 오류 명령 info + FAULT / DEGRADED에서 규칙 없음. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: reason_code가 INPUT_INVALID가 아니라 SENSOR_FAULT / DEGRADED_STALE. 추적: UT-080A -> DD-F-024, DD-F-029, SSR-009, SSR-012. 기법: 시나리오 */
 TEST(ArbiterUnit, Resolve_StateReasonBeatsInvalidCommand)
 {
     Decision_t out{};

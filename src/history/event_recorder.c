@@ -114,6 +114,7 @@ Status_t Event_Record(Event_t *ctx, const CycleResult_t *res, double timestamp_s
         {
             if (Event_HasChanged(ctx, res) == 1)
             {
+                /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
                 Event_Append(ctx, res, timestamp_s);
             }
             result = STATUS_OK;

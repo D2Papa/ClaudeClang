@@ -167,6 +167,7 @@ static Status_t Control_EvaluateRules(Control_t *ctx, const Snapshot_t *snap, St
     rule_in.previous[DOOR_LEFT] = ctx->previous[DOOR_LEFT];
     rule_in.previous[DOOR_RIGHT] = ctx->previous[DOOR_RIGHT];
     /* 아래 호출들은 인자가 널이 아님이 이 함수에서 보장되므로 오류를 반환하지 않는다. */
+    /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
     DriverCommand_Evaluate(&rule_in, &arb->rules[RANK_DRIVER]);
     Control_BuildOverrideInput(ctx, snap, state, &arb->rules[RANK_DRIVER], &ov_in);
     Override_Update(&ctx->override_ctx, &ov_in, &rule_in.override_status);
@@ -174,6 +175,7 @@ static Status_t Control_EvaluateRules(Control_t *ctx, const Snapshot_t *snap, St
     {
         if (i != (int)RANK_DRIVER)
         {
+            /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
             RULE_TABLE[i](&rule_in, &arb->rules[i]);
         }
     }
@@ -284,10 +286,12 @@ static Status_t Control_Run(Control_t *ctx, const RawInput_t *raw, CycleResult_t
     Status_t status;
 
     /* 널이 아닌 인자로 호출하는 하위 함수는 오류를 반환하지 않으므로 신선도 검사만 오류를 전파한다. */
+    /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
     Validator_Normalize(raw, &snap);
     status = Freshness_Apply(&ctx->freshness, &snap);
     if (status == STATUS_OK)
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         State_Determine(&snap, &state, &warn);
         Control_EvaluateRules(ctx, &snap, state, &arb);
         Arbiter_Resolve(&arb, &dec);
@@ -305,6 +309,7 @@ Status_t Control_Init(Control_t *ctx)
         Control_t cleared = {0};
 
         *ctx = cleared;
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Freshness_Init(&ctx->freshness);
         Override_Init(&ctx->override_ctx);
         ctx->previous[DOOR_LEFT] = OUTPUT_RELEASE;

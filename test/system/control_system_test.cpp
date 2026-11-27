@@ -35,7 +35,7 @@ RawValue_t Bool(int v) { RawValue_t r{}; r.kind = RAW_BOOLEAN; r.boolean = v; re
 RawValue_t Enum(int v) { RawValue_t r{}; r.kind = RAW_ENUM; r.enum_id = v; return r; }
 RawValue_t Bad() { RawValue_t r{}; r.kind = RAW_OTHER; return r; }
 
-/** 주기 번호에 해당하는 논리 시각(10 ms 단위)의 정상 입력 */
+/** 주기 번호에 해당하는 논리 시각(10 ms 단위)의 정상 입력 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 RawInput_t Raw(int cycle)
 {
     RawInput_t in{};
@@ -75,7 +75,7 @@ protected:
         return out;
     }
 
-    /** 속도 0에서 lock 명령 한 주기로 양쪽을 LOCK 상태로 만든다 */
+    /** 속도 0에서 lock 명령 한 주기로 양쪽을 LOCK 상태로 만든다 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
     void PrimeLock(int cycle)
     {
         RawInput_t in = Raw(cycle);
@@ -187,7 +187,7 @@ std::string PublicResultHash(const CycleResult_t &r, Sha256 *sha)
 
 // ================================================================== 테스트
 
-/** ST-001 SRS-F-001/002: 4 source x 3 side x 2 action = 24 조합이 선택 도어에만 적용되고 CMD_APPLIED를 기록한다 (속도 0). */
+/** ST-001 SRS-F-001/002: 4 source x 3 side x 2 action = 24 조합이 선택 도어에만 적용되고 CMD_APPLIED를 기록한다 (속도 0). 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, DriverCommands_AllCombinations_AppliedToSelectedDoorsOnly)
 {
     RecordProperty("requirements", "SRS-F-001,SRS-F-002");
@@ -224,7 +224,7 @@ TEST_F(System, DriverCommands_AllCombinations_AppliedToSelectedDoorsOnly)
     EXPECT_EQ(24, count);
 }
 
-/** ST-002 SRS-F-003/L-004: unlock은 2.9 km/h에서 적용되고 3.0 km/h에서는 적용되지 않으며 CMD_REJECTED_SPEED가 기록된다. */
+/** ST-002 SRS-F-003/L-004: unlock은 2.9 km/h에서 적용되고 3.0 km/h에서는 적용되지 않으며 CMD_REJECTED_SPEED가 기록된다. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, Unlock_SpeedBoundary_AppliedBelowThresholdOnly)
 {
     RecordProperty("requirements", "SRS-F-003,SRS-L-004");
@@ -248,7 +248,7 @@ TEST_F(System, Unlock_SpeedBoundary_AppliedBelowThresholdOnly)
     EXPECT_EQ(REASON_AUTO_LOCK, r.priority_reason[DOOR_LEFT]);
 }
 
-/** ST-003 SRS-F-004/L-004: 2.9 km/h는 동작하지 않고 3.0 km/h부터 100주기 동안 양쪽 LOCK+AUTO_LOCK. */
+/** ST-003 SRS-F-004/L-004: 2.9 km/h는 동작하지 않고 3.0 km/h부터 100주기 동안 양쪽 LOCK+AUTO_LOCK. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, AutoLock_FromThreshold_LocksBothDoors)
 {
     RecordProperty("requirements", "SRS-F-004,SRS-L-004");
@@ -267,7 +267,7 @@ TEST_F(System, AutoLock_FromThreshold_LocksBothDoors)
     }
 }
 
-/** ST-004 SRS-F-007/029/030, SRS-L-005, SSR-005: override 성립, 허용 주기 경계, 지속, 종료 조건. */
+/** ST-004 SRS-F-007/029/030, SRS-L-005, SSR-005: override 성립, 허용 주기 경계, 지속, 종료 조건. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, Override_Lifecycle_WindowAndEndConditions)
 {
     RecordProperty("requirements", "SRS-F-007,SRS-F-029,SRS-F-030,SRS-L-005,SSR-005");
@@ -377,7 +377,7 @@ TEST_F(System, Override_Lifecycle_WindowAndEndConditions)
     EXPECT_EQ(REASON_ISOFIX_LOCK, r.priority_reason[DOOR_LEFT]);
 }
 
-/** ST-005 SRS-F-014: 화재/과온/성인 단독 입력은 다음 주기부터 입력이 TRUE인 동안 RELEASE (고속에서도), 해제되면 규칙대로 평가. */
+/** ST-005 SRS-F-014: 화재/과온/성인 단독 입력은 다음 주기부터 입력이 TRUE인 동안 RELEASE (고속에서도), 해제되면 규칙대로 평가. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, EmergencyRelease_PerInput_HeldWhileTrueThenReevaluated)
 {
     RecordProperty("requirements", "SRS-F-014");
@@ -403,7 +403,7 @@ TEST_F(System, EmergencyRelease_PerInput_HeldWhileTrueThenReevaluated)
     }
 }
 
-/** ST-006 SRS-F-015: 한쪽 ISOFIX만 TRUE이면 그 쪽만 LOCK+ISOFIX_LOCK, 반대쪽은 유지. */
+/** ST-006 SRS-F-015: 한쪽 ISOFIX만 TRUE이면 그 쪽만 LOCK+ISOFIX_LOCK, 반대쪽은 유지. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, Isofix_OneSide_LocksOnlyThatSide)
 {
     RecordProperty("requirements", "SRS-F-015");
@@ -420,7 +420,7 @@ TEST_F(System, Isofix_OneSide_LocksOnlyThatSide)
     EXPECT_EQ(OUTPUT_LOCK, r.output[DOOR_RIGHT]); // ISOFIX가 해제되어도 반대쪽 출력은 직전 값을 유지한다
 }
 
-/** ST-007 SRS-F-016/027/031: ignition off 동안 매 주기 RELEASE+OFF+IGNITION_OFF (다른 LOCK 입력과 명령에도), 복귀 다음 주기에 OFF 해제. */
+/** ST-007 SRS-F-016/027/031: ignition off 동안 매 주기 RELEASE+OFF+IGNITION_OFF (다른 LOCK 입력과 명령에도), 복귀 다음 주기에 OFF 해제. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, IgnitionOff_HoldsReleaseAndRecovers)
 {
     RecordProperty("requirements", "SRS-F-016,SRS-F-027,SRS-F-031");
@@ -475,7 +475,7 @@ void Apply(RawInput_t *in, int rank, bool lock_command)
     }
 }
 
-/** ST-008 SRS-F-017/028: 규칙 7개 중 2개를 동시에 활성화한 21쌍 중 OFF와 순위 4~7의 4쌍을 제외한 17쌍에서 상위 규칙의 효과와 이유가 적용된다. */
+/** ST-008 SRS-F-017/028: 규칙 7개 중 2개를 동시에 활성화한 21쌍 중 OFF와 순위 4~7의 4쌍을 제외한 17쌍에서 상위 규칙의 효과와 이유가 적용된다. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, PriorityPairs_Seventeen_HigherRuleWins)
 {
     RecordProperty("requirements", "SRS-F-017,SRS-F-028");
@@ -520,7 +520,7 @@ TEST_F(System, PriorityPairs_Seventeen_HigherRuleWins)
     EXPECT_EQ(17, tested);
 }
 
-/** ST-009 SSR-001/002/003/013: 충돌 CONFIRMED는 같은 주기에 RELEASE(30주기 이내)하고 유지되며 FAULT/DEGRADED에서도 적용, PENDING은 출력을 바꾸지 않는다. */
+/** ST-009 SSR-001/002/003/013: 충돌 CONFIRMED는 같은 주기에 RELEASE(30주기 이내)하고 유지되며 FAULT/DEGRADED에서도 적용, PENDING은 출력을 바꾸지 않는다. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, Crash_ConfirmedReleasesAndPendingDoesNot)
 {
     RecordProperty("requirements", "SSR-001,SSR-002,SSR-003,SSR-013");
@@ -564,7 +564,7 @@ TEST_F(System, Crash_ConfirmedReleasesAndPendingDoesNot)
     EXPECT_EQ(REASON_CRASH_PENDING, r.reason_code[DOOR_LEFT]);
 }
 
-/** ST-010 SSR-004/005/006: 접근위험은 해당 도어만 LOCK, unlock 억제, 좌우 독립. */
+/** ST-010 SSR-004/005/006: 접근위험은 해당 도어만 LOCK, unlock 억제, 좌우 독립. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, ApproachRisk_PerDoorLockAndSuppression)
 {
     RecordProperty("requirements", "SSR-004,SSR-005,SSR-006");
@@ -593,7 +593,7 @@ TEST_F(System, ApproachRisk_PerDoorLockAndSuppression)
     EXPECT_EQ(OUTPUT_RELEASE, r.output[DOOR_RIGHT]);
 }
 
-/** ST-011 SSR-007/SRS-L-007/SRS-C-003: 범위, 형식, 누락, 값 집합 오류 입력은 평가에 쓰이지 않고 DEGRADED(또는 INPUT_INVALID)로 처리되며 gear 오류는 DEGRADED를 일으키지 않는다. */
+/** ST-011 SSR-007/SRS-L-007/SRS-C-003: 범위, 형식, 누락, 값 집합 오류 입력은 평가에 쓰이지 않고 DEGRADED(또는 INPUT_INVALID)로 처리되며 gear 오류는 DEGRADED를 일으키지 않는다. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, InputValidation_BadInputs_RejectedBeforeEvaluation)
 {
     RecordProperty("requirements", "SSR-007,SRS-L-007,SRS-C-003");
@@ -635,7 +635,7 @@ TEST_F(System, InputValidation_BadInputs_RejectedBeforeEvaluation)
     EXPECT_EQ(REASON_INPUT_INVALID, r.reason_code[DOOR_LEFT]);
 }
 
-/** ST-012 SSR-008/009: 차속 원천 시각 차이 200 ms(20주기)는 fresh, 210 ms(21주기)는 stale이고 같은 주기에 DEGRADED(100 ms 이내)이다. */
+/** ST-012 SSR-008/009: 차속 원천 시각 차이 200 ms(20주기)는 fresh, 210 ms(21주기)는 stale이고 같은 주기에 DEGRADED(100 ms 이내)이다. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, Freshness_Boundary_StaleAfter200ms)
 {
     RecordProperty("requirements", "SSR-008,SSR-009");
@@ -649,7 +649,7 @@ TEST_F(System, Freshness_Boundary_StaleAfter200ms)
     EXPECT_EQ(REASON_DEGRADED_STALE, r.reason_code[DOOR_LEFT]);
 }
 
-/** ST-013 SSR-010/011/012/014/015/016: FAULT/DEGRADED 상태의 명령 미적용, LOCK 규칙 적용, 경고코드, 복귀, 상태 우선순위 표. */
+/** ST-013 SSR-010/011/012/014/015/016: FAULT/DEGRADED 상태의 명령 미적용, LOCK 규칙 적용, 경고코드, 복귀, 상태 우선순위 표. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, FaultAndDegraded_BehaviorAndRecovery)
 {
     RecordProperty("requirements", "SSR-010,SSR-011,SSR-012,SSR-014,SSR-015,SSR-016");
@@ -710,7 +710,7 @@ TEST_F(System, FaultAndDegraded_BehaviorAndRecovery)
     }
 }
 
-/** ST-014 SRS-Q-001/C-005: 같은 입력 벡터 1,000회 재생 시 공개 결과의 SHA-256 해시가 모두 같다. */
+/** ST-014 SRS-Q-001/C-005: 같은 입력 벡터 1,000회 재생 시 공개 결과의 SHA-256 해시가 모두 같다. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(System, Determinism_ThousandReplays_SameSha256)
 {
     RecordProperty("requirements", "SRS-Q-001,SRS-C-005");

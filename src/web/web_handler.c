@@ -146,13 +146,16 @@ static Status_t Web_RespondPage(const Web_t *ctx, WebResponse_t *resp)
     const char *html = NULL;
     size_t length = 0U;
 
+    /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
     WebPage_Get(&html, &length);
     if (length < ctx->body_limit)
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Web_SetText(resp, 200, "text/html; charset=utf-8", html);
     }
     else
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Web_SetText(resp, 500, "text/plain", "");
     }
     return STATUS_OK;
@@ -182,10 +185,12 @@ static Status_t Web_RespondStatus(const Web_t *ctx, WebResponse_t *resp)
 
     if (ctx->has_last == 0)
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Web_SetText(resp, 204, "text/plain", "");
     }
     else
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Presenter_Build(&ctx->last, &presented);
         Presenter_Serialize(&presented, resp->body, ctx->body_limit, &http_status);
         resp->status = http_status;
@@ -225,6 +230,7 @@ static int Web_AppendEvent(char *buf, size_t cap, size_t *pos, const EventEntry_
     shown.output[DOOR_RIGHT] = e->lock_right;
     shown.state = e->state;
     shown.reason_code_summary = e->reason_code;
+    /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
     Presenter_Build(&shown, &presented);
     written = snprintf(buf + *pos, cap - *pos,
                        "%s{\"id\":%llu,\"timestamp_s\":%.3f,\"lock_left\":\"%s\",\"lock_right\":\"%s\",\"state\":\"%s\",\"reason_code\":\"%s\"}",
@@ -263,6 +269,7 @@ static Status_t Web_RespondHistory(const Web_t *ctx, WebResponse_t *resp)
     size_t i;
     int ok = 1;
 
+    /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
     Event_Query(&ctx->events, entries, HISTORY_CAPACITY, &count);
     resp->body[0] = '[';
     for (i = 0U; (i < count) && (ok == 1); i++)
@@ -278,6 +285,7 @@ static Status_t Web_RespondHistory(const Web_t *ctx, WebResponse_t *resp)
     }
     else
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Web_SetText(resp, 500, "text/plain", "");
     }
     return STATUS_OK;
@@ -302,8 +310,10 @@ static Status_t Web_RespondHistory(const Web_t *ctx, WebResponse_t *resp)
  */
 static Status_t Web_ExecuteCycle(Web_t *ctx, const RawInput_t *raw)
 {
+    /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
     Control_Step(&ctx->control, raw, &ctx->last);
     ctx->has_last = 1;
+    /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
     Event_Record(&ctx->events, &ctx->last, raw->timestamp_s);
     ctx->cycle += 1;
     return STATUS_OK;
@@ -333,11 +343,13 @@ static Status_t Web_RespondStep(Web_t *ctx, const char *body, WebResponse_t *res
 
     if (WebParser_ParseBody(body, ctx->cycle, &raw) == 1)
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Web_ExecuteCycle(ctx, &raw);
         Web_RespondStatus(ctx, resp);
     }
     else
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Web_SetText(resp, 400, "application/json", "{\"error\":\"bad request\"}");
     }
     return STATUS_OK;
@@ -364,8 +376,10 @@ static Status_t Web_RespondReset(Web_t *ctx, WebResponse_t *resp)
 {
     size_t limit = ctx->body_limit;
 
+    /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
     Web_Init(ctx);
     ctx->body_limit = limit;
+    /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
     Web_SetText(resp, 200, "application/json", "{\"reset\":true}");
     return STATUS_OK;
 }
@@ -393,22 +407,27 @@ static Status_t Web_Dispatch(Web_t *ctx, int route, const char *body, WebRespons
 {
     if (route == (int)ROUTE_PAGE)
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Web_RespondPage(ctx, resp);
     }
     else if (route == (int)ROUTE_STATUS)
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Web_RespondStatus(ctx, resp);
     }
     else if (route == (int)ROUTE_HISTORY)
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Web_RespondHistory(ctx, resp);
     }
     else if (route == (int)ROUTE_STEP)
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Web_RespondStep(ctx, body, resp);
     }
     else
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Web_RespondReset(ctx, resp);
     }
     return STATUS_OK;
@@ -441,6 +460,7 @@ Status_t Web_Init(Web_t *ctx)
 
     if (ctx != NULL)
     {
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Control_Init(&ctx->control);
         Event_Init(&ctx->events);
         ctx->has_last = 0;
@@ -479,14 +499,17 @@ Status_t Web_Handle(Web_t *ctx, const WebRequest_t *req, WebResponse_t *resp)
         }
         else if (route < 0)
         {
+            /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
             Web_SetText(resp, 404, "text/plain", "not found");
         }
         else if (Web_MethodAllowed(route, req->method) == 0)
         {
+            /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
             Web_SetText(resp, 405, "text/plain", "method not allowed");
         }
         else
         {
+            /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
             Web_Dispatch(ctx, route, req->body, resp);
         }
     }

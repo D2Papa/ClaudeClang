@@ -37,7 +37,7 @@ CycleResult_t Result(Output_t left, Output_t right, State_t state, ReasonCode_t 
     return r;
 }
 
-/** 목적: Build 널 거절. 입력: res/out NULL. 기대: ERR_PARAM. 추적: UT-100 -> DD-F-040. 기법: 오류 추정(MC/DC) */
+/** 목적: Build 널 거절. 입력: res/out NULL. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: ERR_PARAM. 추적: UT-100 -> DD-F-040. 기법: 오류 추정(MC/DC) */
 TEST(PresenterUnit, Build_NullPointers_ReturnParamError)
 {
     CycleResult_t r = Result(OUTPUT_RELEASE, OUTPUT_RELEASE, STATE_NORMAL, REASON_NONE);
@@ -46,7 +46,7 @@ TEST(PresenterUnit, Build_NullPointers_ReturnParamError)
     EXPECT_EQ(STATUS_ERR_PARAM, Presenter_Build(&r, nullptr));
 }
 
-/** 목적: 결과가 SRS 6.2 열거형 이름으로 표시된다 (SRS-F-019, F-022). 입력: LOCK/RELEASE, FAULT, SENSOR_FAULT, 경고 1. 기대: 이름과 "W-001". 추적: UT-101 -> DD-F-040, SRS-F-019. 기법: 동치 클래스 */
+/** 목적: 결과가 SRS 6.2 열거형 이름으로 표시된다 (SRS-F-019, F-022). 입력: LOCK/RELEASE, FAULT, SENSOR_FAULT, 경고 1. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 이름과 "W-001". 추적: UT-101 -> DD-F-040, SRS-F-019. 기법: 동치 클래스 */
 TEST(PresenterUnit, Build_Values_MappedToNames)
 {
     CycleResult_t r = Result(OUTPUT_LOCK, OUTPUT_RELEASE, STATE_FAULT, REASON_SENSOR_FAULT);
@@ -64,7 +64,7 @@ TEST(PresenterUnit, Build_Values_MappedToNames)
     EXPECT_STREQ("NONE", p.warning_code);
 }
 
-/** 목적: 모든 열거 값의 이름 (17개 이유, 4개 state, 2개 출력). 입력: 값 전수. 기대: 이름 표와 일치하는 문자열. 추적: UT-102 -> DD-F-041. 기법: 전수 */
+/** 목적: 모든 열거 값의 이름 (17개 이유, 4개 state, 2개 출력). 입력: 값 전수. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 이름 표와 일치하는 문자열. 추적: UT-102 -> DD-F-041. 기법: 전수 */
 TEST(PresenterUnit, Build_AllEnumValues_HaveNames)
 {
     const char *reasons[] = {"NONE", "CMD_APPLIED", "CMD_REJECTED_SPEED", "INPUT_INVALID", "CRASH_CONFIRMED",
@@ -88,7 +88,7 @@ TEST(PresenterUnit, Build_AllEnumValues_HaveNames)
     }
 }
 
-/** 목적: 범위 밖 열거 값은 "UNKNOWN". 입력: 음수와 상한 초과 값. 기대: UNKNOWN. 추적: UT-103 -> DD-F-041. 기법: 경계값 분석, MC/DC */
+/** 목적: 범위 밖 열거 값은 "UNKNOWN". 입력: 음수와 상한 초과 값. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: UNKNOWN. 추적: UT-103 -> DD-F-041. 기법: 경계값 분석, MC/DC */
 TEST(PresenterUnit, Build_OutOfRangeEnums_ShowUnknown)
 {
     PresentedStatus_t p{};
@@ -105,7 +105,7 @@ TEST(PresenterUnit, Build_OutOfRangeEnums_ShowUnknown)
     EXPECT_STREQ("LOCK", p.lock_left);
 }
 
-/** 목적: 입력 유효성 비트 13개가 항목별 VALID/INVALID로 표시된다. 입력: 마스크 0, 0x1FFF, 비트 하나씩. 기대: 해당 항목만 VALID/INVALID. 추적: UT-104 -> DD-F-040, SRS-F-019. 기법: 전수 */
+/** 목적: 입력 유효성 비트 13개가 항목별 VALID/INVALID로 표시된다. 입력: 마스크 0, 0x1FFF, 비트 하나씩. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 해당 항목만 VALID/INVALID. 추적: UT-104 -> DD-F-040, SRS-F-019. 기법: 전수 */
 TEST(PresenterUnit, Build_ValidityBits_MappedPerItem)
 {
     CycleResult_t r = Result(OUTPUT_RELEASE, OUTPUT_RELEASE, STATE_NORMAL, REASON_NONE);
@@ -127,7 +127,7 @@ TEST(PresenterUnit, Build_ValidityBits_MappedPerItem)
     }
 }
 
-/** 목적: Serialize 인자 오류. 입력: http_status NULL / st NULL / buf NULL / cap 0. 기대: ERR_PARAM, http_status가 널이 아니면 500. 추적: UT-105 -> DD-F-042, SRS-F-023. 기법: 오류 추정(MC/DC) */
+/** 목적: Serialize 인자 오류. 입력: http_status NULL / st NULL / buf NULL / cap 0. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: ERR_PARAM, http_status가 널이 아니면 500. 추적: UT-105 -> DD-F-042, SRS-F-023. 기법: 오류 추정(MC/DC) */
 TEST(PresenterUnit, Serialize_InvalidArguments_ReturnParamError)
 {
     CycleResult_t r = Result(OUTPUT_RELEASE, OUTPUT_RELEASE, STATE_NORMAL, REASON_NONE);
@@ -146,7 +146,7 @@ TEST(PresenterUnit, Serialize_InvalidArguments_ReturnParamError)
     EXPECT_EQ(500, http);
 }
 
-/** 목적: 직렬화 결과 JSON의 정확한 내용 (SRS-F-018, 019). 입력: LOCK/RELEASE, NORMAL, AUTO_LOCK, 모든 항목 VALID. 기대: 고정 순서 JSON, HTTP 200. 추적: UT-106 -> DD-F-043, SRS-F-018. 기법: 동치 클래스 */
+/** 목적: 직렬화 결과 JSON의 정확한 내용 (SRS-F-018, 019). 입력: LOCK/RELEASE, NORMAL, AUTO_LOCK, 모든 항목 VALID. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 고정 순서 JSON, HTTP 200. 추적: UT-106 -> DD-F-043, SRS-F-018. 기법: 동치 클래스 */
 TEST(PresenterUnit, Serialize_Normal_ProducesExpectedJson)
 {
     CycleResult_t r = Result(OUTPUT_LOCK, OUTPUT_RELEASE, STATE_NORMAL, REASON_AUTO_LOCK);
@@ -164,7 +164,7 @@ TEST(PresenterUnit, Serialize_Normal_ProducesExpectedJson)
                  buf);
 }
 
-/** 목적: 버퍼 용량 경계 (SRS-F-023). 입력: 필요 길이+1 용량(성공)부터 1까지의 모든 용량. 기대: 성공은 200, 그보다 작은 모든 용량은 500이고 buf는 빈 문자열. 추적: UT-107 -> DD-F-042, DD-F-044, SRS-F-023. 기법: 경계값 분석 전수 */
+/** 목적: 버퍼 용량 경계 (SRS-F-023). 입력: 필요 길이+1 용량(성공)부터 1까지의 모든 용량. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 성공은 200, 그보다 작은 모든 용량은 500이고 buf는 빈 문자열. 추적: UT-107 -> DD-F-042, DD-F-044, SRS-F-023. 기법: 경계값 분석 전수 */
 TEST(PresenterUnit, Serialize_CapacityBoundary_FailsBelowRequired)
 {
     CycleResult_t r = Result(OUTPUT_LOCK, OUTPUT_RELEASE, STATE_NORMAL, REASON_AUTO_LOCK);
@@ -194,7 +194,7 @@ TEST(PresenterUnit, Serialize_CapacityBoundary_FailsBelowRequired)
 
 // ----------------------------------------------------------------- EventRecorder
 
-/** 목적: Init/Record/Query 널 거절과 미초기화 (SRS-F-026). 입력: NULL 조합, 0으로 채운 ctx. 기대: ERR_PARAM / ERR_STATE. 추적: UT-110 -> DD-F-046, 047, 050. 기법: 오류 추정(MC/DC) */
+/** 목적: Init/Record/Query 널 거절과 미초기화 (SRS-F-026). 입력: NULL 조합, 0으로 채운 ctx. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: ERR_PARAM / ERR_STATE. 추적: UT-110 -> DD-F-046, 047, 050. 기법: 오류 추정(MC/DC) */
 TEST(EventUnit, NullAndUninitialized_AreRejected)
 {
     Event_t ev{};
@@ -213,7 +213,7 @@ TEST(EventUnit, NullAndUninitialized_AreRejected)
     EXPECT_EQ(STATUS_ERR_STATE, Event_Query(&raw, out, HISTORY_CAPACITY, &count));
 }
 
-/** 목적: 변화가 없으면 기록하지 않는다 (SRS-F-025). 입력: 초기 상태와 같은 결과 100주기. 기대: 이벤트 0건. 추적: UT-111 -> DD-F-048, SRS-F-025. 기법: 동치 클래스 */
+/** 목적: 변화가 없으면 기록하지 않는다 (SRS-F-025). 입력: 초기 상태와 같은 결과 100주기. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 이벤트 0건. 추적: UT-111 -> DD-F-048, SRS-F-025. 기법: 동치 클래스 */
 TEST(EventUnit, NoChange_NoEvents)
 {
     Event_t ev;
@@ -229,7 +229,7 @@ TEST(EventUnit, NoChange_NoEvents)
     EXPECT_EQ(0U, count);
 }
 
-/** 목적: 변화 조건 네 가지 각각이 단독으로 이벤트를 만든다 (좌 출력, 우 출력, state, reason_code). 입력: 한 항목만 바꾼 결과. 기대: 이벤트 1건, 필드 값 일치. 추적: UT-112 -> DD-F-048, DD-F-049, SRS-F-024. 기법: 조건 독립성(MC/DC) */
+/** 목적: 변화 조건 네 가지 각각이 단독으로 이벤트를 만든다 (좌 출력, 우 출력, state, reason_code). 입력: 한 항목만 바꾼 결과. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 이벤트 1건, 필드 값 일치. 추적: UT-112 -> DD-F-048, DD-F-049, SRS-F-024. 기법: 조건 독립성(MC/DC) */
 TEST(EventUnit, EachChangeKind_CreatesOneEventWithFields)
 {
     const CycleResult_t cases[] = {
@@ -259,7 +259,7 @@ TEST(EventUnit, EachChangeKind_CreatesOneEventWithFields)
     }
 }
 
-/** 목적: 최근 100건 보존과 ID 유일성 (SRS-F-020, 021, SRS-L-006). 입력: 값이 계속 바뀌는 250건. 기대: 최신 100건만 오래된 순서로 조회되고 ID는 151~250, 중복 없음, cap 부족이면 ERR_PARAM. 추적: UT-113 -> DD-F-049, DD-F-050. 기법: 경계값 분석 */
+/** 목적: 최근 100건 보존과 ID 유일성 (SRS-F-020, 021, SRS-L-006). 입력: 값이 계속 바뀌는 250건. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 최신 100건만 오래된 순서로 조회되고 ID는 151~250, 중복 없음, cap 부족이면 ERR_PARAM. 추적: UT-113 -> DD-F-049, DD-F-050. 기법: 경계값 분석 */
 TEST(EventUnit, RingBuffer_KeepsLastHundredInOrder)
 {
     Event_t ev;
@@ -280,7 +280,7 @@ TEST(EventUnit, RingBuffer_KeepsLastHundredInOrder)
     EXPECT_EQ(STATUS_ERR_PARAM, Event_Query(&ev, out, 99, &count));
 }
 
-/** 목적: 재초기화하면 이력이 사라진다 (휘발성, SRS-F-026). 입력: 기록 후 Event_Init. 기대: 0건, 다음 ID 1. 추적: UT-114 -> DD-F-046, SRS-F-026. 기법: 동치 클래스 */
+/** 목적: 재초기화하면 이력이 사라진다 (휘발성, SRS-F-026). 입력: 기록 후 Event_Init. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 0건, 다음 ID 1. 추적: UT-114 -> DD-F-046, SRS-F-026. 기법: 동치 클래스 */
 TEST(EventUnit, Reinitialize_ClearsHistory)
 {
     Event_t ev;

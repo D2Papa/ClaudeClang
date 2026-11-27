@@ -52,7 +52,7 @@ protected:
     std::unique_ptr<WebResponse_t> resp_;
 };
 
-/** ST-101 SRS-F-018/019/022: 상태 조회와 표시 항목. 평가 전 204(A-22), 평가 후 좌/우 출력, state, priority_reason, reason_code, input_validity(13항목)가 6.2 값으로 응답되고 priority_reason과 reason_code가 같다. */
+/** ST-101 SRS-F-018/019/022: 상태 조회와 표시 항목. 평가 전 204(A-22), 평가 후 좌/우 출력, state, priority_reason, reason_code, input_validity(13항목)가 6.2 값으로 응답되고 priority_reason과 reason_code가 같다. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(WebSystem, StatusQuery_ReturnsAllDisplayItems)
 {
     RecordProperty("requirements", "SRS-F-018,SRS-F-019,SRS-F-022");
@@ -71,7 +71,7 @@ TEST_F(WebSystem, StatusQuery_ReturnsAllDisplayItems)
     EXPECT_TRUE(Has(step, "\"priority_reason\":\"AUTO_LOCK\",\"reason_code\":\"AUTO_LOCK\""));
 }
 
-/** ST-102 SRS-F-023: 직렬화가 응답 본문 상한을 넘으면 HTTP 500, 충분하면 200. */
+/** ST-102 SRS-F-023: 직렬화가 응답 본문 상한을 넘으면 HTTP 500, 충분하면 200. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(WebSystem, SerializationFailure_Returns500)
 {
     RecordProperty("requirements", "SRS-F-023");
@@ -82,7 +82,7 @@ TEST_F(WebSystem, SerializationFailure_Returns500)
     EXPECT_EQ(200, Call("GET", "/status"));
 }
 
-/** ST-103 SRS-F-020/021/024/025/026, SRS-L-006: 이력. 변화마다 1건, 변화 없는 100주기는 0건, 이벤트 ID 중복 없음, 6개 필드만, 250건 입력 후 최신 100건만 오래된 순서, 재초기화 후 0건. */
+/** ST-103 SRS-F-020/021/024/025/026, SRS-L-006: 이력. 변화마다 1건, 변화 없는 100주기는 0건, 이벤트 ID 중복 없음, 6개 필드만, 250건 입력 후 최신 100건만 오래된 순서, 재초기화 후 0건. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(WebSystem, History_ChangeEventsRingAndVolatility)
 {
     RecordProperty("requirements", "SRS-F-020,SRS-F-021,SRS-F-024,SRS-F-025,SRS-F-026,SRS-L-006");
@@ -126,7 +126,7 @@ TEST_F(WebSystem, History_ChangeEventsRingAndVolatility)
     EXPECT_EQ("[]", Body());
 }
 
-/** ST-104 SRS-F-032/003/022 (A-19, A-23, A-25): 덮어쓰기 규칙. NORMAL에서 속도 3.0 unlock은 priority AUTO_LOCK, reason_code CMD_REJECTED_SPEED. 형식 오류 명령은 NORMAL에서만 INPUT_INVALID이고 FAULT 첫 주기, DEGRADED, OFF에서는 상태 이유. */
+/** ST-104 SRS-F-032/003/022 (A-19, A-23, A-25): 덮어쓰기 규칙. NORMAL에서 속도 3.0 unlock은 priority AUTO_LOCK, reason_code CMD_REJECTED_SPEED. 형식 오류 명령은 NORMAL에서만 INPUT_INVALID이고 FAULT 첫 주기, DEGRADED, OFF에서는 상태 이유. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(WebSystem, ReasonOverlay_RejectedCommandsAndStatePriority)
 {
     RecordProperty("requirements", "SRS-F-032,SRS-F-003,SRS-F-022");
@@ -157,7 +157,7 @@ TEST_F(WebSystem, ReasonOverlay_RejectedCommandsAndStatePriority)
     }
 }
 
-/** ST-105 SRS-Q-002: 표시와 이력에는 영상, 음성, 개인 식별자 필드가 없다. 허용된 키만 나타난다. */
+/** ST-105 SRS-Q-002: 표시와 이력에는 영상, 음성, 개인 식별자 필드가 없다. 허용된 키만 나타난다. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(WebSystem, NoPersonalDataFields)
 {
     RecordProperty("requirements", "SRS-Q-002");
@@ -185,7 +185,7 @@ TEST_F(WebSystem, NoPersonalDataFields)
     EXPECT_TRUE(Has(status, "\"adult\":\"VALID\"")); // 성인 존재는 boolean 신호로만 다룬다
 }
 
-/** ST-106 SRS-Q-003: 인터페이스 값 집합. 입력 열거(gear 4, crash 3, side 3, action 2, source 4)가 모두 수용되고 출력은 LOCK/RELEASE, state는 OFF/NORMAL/DEGRADED/FAULT 집합에 속한다. */
+/** ST-106 SRS-Q-003: 인터페이스 값 집합. 입력 열거(gear 4, crash 3, side 3, action 2, source 4)가 모두 수용되고 출력은 LOCK/RELEASE, state는 OFF/NORMAL/DEGRADED/FAULT 집합에 속한다. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). */
 TEST_F(WebSystem, InterfaceValueSets_AcceptedAndEmitted)
 {
     RecordProperty("requirements", "SRS-Q-003");

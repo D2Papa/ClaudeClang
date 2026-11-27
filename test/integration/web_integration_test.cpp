@@ -47,7 +47,7 @@ protected:
     std::unique_ptr<WebResponse_t> resp_;
 };
 
-/** IT-020 목적: 입력 본문 → 제어 주기 → 표시 JSON 조합 (ARCH-I-010, 007, 008). 입력: 접근위험(좌) + 유효한 unlock 명령 두 번. 기대: SUPPRESSED(LOCK) → OVERRIDE(RELEASE)가 JSON에 나타남. 추적: ARCH-I-007, ARCH-I-008, ARCH-I-010, SRS-F-007, SRS-F-029 */
+/** IT-020 목적: 입력 본문 → 제어 주기 → 표시 JSON 조합 (ARCH-I-010, 007, 008). 입력: 접근위험(좌) + 유효한 unlock 명령 두 번. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: SUPPRESSED(LOCK) → OVERRIDE(RELEASE)가 JSON에 나타남. 추적: ARCH-I-007, ARCH-I-008, ARCH-I-010, SRS-F-007, SRS-F-029 */
 TEST_F(WebIntegration, StepJson_ShowsOverrideSequence)
 {
     const char *body = "approach_left=1&cmd_side=0&cmd_action=1&cmd_source=0";
@@ -59,7 +59,7 @@ TEST_F(WebIntegration, StepJson_ShowsOverrideSequence)
     EXPECT_NE(std::string::npos, Body().find("\"priority_reason\":\"OVERRIDE\""));
 }
 
-/** IT-021 목적: 값 해석(숫자, 정수, absent, 형식 오류)이 검증기를 거쳐 입력 유효성 표시로 이어진다 (ARCH-I-001, 010, 008). 입력: speed=abc, gear=9, fire=2, crash=absent. 기대: 해당 항목 INVALID, DEGRADED. 추적: ARCH-I-001, ARCH-I-008, SSR-007 */
+/** IT-021 목적: 값 해석(숫자, 정수, absent, 형식 오류)이 검증기를 거쳐 입력 유효성 표시로 이어진다 (ARCH-I-001, 010, 008). 입력: speed=abc, gear=9, fire=2, crash=absent. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 해당 항목 INVALID, DEGRADED. 추적: ARCH-I-001, ARCH-I-008, SSR-007 */
 TEST_F(WebIntegration, ValueSyntax_ReachesValidityDisplay)
 {
     ASSERT_EQ(200, Call("POST", "/step", "speed=abc&gear=9&fire=2&crash=absent&approach_left=-1"));
@@ -73,7 +73,7 @@ TEST_F(WebIntegration, ValueSyntax_ReachesValidityDisplay)
     EXPECT_NE(std::string::npos, json.find("\"adult\":\"VALID\""));
 }
 
-/** IT-022 목적: 제어 결과가 이력에 반영되고 조회 JSON과 일치한다 (ARCH-I-009, 010). 입력: 변화가 있는 step 3회, 이력 조회, reset, 이력 조회. 기대: 이벤트 3건, reset 후 0건. 추적: ARCH-I-009, ARCH-I-010, SRS-F-020, SRS-F-025, SRS-F-026 */
+/** IT-022 목적: 제어 결과가 이력에 반영되고 조회 JSON과 일치한다 (ARCH-I-009, 010). 입력: 변화가 있는 step 3회, 이력 조회, reset, 이력 조회. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 이벤트 3건, reset 후 0건. 추적: ARCH-I-009, ARCH-I-010, SRS-F-020, SRS-F-025, SRS-F-026 */
 TEST_F(WebIntegration, History_MirrorsControlChanges_AndResetClears)
 {
     Call("POST", "/step", "speed=3.0");
@@ -90,7 +90,7 @@ TEST_F(WebIntegration, History_MirrorsControlChanges_AndResetClears)
     EXPECT_EQ(204, Call("GET", "/status"));
 }
 
-/** IT-023 목적: 상태 이유 우선 규칙이 표시까지 전달된다 (A-25). 입력: sensor_fault + 형식 오류 명령(첫 주기). 기대: reason_code SENSOR_FAULT, 경고 W-001. 추적: ARCH-I-006, ARCH-I-008, SRS-F-032, SSR-012 */
+/** IT-023 목적: 상태 이유 우선 규칙이 표시까지 전달된다 (A-25). 입력: sensor_fault + 형식 오류 명령(첫 주기). 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: reason_code SENSOR_FAULT, 경고 W-001. 추적: ARCH-I-006, ARCH-I-008, SRS-F-032, SSR-012 */
 TEST_F(WebIntegration, StateReason_BeatsInvalidCommand_InDisplay)
 {
     ASSERT_EQ(200, Call("POST", "/step", "sensor_fault=1&cmd_side=7&cmd_action=0&cmd_source=0"));
@@ -100,7 +100,7 @@ TEST_F(WebIntegration, StateReason_BeatsInvalidCommand_InDisplay)
     EXPECT_NE(std::string::npos, json.find("\"warning_code\":\"W-001\""));
 }
 
-/** IT-024 목적: 화면, 경로 오류, 본문 상한이 조합된 HTTP 응답으로 나온다. 입력: GET /, 알 수 없는 경로, 잘못된 메서드, 잘못된 본문, 상한 초과. 기대: 200, 404, 405, 400, 500. 추적: ARCH-I-010, SRS-F-023 */
+/** IT-024 목적: 화면, 경로 오류, 본문 상한이 조합된 HTTP 응답으로 나온다. 입력: GET /, 알 수 없는 경로, 잘못된 메서드, 잘못된 본문, 상한 초과. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 200, 404, 405, 400, 500. 추적: ARCH-I-010, SRS-F-023 */
 TEST_F(WebIntegration, HttpStatusCodes_AcrossRoutes)
 {
     EXPECT_EQ(200, Call("GET", "/"));

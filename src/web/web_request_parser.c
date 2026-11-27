@@ -221,6 +221,7 @@ static int Web_ApplyField(RawInput_t *raw, const char *name, size_t name_len, co
         {
             RawValue_t *target = (RawValue_t *)((char *)raw + WEB_FIELDS[i].offset);
 
+            /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
             Web_ParseValue(WEB_FIELDS[i].kind, value, target);
             applied = 1;
         }
@@ -320,6 +321,7 @@ int WebParser_ParseBody(const char *body, int cycle, RawInput_t *raw)
         const char *pos = body;
 
         ok = 1;
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Web_DefaultRaw(cycle, raw);
         while ((ok == 1) && (*pos != '\0'))
         {

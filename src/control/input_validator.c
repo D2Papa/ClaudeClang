@@ -192,6 +192,7 @@ static Status_t Validate_Command(const RawInput_t *raw, Command_t *out)
 
     *out = cleared;
     out->present = Command_AnyPresent(raw);
+    /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
     Validate_Enum(&raw->cmd_side, SIDE_MAX, &side);
     Validate_Enum(&raw->cmd_action, ACTION_MAX, &action);
     Validate_Enum(&raw->cmd_source, SOURCE_MAX, &source);
@@ -214,6 +215,7 @@ Status_t Validator_Normalize(const RawInput_t *raw, Snapshot_t *snap)
     if ((raw != NULL) && (snap != NULL))
     {
         snap->timestamp_s = raw->timestamp_s;
+        /* 반환값을 쓰지 않는 호출: 인자가 널이 아님이 이 함수에서 보장되어 오류를 반환하지 않는다 (SRC-11). */
         Validate_Number(&raw->speed, SPEED_MIN_KPH, SPEED_MAX_KPH, &snap->speed);
         Validate_Enum(&raw->gear, GEAR_MAX, &snap->gear);
         Validate_Number(&raw->source_timestamp, 0.0, TIMESTAMP_MAX_S, &snap->source_timestamp);
