@@ -274,6 +274,8 @@ typedef struct
     State_t state;                            /**< state */
     ReasonCode_t priority_reason[DOOR_COUNT]; /**< 도어별 priority_reason */
     ReasonCode_t reason_code[DOOR_COUNT];     /**< 도어별 reason_code */
+    ReasonCode_t priority_reason_summary;     /**< 요약 priority_reason (좌가 NONE이 아니면 좌, 아니면 우) */
+    ReasonCode_t reason_code_summary;         /**< 요약 reason_code (좌가 NONE이 아니면 좌, 아니면 우) */
     int warning_code;                         /**< 0 또는 1(W-001) */
     unsigned int input_validity;              /**< 필수 입력과 gear의 VALID 비트 마스크 */
 } CycleResult_t;

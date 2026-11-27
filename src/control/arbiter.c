@@ -143,11 +143,11 @@ static ReasonCode_t Arbiter_FallbackReason(const ArbiterInput_t *in, int d)
 }
 
 /**
- * @brief 운전자 unlock 요청이 속도 조건으로 거절되었는지 판정한다 (순위가 제외되지 않은 경우).
+ * @brief 운전자 명령 관련 이유 덮어쓰기를 정한다: state가 NORMAL일 때만 속도 거절(CMD_REJECTED_SPEED)과 입력 검증 거절(INPUT_INVALID)을 돌려준다.
  * @param[in] in  중재 입력
  * @param[in] d   도어 인덱스
- * @return 거절되었으면 1
- * @trace SRS-F-003
+ * @return 덮어쓸 이유, 없으면 REASON_NONE
+ * @trace SRS-F-032, SRS-F-003, SSR-007
  *
  *
  * @par AI 작성 정보
@@ -159,12 +159,17 @@ static ReasonCode_t Arbiter_FallbackReason(const ArbiterInput_t *in, int d)
  *   - 리뷰일: -
  *   - 리뷰어: -
  */
-static int Arbiter_IsSpeedRejected(const ArbiterInput_t *in, int d)
+static ReasonCode_t Arbiter_OverlayReason(const ArbiterInput_t *in, int d)
 {
-    return ((Arbiter_IsGated(in->state, (int)RANK_DRIVER) == 0) &&
-            (in->rules[RANK_DRIVER].info_reason[d] == REASON_CMD_REJECTED_SPEED))
-               ? 1
-               : 0;
+    ReasonCode_t overlay = REASON_NONE;
+    ReasonCode_t info = in->rules[RANK_DRIVER].info_reason[d];
+
+    if ((Arbiter_IsGated(in->state, (int)RANK_DRIVER) == 0) &&
+        ((info == REASON_CMD_REJECTED_SPEED) || (info == REASON_INPUT_INVALID)))
+    {
+        overlay = info;
+    }
+    return overlay;
 }
 
 /**
@@ -188,6 +193,7 @@ static int Arbiter_IsSpeedRejected(const ArbiterInput_t *in, int d)
 static Status_t Arbiter_ResolveDoor(const ArbiterInput_t *in, int d, Decision_t *out)
 {
     int rank = Arbiter_FindRank(in, d);
+    ReasonCode_t overlay;
 
     if (rank < 0)
     {
@@ -207,9 +213,10 @@ static Status_t Arbiter_ResolveDoor(const ArbiterInput_t *in, int d, Decision_t 
         out->priority_reason[d] = in->rules[rank].reason[d];
         out->reason_code[d] = in->rules[rank].reason[d];
     }
-    if (Arbiter_IsSpeedRejected(in, d) == 1)
+    overlay = Arbiter_OverlayReason(in, d);
+    if (overlay != REASON_NONE)
     {
-        out->reason_code[d] = REASON_CMD_REJECTED_SPEED;
+        out->reason_code[d] = overlay;
     }
     return STATUS_OK;
 }

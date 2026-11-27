@@ -185,6 +185,34 @@ static Status_t Control_EvaluateRules(Control_t *ctx, const Snapshot_t *snap, St
 }
 
 /**
+ * @brief 좌 값이 NONE이 아니면 좌, 아니면 우 값을 요약 값으로 돌려준다.
+ * @param[in] left   좌 도어 이유
+ * @param[in] right  우 도어 이유
+ * @return 요약 이유
+ * @trace SRS-F-022, SRS-F-025
+ *
+ *
+ * @par AI 작성 정보
+ *   - 모델: Claude Sonnet 5.5 (claude-sonnet-5-5)
+ *   - 작성일: 2026-11-27
+ *   - 요청자: KYLee
+ * @par 사용자 리뷰
+ *   - 완료 여부: 미완료
+ *   - 리뷰일: -
+ *   - 리뷰어: -
+ */
+static ReasonCode_t Control_Summary(ReasonCode_t left, ReasonCode_t right)
+{
+    ReasonCode_t summary = right;
+
+    if (left != REASON_NONE)
+    {
+        summary = left;
+    }
+    return summary;
+}
+
+/**
  * @brief 성공한 주기의 결과를 출력에 채우고 컨텍스트를 갱신한다.
  * @param[inout] ctx    컨텍스트
  * @param[in]    dec    중재 결과
@@ -219,6 +247,8 @@ static Status_t Control_Commit(Control_t *ctx, const Decision_t *dec, const Arbi
         ctx->previous[d] = dec->output[d];
         ctx->prev_suppressed[d] = arb->rules[RANK_APPROACH].suppressed[d];
     }
+    out->priority_reason_summary = Control_Summary(dec->priority_reason[DOOR_LEFT], dec->priority_reason[DOOR_RIGHT]);
+    out->reason_code_summary = Control_Summary(dec->reason_code[DOOR_LEFT], dec->reason_code[DOOR_RIGHT]);
     out->state = state;
     out->warning_code = warn;
     out->input_validity = Control_InputValidity(snap);

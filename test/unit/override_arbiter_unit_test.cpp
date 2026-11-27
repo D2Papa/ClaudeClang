@@ -419,28 +419,56 @@ TEST(ArbiterUnit, Fallback_InfoReasons_HighestRankFirst)
     EXPECT_EQ(REASON_NONE, out.reason_code[DOOR_LEFT]);
 }
 
-/** 목적: 속도 조건으로 거절된 unlock은 다른 규칙이 결정해도 reason_code에 CMD_REJECTED_SPEED로 남고 priority_reason은 결정 규칙을 유지한다 (SRS-F-003). 입력: 순위 7 활성 + 순위 6 info 거절 / OFF에서 같은 info(제외됨) / info 없음. 기대: reason_code 거절 코드, priority AUTO_LOCK / 제외 시 덮어쓰지 않음 / 덮어쓰지 않음. 추적: UT-079 -> DD-F-021, SRS-F-003. 기법: MC/DC */
-TEST(ArbiterUnit, Resolve_RejectedUnlock_ReasonCodeOverlaysPriorityReason)
+/** 목적: 운전자 명령 관련 이유 덮어쓰기 (SRS-F-032). 입력: state NORMAL에서 순위 6 info가 CMD_REJECTED_SPEED / INPUT_INVALID / 다른 정보성 이유 / 없음, 그리고 OFF, DEGRADED, FAULT에서 같은 info. 기대: NORMAL의 두 거절 이유만 reason_code를 덮어쓰고 priority_reason은 결정 규칙의 값을 유지, 다른 state에서는 덮어쓰지 않는다. 추적: UT-079 -> DD-F-021, DD-F-029, SRS-F-032, SSR-007. 기법: 결정표, MC/DC */
+TEST(ArbiterUnit, Resolve_OverlayReason_OnlyInNormalState)
 {
     Decision_t out{};
-    ArbiterInput_t in = ArbIn();
-    Act(&in, 6, OUTPUT_LOCK, REASON_AUTO_LOCK);
-    in.rules[5].info_reason[DOOR_LEFT] = REASON_CMD_REJECTED_SPEED;
-    Arbiter_Resolve(&in, &out);
-    EXPECT_EQ(REASON_AUTO_LOCK, out.priority_reason[DOOR_LEFT]);
-    EXPECT_EQ(REASON_CMD_REJECTED_SPEED, out.reason_code[DOOR_LEFT]);
-    EXPECT_EQ(REASON_AUTO_LOCK, out.reason_code[DOOR_RIGHT]);
+    const ReasonCode_t overlays[] = {REASON_CMD_REJECTED_SPEED, REASON_INPUT_INVALID};
+    for (ReasonCode_t info : overlays)
+    {
+        ArbiterInput_t in = ArbIn();
+        Act(&in, 6, OUTPUT_LOCK, REASON_AUTO_LOCK);
+        in.rules[5].info_reason[DOOR_LEFT] = info;
+        Arbiter_Resolve(&in, &out);
+        EXPECT_EQ(REASON_AUTO_LOCK, out.priority_reason[DOOR_LEFT]);
+        EXPECT_EQ(info, out.reason_code[DOOR_LEFT]);
+        EXPECT_EQ(REASON_AUTO_LOCK, out.reason_code[DOOR_RIGHT]);
+    }
 
+    ArbiterInput_t other = ArbIn();
+    Act(&other, 6, OUTPUT_LOCK, REASON_AUTO_LOCK);
+    other.rules[5].info_reason[DOOR_LEFT] = REASON_CRASH_PENDING;
+    Arbiter_Resolve(&other, &out);
+    EXPECT_EQ(REASON_AUTO_LOCK, out.reason_code[DOOR_LEFT]);
+
+    const State_t gated[] = {STATE_DEGRADED, STATE_FAULT};
+    for (State_t st : gated)
+    {
+        ArbiterInput_t in = ArbIn(st);
+        Act(&in, 6, OUTPUT_LOCK, REASON_AUTO_LOCK);
+        in.rules[5].info_reason[DOOR_LEFT] = REASON_INPUT_INVALID;
+        Arbiter_Resolve(&in, &out);
+        EXPECT_EQ(REASON_AUTO_LOCK, out.reason_code[DOOR_LEFT]) << st;
+    }
     ArbiterInput_t off = ArbIn(STATE_OFF);
     Act(&off, 2, OUTPUT_RELEASE, REASON_IGNITION_OFF);
-    off.rules[5].info_reason[DOOR_LEFT] = REASON_CMD_REJECTED_SPEED;
+    off.rules[5].info_reason[DOOR_LEFT] = REASON_INPUT_INVALID;
     Arbiter_Resolve(&off, &out);
     EXPECT_EQ(REASON_IGNITION_OFF, out.reason_code[DOOR_LEFT]);
+}
 
-    ArbiterInput_t plain = ArbIn();
-    Act(&plain, 6, OUTPUT_LOCK, REASON_AUTO_LOCK);
-    Arbiter_Resolve(&plain, &out);
-    EXPECT_EQ(REASON_AUTO_LOCK, out.reason_code[DOOR_LEFT]);
+/** 목적: 상태 이유 우선 (A-25). 입력: 형식 오류 명령 info + FAULT / DEGRADED에서 규칙 없음. 기대: reason_code가 INPUT_INVALID가 아니라 SENSOR_FAULT / DEGRADED_STALE. 추적: UT-080A -> DD-F-024, DD-F-029, SSR-009, SSR-012. 기법: 시나리오 */
+TEST(ArbiterUnit, Resolve_StateReasonBeatsInvalidCommand)
+{
+    Decision_t out{};
+    ArbiterInput_t fault = ArbIn(STATE_FAULT);
+    fault.rules[5].info_reason[DOOR_LEFT] = REASON_INPUT_INVALID;
+    Arbiter_Resolve(&fault, &out);
+    EXPECT_EQ(REASON_SENSOR_FAULT, out.reason_code[DOOR_LEFT]);
+    ArbiterInput_t degraded = ArbIn(STATE_DEGRADED);
+    degraded.rules[5].info_reason[DOOR_LEFT] = REASON_INPUT_INVALID;
+    Arbiter_Resolve(&degraded, &out);
+    EXPECT_EQ(REASON_DEGRADED_STALE, out.reason_code[DOOR_LEFT]);
 }
 
 } // namespace
