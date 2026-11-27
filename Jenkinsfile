@@ -1,4 +1,4 @@
-// CI 파이프라인: 빌드 성공 + 소스코드 품질 기준(CLAUDE.md 2장)을 모두 만족해야 통과한다.
+// 내부 정기 점검 파이프라인(Jenkins): 빌드 성공 + 소스코드 품질 기준(CLAUDE.md 2장)을 모두 만족해야 통과한다.
 // 모든 단계는 개발 환경과 같은 claudeclangbuild 이미지 안에서 실행한다.
 // 한 단계가 실패해도 나머지 단계를 실행해 모든 결과를 보고하고, 최종 결과는 실패로 처리한다.
 pipeline {
@@ -7,6 +7,12 @@ pipeline {
             image 'claudeclangbuild'
             reuseNode true
         }
+    }
+
+    // 변경이 없어도 주기적으로(약 4시간마다) 실행해 내부 환경에서 품질 기준을 재검증한다.
+    // GitHub Actions(.github/workflows/ci.yml)가 PR 머지 조건이고, Jenkins는 내부 정기 점검용이다.
+    triggers {
+        cron('H H/4 * * *')
     }
 
     options {

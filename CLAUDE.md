@@ -23,7 +23,7 @@ A-SPICE 기준의 C/C++(Clang) 소프트웨어 개발 프로젝트입니다. Cla
 | 정적 분석 (Cppcheck) | `... claudeclangbuild bash scripts/ci/static.sh` |
 | 소스 메트릭 (Lizard, CLOC) | `... claudeclangbuild bash scripts/ci/metrics.sh` |
 | 주석 규칙 / Doxygen | `... claudeclangbuild python3 scripts/ci/check_comments.py` / `bash scripts/ci/docs.sh` |
-| Jenkins 시작 | `docker compose -f ci/jenkins/docker-compose.yml up -d` → http://localhost:8080 |
+| Jenkins 시작 (내부 정기 점검) | `docker compose -f ci/jenkins/docker-compose.yml up -d` → http://localhost:8080 |
 
 (`...` 는 `docker run --rm -v "${PWD}:/work"` 를 뜻한다. 결과물은 `reports/`, 빌드 산출물은 `build/`에 생성된다.)
 
@@ -47,6 +47,7 @@ A-SPICE 기준의 C/C++(Clang) 소프트웨어 개발 프로젝트입니다. Cla
 ├── scripts/
 │   ├── ci/                   # 품질 게이트 스크립트 (빌드/테스트/커버리지/정적분석/메트릭/주석)
 │   └── hooks/                # Claude Code Hook (lizard_check.py)
+├── .github/workflows/ci.yml  # GitHub Actions CI (PR 머지 조건)
 ├── ci/jenkins/               # Jenkins 이미지·플러그인·JCasC·docker-compose
 ├── Dockerfile                # claudeclangbuild 이미지 (개발·CI 공용)
 ├── CMakeLists.txt
@@ -191,7 +192,7 @@ A-SPICE 기준의 C/C++(Clang) 소프트웨어 개발 프로젝트입니다. Cla
 
 ### 3.2 PR과 CI
 
-- PR은 **CI를 활용**하며, **CI를 통과해야만** PR을 완료(머지)한다.
+- PR은 **CI(GitHub Actions, 5장)를 활용**하며, **CI를 통과해야만** PR을 완료(머지)한다.
 - CI 통과 조건은 **빌드 성공 + 소스코드 품질 기준(2장) 전체 만족**이다.
   - 단위·통합·시스템 테스트 (성공률, 커버리지 기준)
   - Cppcheck 100% 만족
@@ -228,14 +229,21 @@ A-SPICE 기준의 C/C++(Clang) 소프트웨어 개발 프로젝트입니다. Cla
 
 ## 5. CI 환경
 
-- CI는 **Jenkins 안정화(LTS) 버전**을 사용하고, 이 PC의 **Docker 위에서 실행**한다. 포트는 **8080**을 사용한다.
-- 필요한 플러그인을 **설치 완료한 상태**로 구성하고, 테스트·정적 분석·커버리지·메트릭 결과를 **플러그인에서 확인**할 수 있어야 한다.
-  (예: Warnings Next Generation, JUnit/xUnit, Coverage, Lizard·CLOC 결과 보고 플러그인)
-- 파이프라인은 `Jenkinsfile`로 코드화하고, 빌드 에이전트는 `claudeclangbuild` 이미지를 쓴다.
-- 구성 파일: `ci/jenkins/` (Dockerfile, `plugins.txt`, `casc.yaml`, `docker-compose.yml`), 루트의 `Jenkinsfile`.
+### 5.1 GitHub Actions (PR 머지 조건)
+
+- CI는 **GitHub Actions**이며 `.github/workflows/ci.yml`에 정의한다. `main`/`develop` 대상 PR과 `feature/**`, `release/**`, `hotfix/**` 푸시에서 실행한다.
+- `claudeclangbuild` 이미지를 빌드해 `scripts/ci/run_all.sh`(7개 게이트)를 실행하고, `reports/`를 아티팩트로 올린다. 개발 환경과 같은 이미지·스크립트를 쓴다.
+- PR 완료의 필수 상태 체크는 **`quality-gate`** 이다. 저장소 설정에서 `main`, `develop`에 브랜치 보호(필수 체크 `quality-gate`)를 걸어야 강제된다 (미설정).
+
+### 5.2 Jenkins (내부 정기 점검)
+
+- 내부에서도 **Jenkins 안정화(LTS) 버전**을 **주기적으로 실행**한다. 이 PC의 **Docker 위에서 실행**하고 포트는 **8080**이다.
+- `Jenkinsfile`의 `cron('H H/4 * * *')`로 변경이 없어도 약 4시간마다 실행한다. 브랜치 탐색(스캔)은 1시간 간격이다.
+- 필요한 플러그인을 **설치 완료한 상태**로 구성하고, 테스트·정적 분석·커버리지·메트릭 결과를 **플러그인에서 확인**할 수 있다.
+  (Warnings Next Generation, JUnit, Coverage, HTML Publisher 등)
+- 구성 파일: `ci/jenkins/` (Dockerfile, `plugins.txt`, `casc.yaml`, `docker-compose.yml`), 루트의 `Jenkinsfile`. 빌드 에이전트는 `claudeclangbuild` 이미지를 쓴다.
 - 관리자 계정은 `admin`이며 비밀번호는 `ci/jenkins/.env`(gitignore, 읽기 차단)에 있다. `env.example`을 복사해 만든다.
-- Jenkins는 GitHub 저장소를 **2분마다 폴링**(Multibranch Pipeline)한다. 이 PC의 Jenkins는 GitHub에서 접근할 수 없어 웹훅을 쓰지 않는다.
-  GitHub PR 화면에 CI 상태를 표시하려면 GitHub 토큰을 Jenkins 자격 증명으로 등록하고 `github-branch-source`를 써야 한다 (미설정).
+- 이 PC의 Jenkins는 GitHub에서 접근할 수 없어 웹훅을 쓰지 않고, PR 상태도 Jenkins가 아니라 Actions가 표시한다.
 
 ---
 

@@ -36,7 +36,8 @@
 | `CMakeLists.txt` | 제품 라이브러리와 tdd/unit/integration/system 테스트 스위트 |
 | `scripts/ci/` | 품질 게이트 스크립트 (`run_all.sh`로 전체 실행) |
 | `scripts/hooks/lizard_check.py` | `src/` 수정 시 Lizard 자동 검사 Hook |
-| `ci/jenkins/`, `Jenkinsfile` | Jenkins LTS (포트 8080) + 사전 설치 플러그인 + 파이프라인 |
+| `.github/workflows/ci.yml` | GitHub Actions CI (PR 머지 조건) |
+| `ci/jenkins/`, `Jenkinsfile` | 내부 정기 점검용 Jenkins LTS (포트 8080, 약 4시간마다 실행) |
 
 ```powershell
 docker build -t claudeclangbuild .

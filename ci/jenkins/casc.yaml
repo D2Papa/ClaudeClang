@@ -37,7 +37,7 @@ jobs:
         }
         triggers {
           periodicFolderTrigger {
-            interval('2m')
+            interval('1h')
           }
         }
       }
