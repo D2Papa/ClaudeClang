@@ -37,6 +37,10 @@ jobs:
       - name: 품질 게이트 (빌드, 테스트, 커버리지, Cppcheck, Lizard, 주석, Doxygen)
         run: docker run --rm -v "$PWD:/work" claudeclangbuild bash scripts/ci/run_all.sh
 
+      - name: 리포트 권한 정리 (컨테이너가 root로 만든 파일을 업로드할 수 있게 한다)
+        if: always()
+        run: sudo chown -R "$(id -u):$(id -g)" reports build 2>/dev/null || true
+
       - name: 리포트 업로드
         if: always()
         uses: actions/upload-artifact@v4
