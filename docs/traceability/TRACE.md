@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-TRC-001 |
-| 버전 | 0.5 (Iter-0, 4차 리뷰 반려 조치본) |
+| 버전 | 0.6 (Iter-0, 5차 리뷰 반려 조치본) |
 | 상태 | 초안 (재리뷰 대기) |
 
 하향 추적(아키텍처, 상세 설계, 소스, 테스트)은 후속 단계에서 채운다. 현재 단계: Iter-0 (SWE.1). ID는 항상 접두사를 포함한 전체 표기를 쓴다.
@@ -38,7 +38,7 @@
 | SRS-F-027 | SRS | OEM-FR-007, OEM-IF-009 |  |  |  |  |  |
 | SRS-F-028 | SRS | OEM-FR-004, OEM-IF-006 |  |  |  |  |  |
 | SRS-F-029 | SRS | OEM-FR-003, OEM-IF-006 |  |  |  |  |  |
-| SRS-F-030 | SRS | OEM-FR-003, OEM-SR-002 |  |  |  |  |  |
+| SRS-F-030 | SRS | OEM-FR-003, OEM-SR-002, OEM-FR-002 |  |  |  |  |  |
 | SRS-F-031 | SRS | OEM-FR-007, OEM-IF-009 |  |  |  |  |  |
 | SRS-L-004 | SRS | OEM-FR-002 |  |  |  |  |  |
 | SRS-L-005 | SRS | OEM-FR-003 |  |  |  |  |  |
@@ -73,7 +73,7 @@
 | OEM-SR-003 | SRS-C-005, SSR-007, SSR-008, SSR-009, SSR-010, SSR-013, SSR-014, SSR-015, SSR-016 |
 | OEM-SR-004 | SSR-011, SSR-012, SSR-013, SSR-014, SSR-015, SSR-016 |
 | OEM-FR-001 | SRS-F-001, SRS-F-002, SRS-F-003 |
-| OEM-FR-002 | SRS-F-004, SRS-F-017, SRS-L-004, SSR-016 |
+| OEM-FR-002 | SRS-F-004, SRS-F-017, SRS-F-030, SRS-L-004, SSR-016 |
 | OEM-FR-003 | SRS-F-007, SRS-F-029, SRS-F-030, SRS-L-005 |
 | OEM-FR-004 | SRS-C-004, SRS-F-018, SRS-F-019, SRS-F-028 |
 | OEM-FR-005 | SRS-F-014, SRS-F-017 |
