@@ -28,6 +28,25 @@
 > A-SPICE 개발 스킬은 요구사항 → 아키텍처 → 상세 설계 → 구현 → 단위 테스트 → 통합 테스트 순으로 쓰고,
 > 매 단계 산출물을 `review`로 리뷰합니다. 요구사항과 이후 산출물의 양방향 추적성은 `docs/traceability/TRACE.md`에서 관리합니다.
 
+## 개발 환경과 CI
+
+| 경로 | 설명 |
+|------|------|
+| `Dockerfile` | `claudeclangbuild` 이미지 (Clang, CMake/Ninja, Cppcheck, GoogleTest/GMock, LLVM 커버리지, Lizard, CLOC, Doxygen, PICT). 개발·CI 공용 |
+| `CMakeLists.txt` | 제품 라이브러리와 tdd/unit/integration/system 테스트 스위트 |
+| `scripts/ci/` | 품질 게이트 스크립트 (`run_all.sh`로 전체 실행) |
+| `scripts/hooks/lizard_check.py` | `src/` 수정 시 Lizard 자동 검사 Hook |
+| `.github/workflows/ci.yml` | GitHub Actions CI (PR 머지 조건) |
+| `ci/jenkins/`, `Jenkinsfile` | 내부 정기 점검용 Jenkins LTS (포트 8080, 약 4시간마다 실행) |
+
+```powershell
+docker build -t claudeclangbuild .
+docker run --rm -v "${PWD}:/work" claudeclangbuild bash scripts/ci/run_all.sh
+docker compose -f ci/jenkins/docker-compose.yml up -d --build   # http://localhost:8080
+```
+
+자세한 규칙(개발 절차, 품질 기준, Gitflow/PR 전략)은 `CLAUDE.md`를 참고한다.
+
 ## 사용법
 
 ```text

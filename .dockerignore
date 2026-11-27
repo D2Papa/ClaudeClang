@@ -1,0 +1,6 @@
+.git
+build
+reports
+ci/jenkins/.env
+*.profraw
+*.profdata
