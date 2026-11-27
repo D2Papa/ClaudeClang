@@ -4,7 +4,7 @@
 |------|------|
 | 문서 ID | DOC-SAF-001 |
 | 버전 | 1.2 (SSR-007 시험 기준 보강, 헤더 정정) |
-| 상태 | v1.0 aspice-reviewer 승인(10차, 2026-11-27). v1.1, v1.2의 SSR-007 변경은 재리뷰 대기, 나머지 SSR은 승인(v1.0) |
+| 상태 | 승인(v1.2): aspice-reviewer 12차 재리뷰 승인 (2026-11-27). SSR-007만 v1.0 이후 변경, 나머지 15건은 승인(v1.0) 내용 그대로 |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 
 - 기능 안전 요구사항은 SRS(DOC-SRS-001)에 쓰지 않고 이 문서에서 관리한다. SRS는 `SSR-nnn` ID만 참조하며, 안전 규칙의 효과·조건·상태 복귀는 이 문서에만 서술한다.
@@ -32,7 +32,7 @@
 | SSR-004 | 접근위험 LOCK | SW는 접근위험이 유효한 TRUE인 쪽 도어 출력을 LOCK으로 하고 reason_code APPROACH_RISK_LOCK을 기록해야 한다. 단 SRS-F-007, SRS-F-030에 따라 override가 성립한 도어는 제외한다. | 시험: rear_left_approach_risk=TRUE → 좌 LOCK(우 불변), rear_right 대칭, override 성립 도어는 RELEASE 유지 | OEM-SR-002, OEM-IF-003 | 승인(v1.0) |
 | SSR-005 | 해제 억제 | SW는 접근위험이 TRUE인 도어에 대한 unlock 요청을 적용하지 않고 reason_code APPROACH_RISK_SUPPRESSED를 기록해야 한다. SRS-F-007 override 조건을 만족한 요청은 제외한다. | 시험: unlock 요청 후 해당 도어 LOCK 유지+APPROACH_RISK_SUPPRESSED | OEM-SR-002, OEM-IF-003 | 승인(v1.0) |
 | SSR-006 | 좌우 독립 | SW는 좌, 우 도어의 접근위험 판정, 억제, 출력을 서로 독립적으로 처리해야 한다. | 시험: 좌 TRUE/우 FALSE에서 우 unlock은 적용(차속 < 3 km/h), 좌 unlock은 억제 | OEM-SR-002, OEM-IF-003 | 승인(v1.0) |
-| SSR-007 | 입력 검증 거절 | SW는 OEM-IF-001, 002, 003, 004, 007, 008, 009 입력의 누락, 형식 오류, 범위 오류, 값 집합 밖 값을 평가 전에 거절하고 해당 입력을 INVALID로 처리해야 한다. INVALID 입력은 그 입력을 조건으로 하는 규칙에 사용하지 않는다. 거절된 IF-004 명령은 무시하고, state가 NORMAL이면 reason_code INPUT_INVALID를 기록한다 (그 외 state에서는 SSR-009, SSR-012, SRS-F-031의 상태 이유가 우선한다. 사용자 선택 2026-11-27, A-25, SRS-F-032). gear가 INVALID이어도 필수 입력 판정과 DEGRADED에는 영향이 없고 input_validity에만 표시한다. | 시험: 속도 -0.1, 300.1, 문자열, 누락, 미등록 enum, gear 'X' 각각이 거절되고 규칙 조건에 사용되지 않음, gear 'X' 단독은 DEGRADED를 일으키지 않음. 형식 오류 IF-004 명령(예: side 범위 밖)은 무시되고 state NORMAL에서 reason_code INPUT_INVALID(priority_reason은 결정 규칙의 값, 없으면 NONE), state OFF, DEGRADED, FAULT(FAULT 첫 주기 포함)에서는 각각 IGNITION_OFF, DEGRADED_STALE, SENSOR_FAULT(규칙이 결정하면 그 규칙의 reason) | OEM-SR-003, OEM-IF-001, OEM-IF-002, OEM-IF-003, OEM-IF-004, OEM-IF-007, OEM-IF-008, OEM-IF-009 | 초안 (재리뷰 대기) |
+| SSR-007 | 입력 검증 거절 | SW는 OEM-IF-001, 002, 003, 004, 007, 008, 009 입력의 누락, 형식 오류, 범위 오류, 값 집합 밖 값을 평가 전에 거절하고 해당 입력을 INVALID로 처리해야 한다. INVALID 입력은 그 입력을 조건으로 하는 규칙에 사용하지 않는다. 거절된 IF-004 명령은 무시하고, state가 NORMAL이면 reason_code INPUT_INVALID를 기록한다 (그 외 state에서는 SSR-009, SSR-012, SRS-F-031의 상태 이유가 우선한다. 사용자 선택 2026-11-27, A-25, SRS-F-032). gear가 INVALID이어도 필수 입력 판정과 DEGRADED에는 영향이 없고 input_validity에만 표시한다. | 시험: 속도 -0.1, 300.1, 문자열, 누락, 미등록 enum, gear 'X' 각각이 거절되고 규칙 조건에 사용되지 않음, gear 'X' 단독은 DEGRADED를 일으키지 않음. 형식 오류 IF-004 명령(예: side 범위 밖)은 무시되고 state NORMAL에서 reason_code INPUT_INVALID(priority_reason은 결정 규칙의 값, 없으면 NONE), state OFF, DEGRADED, FAULT(FAULT 첫 주기 포함)에서는 각각 IGNITION_OFF, DEGRADED_STALE, SENSOR_FAULT(규칙이 결정하면 그 규칙의 reason) | OEM-SR-003, OEM-IF-001, OEM-IF-002, OEM-IF-003, OEM-IF-004, OEM-IF-007, OEM-IF-008, OEM-IF-009 | 승인(v1.2) |
 | SSR-008 | stale 판정 | SW는 필수 입력의 fresh 조건(SRS 6.1)을 벗어나면, 즉 시간 차가 200 ms를 초과하면 그 입력을 stale로 판정해야 한다. | 시험(주기 단위): 20주기(200 ms) 경과 fresh, 21주기(210 ms) 경과 stale | OEM-SR-003 | 승인(v1.0) |
 | SSR-009 | DEGRADED 전이 시간 | SW는 필수 입력이 stale 또는 INVALID가 된 시점부터 100 ms(10 평가주기) 이내에 state를 DEGRADED로 하고 reason_code DEGRADED_STALE을 기록해야 한다. SSR-015에 따라 state가 OFF 또는 FAULT로 결정되는 경우에는 DEGRADED로 전이하지 않는다. | 시험: stale 판정 주기부터 10주기 이내 state=DEGRADED, DEGRADED_STALE, ignition_on=FALSE 또는 sensor_fault=TRUE 동시 시 OFF 또는 FAULT | OEM-SR-003 | 승인(v1.0) |
 | SSR-010 | DEGRADED 명령 미적용 | SW는 state가 DEGRADED인 동안 운전자 명령(OEM-IF-004)을 적용하지 않고, 어떤 규칙도 출력을 정하지 않으면 직전 출력을 유지해야 한다. | 시험: DEGRADED 중 운전자 명령 후 출력 불변, 규칙 입력(CONFIRMED, 긴급, 접근위험, ISOFIX, 자동잠금)은 SSR-013, SSR-016에 따라 적용 | OEM-SR-003 | 승인(v1.0) |
@@ -49,7 +49,7 @@
 |------|------|------|------|
 | 1.0 | 최초 승인본 | Iter-0 | aspice-reviewer 10차 승인 |
 | 1.1 | SSR-007: INPUT_INVALID 기록을 state NORMAL로 한정 | 상태 이유 우선, 사용자 선택(2026-11-27, A-25) | 1차 재리뷰에서 반려 |
-| 1.2 | SSR-007: 변경된 범위의 시험 기준(NORMAL, OFF, DEGRADED, FAULT, FAULT 첫 주기) 보강 | 재리뷰 지적(Z-01) 조치 | 재리뷰 대기 |
+| 1.2 | SSR-007: 변경된 범위의 시험 기준(NORMAL, OFF, DEGRADED, FAULT, FAULT 첫 주기) 보강 | 재리뷰 지적(Z-01) 조치 | 12차 재리뷰에서 승인 |
 
 ## 3. 안전 문서 후속 계획
 
