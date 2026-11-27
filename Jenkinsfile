@@ -46,6 +46,7 @@ pipeline {
             steps {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh 'bash scripts/ci/coverage.sh'
+                    sh 'python3 scripts/ci/req_coverage.py'
                 }
             }
             post {

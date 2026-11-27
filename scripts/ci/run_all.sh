@@ -5,7 +5,7 @@ rm -rf reports
 mkdir -p reports
 
 declare -A RESULT
-STEPS=("빌드" "테스트" "커버리지" "정적 분석" "소스 메트릭" "주석 규칙" "Doxygen")
+STEPS=("빌드" "테스트" "커버리지" "요구사항 커버리지" "정적 분석" "소스 메트릭" "주석 규칙" "Doxygen")
 
 step() {
   local name="$1"
@@ -22,6 +22,7 @@ step() {
 step "빌드" scripts/ci/build.sh
 step "테스트" scripts/ci/test.sh
 step "커버리지" scripts/ci/coverage.sh
+step "요구사항 커버리지" python3 scripts/ci/req_coverage.py
 step "정적 분석" scripts/ci/static.sh
 step "소스 메트릭" scripts/ci/metrics.sh
 step "주석 규칙" python3 scripts/ci/check_comments.py

@@ -1,0 +1,45 @@
+# 시스템 테스트 요구사항 커버리지 대상 (SRS-Q/L/C, SRS-F, SSR). 이터레이션이 끝날 때마다 범위를 늘린다.
+# 형식:
+#   <ID>                                  시험으로 검증 (시스템 테스트의 requirements 속성에 있어야 함)
+#   <ID> inspect-present <파일> <정규식>   검사로 검증 (파일에 정규식이 있어야 함)
+#   <ID> inspect-absent  <파일> <정규식>   검사로 검증 (파일에 정규식이 없어야 함)
+#
+# --- Iter-1: 제어 코어 ---
+SRS-F-001
+SRS-F-002
+SRS-F-003
+SRS-F-004
+SRS-F-007
+SRS-F-014
+SRS-F-015
+SRS-F-016
+SRS-F-017
+SRS-F-027
+SRS-F-028
+SRS-F-029
+SRS-F-030
+SRS-F-031
+SRS-Q-001
+SRS-L-004
+SRS-L-005
+SRS-L-007
+SRS-C-001 inspect-present CMakeLists.txt CMAKE_C_STANDARD\s+17
+SRS-C-002 inspect-absent  src/common/types.h feedback
+SRS-C-003
+SRS-C-005
+SSR-001
+SSR-002
+SSR-003
+SSR-004
+SSR-005
+SSR-006
+SSR-007
+SSR-008
+SSR-009
+SSR-010
+SSR-011
+SSR-012
+SSR-013
+SSR-014
+SSR-015
+SSR-016

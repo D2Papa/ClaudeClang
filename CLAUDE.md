@@ -20,6 +20,7 @@ A-SPICE 기준의 C/C++(Clang) 소프트웨어 개발 프로젝트입니다. Cla
 | 빌드 | `... claudeclangbuild bash scripts/ci/build.sh` |
 | 테스트 (tdd/unit/integration/system 분리 실행) | `... claudeclangbuild bash scripts/ci/test.sh` |
 | 커버리지 (스위트별 분리, MC/DC 포함) | `... claudeclangbuild bash scripts/ci/coverage.sh` |
+| 시스템 테스트 요구사항 커버리지 | `... claudeclangbuild python3 scripts/ci/req_coverage.py` (범위: `test/system/requirements_in_scope.txt`) |
 | 정적 분석 (Cppcheck) | `... claudeclangbuild bash scripts/ci/static.sh` |
 | 소스 메트릭 (Lizard, CLOC) | `... claudeclangbuild bash scripts/ci/metrics.sh` |
 | 주석 규칙 / Doxygen | `... claudeclangbuild python3 scripts/ci/check_comments.py` / `bash scripts/ci/docs.sh` |
