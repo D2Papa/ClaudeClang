@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-TRC-001 |
-| 버전 | 0.4 (Iter-0, 3차 리뷰 반려 조치본) |
+| 버전 | 0.5 (Iter-0, 4차 리뷰 반려 조치본) |
 | 상태 | 초안 (재리뷰 대기) |
 
 하향 추적(아키텍처, 상세 설계, 소스, 테스트)은 후속 단계에서 채운다. 현재 단계: Iter-0 (SWE.1). ID는 항상 접두사를 포함한 전체 표기를 쓴다.
@@ -38,6 +38,8 @@
 | SRS-F-027 | SRS | OEM-FR-007, OEM-IF-009 |  |  |  |  |  |
 | SRS-F-028 | SRS | OEM-FR-004, OEM-IF-006 |  |  |  |  |  |
 | SRS-F-029 | SRS | OEM-FR-003, OEM-IF-006 |  |  |  |  |  |
+| SRS-F-030 | SRS | OEM-FR-003, OEM-SR-002 |  |  |  |  |  |
+| SRS-F-031 | SRS | OEM-FR-007, OEM-IF-009 |  |  |  |  |  |
 | SRS-L-004 | SRS | OEM-FR-002 |  |  |  |  |  |
 | SRS-L-005 | SRS | OEM-FR-003 |  |  |  |  |  |
 | SRS-L-006 | SRS | OEM-NFR-002 |  |  |  |  |  |
@@ -60,23 +62,23 @@
 | SSR-013 | 안전(DOC-SAF-001) | OEM-SR-004, OEM-SR-001, OEM-SR-003 |  |  |  |  |  |
 | SSR-014 | 안전(DOC-SAF-001) | OEM-SR-003, OEM-SR-004 |  |  |  |  |  |
 | SSR-015 | 안전(DOC-SAF-001) | OEM-SR-003, OEM-SR-004 |  |  |  |  |  |
-| SSR-016 | 안전(DOC-SAF-001) | OEM-SR-004, OEM-SR-003, OEM-SR-002 |  |  |  |  |  |
+| SSR-016 | 안전(DOC-SAF-001) | OEM-SR-004, OEM-SR-003, OEM-SR-002, OEM-FR-002, OEM-FR-006 |  |  |  |  |  |
 
 ## 2. OEM 요구 → 도출 요구 역추적
 
 | OEM 요구 | 도출한 요구 |
 |----------|-------------|
 | OEM-SR-001 | SRS-C-005, SRS-F-017, SSR-001, SSR-002, SSR-003, SSR-013 |
-| OEM-SR-002 | SRS-F-007, SRS-F-017, SSR-004, SSR-005, SSR-006, SSR-016 |
+| OEM-SR-002 | SRS-F-007, SRS-F-017, SRS-F-030, SSR-004, SSR-005, SSR-006, SSR-016 |
 | OEM-SR-003 | SRS-C-005, SSR-007, SSR-008, SSR-009, SSR-010, SSR-013, SSR-014, SSR-015, SSR-016 |
 | OEM-SR-004 | SSR-011, SSR-012, SSR-013, SSR-014, SSR-015, SSR-016 |
 | OEM-FR-001 | SRS-F-001, SRS-F-002, SRS-F-003 |
-| OEM-FR-002 | SRS-F-004, SRS-F-017, SRS-L-004 |
-| OEM-FR-003 | SRS-F-007, SRS-F-029, SRS-L-005 |
+| OEM-FR-002 | SRS-F-004, SRS-F-017, SRS-L-004, SSR-016 |
+| OEM-FR-003 | SRS-F-007, SRS-F-029, SRS-F-030, SRS-L-005 |
 | OEM-FR-004 | SRS-C-004, SRS-F-018, SRS-F-019, SRS-F-028 |
 | OEM-FR-005 | SRS-F-014, SRS-F-017 |
-| OEM-FR-006 | SRS-F-015, SRS-F-017 |
-| OEM-FR-007 | SRS-F-016, SRS-F-017, SRS-F-027 |
+| OEM-FR-006 | SRS-F-015, SRS-F-017, SSR-016 |
+| OEM-FR-007 | SRS-F-016, SRS-F-017, SRS-F-027, SRS-F-031 |
 | OEM-NFR-001 | SRS-C-005, SRS-Q-001 |
 | OEM-NFR-002 | SRS-F-020, SRS-F-021, SRS-F-024, SRS-F-025, SRS-F-026, SRS-L-006, SRS-Q-002 |
 | OEM-IF-001 | SRS-F-003, SRS-F-004, SRS-L-007, SRS-Q-003, SSR-007 |
@@ -87,7 +89,7 @@
 | OEM-IF-006 | SRS-F-019, SRS-F-022, SRS-F-023, SRS-F-028, SRS-F-029, SRS-Q-003 |
 | OEM-IF-007 | SRS-C-003, SRS-F-014, SRS-Q-003, SSR-007 |
 | OEM-IF-008 | SRS-F-015, SRS-Q-003, SSR-007 |
-| OEM-IF-009 | SRS-F-016, SRS-F-027, SRS-Q-003, SSR-007, SSR-011, SSR-012 |
+| OEM-IF-009 | SRS-F-016, SRS-F-027, SRS-F-031, SRS-Q-003, SSR-007, SSR-011, SSR-012 |
 
 ## 3. 편차 기록
 

@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-ASM-001 |
-| 버전 | 0.4 (Iter-0, 3차 리뷰 반려 조치본) |
+| 버전 | 0.5 (Iter-0, 4차 리뷰 반려 조치본) |
 | 상태 | 초안 (재리뷰 대기) |
 
 OEM-SWR-001(Rev 1.0)의 모호·충돌 항목은 사용자가 승인한 제안안으로 임시 진행한다.
@@ -15,19 +15,19 @@ OEM이 다르게 확정하면 해당 요구사항과 이후 산출물을 재검�
 | ID | 대상 OEM 항목 | 문제 | 적용한 가정 | 영향 요구 | 상태 |
 |----|---------------|------|-------------|-----------|------|
 | A-01 | OEM-SR-001/002, FR-002/005/006/007 | 명령·규칙 간 우선순위 미정의 | SRS 6.3 우선순위 표 (충돌 > 긴급 해제 > ignition off > 접근위험 > ISOFIX > 운전자 명령 > 자동 잠금) | SRS-F-017, SRS-F-028, 6.3 | 가정(승인됨) |
-| A-02 | OEM-SR-004 vs SR-001, SR-002, FR-002, FR-006, FR-007 | sensor_fault의 "새 명령 미적용"과 충돌 해제, 접근위험, ISOFIX, 자동 잠금 요구가 충돌 | sensor_fault 중에는 운전자 명령만 적용하지 않는다. 충돌 CONFIRMED, 긴급 강제 해제, ignition off, 접근위험 LOCK, ISOFIX 강제 잠금, 자동 잠금은 해당 입력이 유효하면 적용한다. 따라서 이 규칙들이 활성인 첫 주기에는 OEM-SR-004의 "출력 유지" 기준이 적용되지 않는다(안전 방향 편차) | SSR-011, SSR-013, SSR-016 | 가정(승인됨, 편차) |
-| A-03 | OEM-FR-003 vs SR-002 | override 성립 시 해제 여부 불명확, 우선순위 표와 모순 | 접근위험 해제 억제가 첫 요청에 적용되고, 10초(1,000주기) 이하 재입력은 SSR-005 억제의 예외로 해당 도어를 RELEASE한다. 유효 차속 3 km/h 미만에서만 적용하고 운전자 명령이므로 6.3의 다른 순위(ISOFIX 등)와 FAULT/DEGRADED 명령 미적용을 따른다. OEM의 "override 상태"는 state 열거형을 늘리지 않고 priority_reason과 reason_code의 OVERRIDE 값으로 표시한다(해석 편차) | SRS-F-007, SRS-F-029, SSR-005 | 가정(승인됨, 편차) |
+| A-02 | OEM-SR-004 vs SR-001, SR-002, FR-002, FR-006, FR-007 | sensor_fault의 "새 명령 미적용"과 충돌 해제, 접근위험, ISOFIX, 자동 잠금 요구가 충돌 | sensor_fault 중에는 운전자 명령만 적용하지 않는다. 충돌 CONFIRMED, 긴급 강제 해제, ignition off, 접근위험 LOCK, ISOFIX 강제 잠금, 자동 잠금은 해당 입력이 유효하면 매 평가주기에 적용한다. 따라서 이 규칙들의 효과에는 OEM-SR-004의 "출력 유지" 기준이 적용되지 않는다(안전 방향 편차) | SSR-011, SSR-013, SSR-016 | 가정(승인됨, 편차) |
+| A-03 | OEM-FR-003 vs SR-002 | override 성립 시 해제 여부 불명확, 우선순위 표와 모순 | 접근위험 해제 억제가 첫 요청에 적용되고, 10초(1,000주기) 이하 재입력은 SSR-004, SSR-005의 예외로 해당 도어를 RELEASE하며 접근위험이 FALSE가 될 때까지 유지한다. 이는 OEM-SR-002의 "해제 요청에도 LOCK 유지" 수용기준과 다른 편차다(운전자의 명시적 재입력만 예외). 유효 차속 3 km/h 미만에서만 적용하고, 운전자 명령이므로 6.3의 다른 순위(ISOFIX 등)와 FAULT/DEGRADED 명령 미적용을 따른다. OEM의 "override 상태"는 state 열거형을 늘리지 않고 priority_reason과 reason_code의 OVERRIDE 값으로 표시한다(해석 편차) | SRS-F-007, SRS-F-029, SRS-F-030, SSR-004, SSR-005 | 가정(승인됨, 편차) |
 | A-04 | OEM-SR-003 | DEGRADED 때 출력, 필수 입력, 시각 소스 미정의 | 필수 입력은 OEM-IF-001의 vehicle_speed_kph와 source_timestamp_s, OEM-IF-002, 003, 007, 008, 009 (gear 제외). DEGRADED 동안 운전자 명령을 적용하지 않고 직전 출력을 유지하되 명령이 아닌 규칙은 유효한 입력일 때 적용한다. 시각은 단일 논리 시간축(A-16) | SSR-008, SSR-009, SSR-010, SSR-016, SRS 6.1, SRS 6.4 | 가정(승인됨) |
 | A-05 | OEM-SR-001/003 | 평가주기와 시계 모델 미정의 | 고정(논리) 시계, 평가주기 10 ms. 시간 요구는 논리 시간 시험으로 검증한다 | SRS-C-005, SSR-002, SSR-009 | 가정(승인됨) |
 | A-06 | OEM-FR-001 | "일반 해제 허용조건" 미정의 | 일반 해제(운전자 unlock)는 유효 차속이 3 km/h 미만일 때만 허용한다 | SRS-F-003 | 가정(승인됨) |
 | A-07 | OEM-SR-001 | crash PENDING 처리 미정의 | PENDING은 출력을 변경하지 않고 reason_code CRASH_PENDING으로만 표시한다 | SSR-003 | 가정(승인됨) |
-| A-08 | OEM-FR-002 | 3 km/h 히스테리시스, gear 사용처 미정의 | 히스테리시스 없음. gear는 형식 검증만 하고 판정, freshness, DEGRADED에 쓰지 않는다. gear INVALID는 input_validity에만 표시한다 | SRS-F-004, SRS 6.5 | 가정(승인됨) |
+| A-08 | OEM-FR-002 | 3 km/h 히스테리시스, gear 사용처 미정의 | 히스테리시스 없음. gear는 형식 검증만 하고 판정, freshness, DEGRADED에 쓰지 않는다. gear INVALID는 input_validity에만 표시한다 | SRS-F-004, SRS 6.4 | 가정(승인됨) |
 | A-09 | OEM-NFR-002 | "허용 필드" 미정의 | 이벤트 ID, 논리 시각, 좌/우 출력, state, reason_code 6개 필드로 한정한다 | SRS-F-024 | 가정(승인됨) |
 | A-10 | OEM-SWR-001 9장 | 추적표가 SWR-019를 참조하지 않음(결번) | SWR-019는 결번으로 유지하고 재사용하지 않는다 | TRACE.md | 확인 |
 | A-11 | OEM-SWR-001 3장 | 실행 환경이 Python 3.12로 명시됨 | 사용자 결정으로 C17/Clang으로 구현한다 (편차) | SRS-C-001 | 가정(승인됨, 편차) |
 | A-12 | OEM-SWR-001 7장 | 대상 차종, GVW, 문 형식 미제공 | 법규는 "후보"로만 취급하고 준수를 주장하지 않는다. 법규 요구는 SRS에 포함하지 않는다 | — | 확인 |
 | A-13 | OEM-SR-001 | "이후 입력 주기에도 유지"의 기간 미정의 | 충돌 CONFIRMED가 입력되는 동안 유지한다 (CONFIRMED가 해제되면 다음 주기부터 일반 규칙) | SSR-001 | 가정(승인됨) |
-| A-14 | OEM-FR-007 vs FR-006 | ignition off 해제와 ISOFIX 강제 잠금이 동시에 요구될 때 | ignition off가 ISOFIX 잠금, 접근위험 LOCK보다 우선한다 (OFF = 기능 비활성) | SRS-F-016, SRS 6.3 | 가정(승인됨) |
+| A-14 | OEM-FR-007 vs FR-006 | ignition off 해제와 ISOFIX 강제 잠금이 동시에 요구될 때, OFF 지속 중 동작 미정의 | ignition off가 ISOFIX 잠금, 접근위험 LOCK보다 우선하며, OFF인 동안은 매 주기 RELEASE를 유지하고 운전자 명령과 순위 4~7 규칙을 적용하지 않는다 (OFF = 기능 비활성) | SRS-F-016, SRS-F-031, SRS 6.3 | 가정(승인됨) |
 | A-15 | OEM-NFR-002 | "제어 결정 100건"의 결정 단위 미정의 | 출력, state, reason_code 중 하나가 직전 주기와 달라진 평가주기를 하나의 결정으로 본다 | SRS-F-025 | 가정(승인됨) |
 | A-16 | OEM-SR-003, OEM-IF-001 | source_timestamp_s(원천 시각)와 VehicleSnapshot.timestamp_s의 시간축 관계 미정의 | 모든 시각은 시험이 주입하는 단일 논리 시간축의 값이다. source_timestamp_s는 같은 논리 시간축으로 주입한다 | SRS 6.1, SSR-008 | 가정(승인됨) |
 
