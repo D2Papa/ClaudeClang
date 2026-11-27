@@ -7,7 +7,9 @@ description: A-SPICE SWE.4 기준으로 유닛 테스트를 작성하고 커버�
 
 ## 입력
 - 인자(`$ARGUMENTS`): 테스트 대상 모듈·함수와 커버리지 목표 (예: `src/sensor.c --target stmt,branch` 또는 `--target mcdc`)
-- 커버리지 목표가 정해져 있지 않으면 사용자에게 확인한다 (구문 / 분기 / MC/DC 중 선택). 목표는 테스트 계획에 기록한다.
+- 단위 테스트의 품질 기준(CLAUDE.md 2.1)은 **MC/DC 커버리지 100%**, **테스트 성공률 100%** 이다. 예외 없이 달성해야 한다.
+- 단위 테스트는 `test/unit/`에 둔다. 구현 중 TDD로 만든 테스트(`test/tdd/`)와 분리하며, 서로 재사용·합산하지 않는다.
+  상세 설계를 기준으로 독립적으로 설계한다.
 
 ## 핵심 규칙
 
@@ -16,8 +18,8 @@ description: A-SPICE SWE.4 기준으로 유닛 테스트를 작성하고 커버�
    assertion이 없거나, 출력값을 확인하지 않고 코드만 통과시키는 케이스는 금지한다.
 3. **Stub/Mock은 필요한 경우에만** 쓰고 의존하지 않는다. 하드웨어·외부 시스템·비결정적 요소(시간, 난수)처럼
    격리가 꼭 필요한 곳에만 쓰고, 실제 모듈을 그대로 쓸 수 있으면 실제 모듈을 쓴다.
-4. 도달 불가능한 코드(죽은 분기)를 발견하면 커버리지를 맞추려 하지 말고, 코드·설계 결함으로 보고한다.
-   방어 코드 때문에 정당하게 도달 불가한 경우에는 근거와 함께 사용자 승인을 받아 예외로 기록한다.
+4. 도달 불가능한 코드(죽은 분기)를 발견하면 커버리지를 맞추려 하지 말고, 코드·설계 결함으로 보고해 코드를 고친다.
+   커버리지 **예외 처리는 허용하지 않는다** (제외 주석, 예외 목록 등 불가).
 5. **모든 테스트 함수에 Doxygen 주석**으로 테스트 목적, 입력값, 절차, 예상 출력값을 쓴다.
 
 ## 테스트 함수 주석 형식
@@ -71,7 +73,9 @@ static void test_Sensor_Filter_RawAtUpperBound_ReturnsOk(void) { ... }
 
 ## 커버리지 측정 (LLVM)
 
-LLVM 도구는 이 스킬의 스크립트로 사용한다: `.claude/skills/unit-test/scripts/llvm_coverage.py`
+프로젝트 표준 측정은 `claudeclangbuild` 컨테이너에서 `scripts/ci/build.sh` → `scripts/ci/test.sh` → `scripts/ci/coverage.sh`
+순서로 실행하는 것이다 (CI와 동일, 스위트별 분리 측정, 단위 테스트는 MC/DC 100% 검사).
+아래 스크립트는 단일 소스·테스트 파일을 빠르게 측정할 때 쓰는 보조 도구다: `.claude/skills/unit-test/scripts/llvm_coverage.py`
 
 ```powershell
 # 구문/분기 커버리지 측정
