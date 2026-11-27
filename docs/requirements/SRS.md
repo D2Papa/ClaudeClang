@@ -35,7 +35,7 @@
 | SRS-F-019 | 표시 항목 제공 | SW는 표시 인터페이스에 state, priority_reason, reason_code, input_validity를 6.2 열거형 값으로 제공해야 한다. | 표시 계약 | 통합 시험: 4개 항목이 응답에 있고 6.2 열거형 값 집합에 속한다 | 필수 | OEM-FR-004, OEM-IF-006 | SWR-015 | 리뷰됨 |
 | SRS-F-020 | 이벤트 ID 부여 | SW는 제어 결정마다 이전에 부여한 적이 없는 고유 이벤트 ID를 부여해야 한다. | 결정 추적 | 시험: 1,000건 기록에서 이벤트 ID 중복 0건 | 필수 | OEM-NFR-002 | SWR-010 | 리뷰됨 |
 | SRS-F-021 | 결정 이력 보존 | SW는 최근 SRS-L-006 건의 결정 이벤트를 오래된 순서대로 조회할 수 있게 보존해야 한다. | 이력 조회 | 시험: 101건 입력 후 최신 100건만 시간순 조회 | 필수 | OEM-NFR-002 | SWR-012 | 리뷰됨 |
-| SRS-F-022 | priority_reason 매핑 | SW는 priority_reason 값을 같은 값의 reason_code로도 제공해야 한다. | OEM-IF-006 매핑 요구 | 통합 시험: 6.2의 모든 reason_code 값에서 priority_reason 설정 시 reason_code가 같은 값 | 필수 | OEM-IF-006 | SWR-015 | 리뷰됨 |
+| SRS-F-022 | priority_reason 매핑 | SW는 priority_reason 값을 같은 값의 reason_code로도 제공해야 한다. 단, 속도 조건으로 거절된 운전자 unlock이 있으면(SRS-F-003) reason_code는 CMD_REJECTED_SPEED로 하고 priority_reason은 결정한 규칙의 값을 유지한다. | OEM-IF-006 매핑 요구 | 통합 시험: 6.2의 모든 reason_code 값에서 priority_reason 설정 시 reason_code가 같은 값 (속도 거절 unlock이 있는 경우는 reason_code가 CMD_REJECTED_SPEED) | 필수 | OEM-IF-006 | SWR-015 | 리뷰됨 |
 | SRS-F-023 | 직렬화 실패 응답 | SW는 표시 인터페이스 응답을 6.4의 OEM-IF-006 형식으로 변환하는 직렬화가 오류를 반환하면 HTTP 500으로 응답해야 한다. | OEM-IF-006 오류 처리 | 통합 시험: 직렬화 오류 주입 시 HTTP 상태 500, 정상 시 200 | 필수 | OEM-IF-006 | SWR-015 | 리뷰됨 |
 | SRS-F-024 | 이벤트 필드 한정 | SW는 이벤트에 이벤트 ID, 논리 시각, 좌 출력, 우 출력, state, reason_code 필드만 기록해야 한다. (개인정보 비저장은 SRS-Q-002) | 허용 필드 한정 (A-09) | 시험: 모든 이벤트의 필드 집합이 정의된 6개와 정확히 일치 | 필수 | OEM-NFR-002 | SWR-011 | 리뷰됨 |
 | SRS-F-025 | 결정 기록 조건 | SW는 출력, state, reason_code 중 하나라도 직전 평가주기와 달라진 평가주기를 하나의 결정으로 보고 이벤트를 기록해야 한다. | "결정" 단위 정의 (A-15) | 시험: 변화 없는 100주기에 이벤트 0건, 변화가 있는 주기마다 이벤트 1건 | 필수 | OEM-NFR-002 | SWR-010 | 리뷰됨 |

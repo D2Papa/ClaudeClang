@@ -98,9 +98,10 @@
 
 | ID | 시그니처 | 동작 | 추적 |
 |----|----------|------|------|
-| DD-F-021 | `Status_t Arbiter_Resolve(const ArbiterInput_t *in, Decision_t *out)` | 널이면 ERR_PARAM. 도어별로 DD-F-022 호출, 상태 기반 reason(DD-F-024)과 priority_reason 설정 | SRS-F-017, 028, 031, SSR-010, 011, 013, 016 |
+| DD-F-021 | `Status_t Arbiter_Resolve(const ArbiterInput_t *in, Decision_t *out)` | 널이면 ERR_PARAM. 도어별로 DD-F-022 호출, 상태 기반 reason(DD-F-024)과 priority_reason 설정. 도어별 결정 뒤에 DD-F-029가 1이면 reason_code를 CMD_REJECTED_SPEED로 덮어쓴다 (priority_reason은 유지, A-19) | SRS-F-017, 028, 031, SSR-010, 011, 013, 016 |
 | DD-F-022 | `static int Arbiter_RankGated(State_t state, int rank)` | state OFF이고 rank ≥ 4이면 1, state DEGRADED 또는 FAULT이고 rank == 6이면 1, 아니면 0 | SRS-F-031, SSR-010, 011 |
 | DD-F-023 | `static int Arbiter_PickRank(const ArbiterInput_t *in, int d, Output_t *effect, ReasonCode_t *reason)` | 순위 1~7을 순서대로 보며 gated가 아니고 active[d]인 첫 규칙을 선택. 순위 6은 규칙 결과가 비활성이고 override.active[d]이면 RELEASE, OVERRIDE로 대체. 선택한 순위(0이면 없음)를 반환 | SRS-F-017, 029, 030 |
+| DD-F-029 | `static int Arbiter_IsSpeedRejected(const ArbiterInput_t *in, int d)` | 운전자 순위가 state로 제외되지 않았고 운전자 규칙 결과의 info_reason[d]가 CMD_REJECTED_SPEED이면 1 | SRS-F-003, SRS-F-022 |
 | DD-F-024 | `static ReasonCode_t Arbiter_FallbackReason(const ArbiterInput_t *in, int d)` | 선택된 규칙이 없을 때: state FAULT → SENSOR_FAULT, DEGRADED → DEGRADED_STALE, 아니면 info_reason이 있는 가장 높은 순위의 값, 없으면 NONE | SSR-009, 012, SRS-F-003 |
 
 ### DD-M-013 control_cycle
@@ -144,7 +145,7 @@
 |---------|-----------|
 | SRS-F-001 | DD-F-001, DD-F-005, DD-F-015 |
 | SRS-F-002 | DD-F-015, DD-F-016 |
-| SRS-F-003 | DD-F-015, DD-F-024 |
+| SRS-F-003 | DD-F-015, DD-F-024, DD-F-029 |
 | SRS-F-004 | DD-F-017 |
 | SRS-F-007 | DD-F-018, DD-F-019, DD-F-020, DD-F-027 |
 | SRS-F-014 | DD-F-011 |
@@ -152,6 +153,7 @@
 | SRS-F-016 | DD-F-008, DD-F-012 |
 | SRS-F-017 | DD-F-021, DD-F-023 |
 | SRS-F-027 | DD-F-008 |
+| SRS-F-022 | DD-F-021, DD-F-029 |
 | SRS-F-028 | DD-F-021, DD-F-023 |
 | SRS-F-029 | DD-F-019, DD-F-023 |
 | SRS-F-030 | DD-F-020, DD-F-023 |
