@@ -11,7 +11,7 @@ import pathlib
 import re
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-VERSION = "1.2 (Iter-1, Iter-2 설계 반영)"
+VERSION = "1.3 (Iter-1, Iter-2 설계 반영)"
 ID_RE = re.compile(r"(?:SRS-[FQLC]-\d{3}|SSR-\d{3})")
 RANGE_RE = re.compile(r"(SRS-[FQLC]-|SSR-)(\d{3})~(\d{3})")
 
@@ -129,9 +129,19 @@ def main():
     def cell(values):
         return ", ".join(sorted(values))
 
+    versions = {}
+    for label, path in (("SRS", "docs/requirements/SRS.md"), ("SAFETY-REQ", "docs/safety/SAFETY-REQ.md"),
+                        ("ASSUMPTIONS", "docs/requirements/ASSUMPTIONS.md"), ("ARCH", "docs/architecture/ARCH.md"),
+                        ("ARCH-iter2", "docs/architecture/ARCH-iter2.md"), ("DDS", "docs/detailed-design/DDS.md"),
+                        ("DDS-iter2", "docs/detailed-design/DDS-iter2.md")):
+        m = re.search(r"\| 버전 \| ([^|(]*)", read(path))
+        versions[label] = m.group(1).strip() if m else "?"
+    input_versions = ", ".join("%s v%s" % (k, v) for k, v in versions.items())
+
     out = ["# 추적성 매트릭스 (TRACE)", "",
            "| 항목 | 내용 |", "|------|------|", "| 문서 ID | DOC-TRC-001 |", "| 버전 | %s |" % VERSION,
-           "| 상태 | scripts/docs/gen_trace.py로 생성 (리뷰 생략: Iter-1은 사용자 지시) |", "",
+           "| 상태 | scripts/docs/gen_trace.py로 생성 (리뷰 생략: Iter-1은 사용자 지시) |",
+           "| 입력 문서 버전 | %s |" % input_versions, "",
            "하향 추적은 문서와 코드의 추적 표기에서 스크립트로 생성한다. 빈 칸은 해당 이터레이션 범위 밖이거나 누락이다.",
            "ID는 항상 접두사를 포함한 전체 표기를 쓴다.", "",
            "## 1. 요구사항 추적 (상향 + 하향)", "",

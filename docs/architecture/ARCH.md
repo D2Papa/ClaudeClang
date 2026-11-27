@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-ARC-001 |
-| 버전 | 0.4 (Iter-1, Iter-2 설계 리뷰 반영 개정) |
+| 버전 | 0.5 (Iter-1, Iter-2 설계 리뷰 반영 개정) |
 | 상태 | 리뷰 생략 (사용자 지시 2026-11-27 "이번 이터레이션은 리뷰는 넘어가자"), aspice-reviewer 미검토 |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | DOC-SRS-001 v1.0, DOC-SAF-001 v1.0, DOC-ASM-001 v1.0 (모두 리뷰 승인) |
@@ -86,7 +86,7 @@ flowchart LR
 | ARCH-I-003 | 상태 결정 | C-003 → C-013 | `Status_t State_Determine(const Snapshot_t *snap /*in*/, State_t *state /*out*/, int *warning_code /*out: 0 또는 1(W-001)*/)` | 사후: SSR-015에 따라 OFF > FAULT > DEGRADED > NORMAL, sensor_fault가 유효한 TRUE이면 warning_code=1 | 널이면 STATUS_ERR_PARAM | 동기, 상태 비보유 |
 | ARCH-I-004 | 규칙 평가 (공통) | C-004~C-010 → C-013 | `Status_t <Rule>_Evaluate(const RuleInput_t *in /*in*/, RuleResult_t *out /*out*/)` (`<Rule>`: Crash, Emergency, Ignition, ApproachRisk, Isofix, DriverCommand, AutoLock). RuleInput_t = Snapshot_t, State_t, 직전 출력[2], OverrideStatus_t | 사전: in, out이 널이 아니다. 사후: 조건이 성립하지 않으면 active=0, 성립하면 도어별 effect와 reason_code 설정. 같은 입력은 항상 같은 결과(순수 함수) | 널이면 STATUS_ERR_PARAM(out 미수정) | 동기, 상태 비보유, 모든 규칙이 같은 시그니처(대체 가능) |
 | ARCH-I-005 | override 추적 | C-011 → C-013 | `Status_t Override_Update(Override_t *ctx /*inout*/, const OverrideInput_t *in /*in*/, OverrideStatus_t *out /*out*/)`. OverrideInput_t = 주기 번호(uint32_t), 도어별 suppressed_unlock, 도어별 접근위험 유효 TRUE 여부, 유효 차속 3.0 km/h 이상 여부, 도어별 unlock/lock 명령 적용 여부, 도어별 명령 허용 여부 | 사후: 억제 후 1,000주기 이하 재입력이면 해당 도어 override 성립, 종료 조건(접근위험 FALSE, 3.0 km/h 이상, 적용되는 lock 명령)이 성립하면 해제, OverrideStatus_t = 도어별 active | 널이면 STATUS_ERR_PARAM, 주기 번호 역행이면 STATUS_ERR_STATE | 동기, 컨텍스트 상태 보유, 주기당 1회 호출 |
-| ARCH-I-006 | 중재 | C-012 → C-013 | `Status_t Arbiter_Resolve(const ArbiterInput_t *in /*in*/, Decision_t *out /*out*/)`. ArbiterInput_t = RuleResult_t[7](순위 1~7 순서), State_t, 직전 출력[2], OverrideStatus_t | 사후: 도어별로 활성 규칙 중 가장 높은 순위의 효과, 없으면 직전 출력과 NONE. OFF이면 순위 4~7, DEGRADED/FAULT이면 순위 6을 활성에서 제외하고 억제된 명령의 reason_code를 설정. override 지속은 순위 6 효과(reason OVERRIDE)로 반영 | 널이면 STATUS_ERR_PARAM | 동기, 상태 비보유 |
+| ARCH-I-006 | 중재 | C-012 → C-013 | `Status_t Arbiter_Resolve(const ArbiterInput_t *in /*in*/, Decision_t *out /*out*/)`. ArbiterInput_t = RuleResult_t[7](순위 1~7 순서), State_t, 직전 출력[2], OverrideStatus_t | 사후: 도어별로 활성 규칙 중 가장 높은 순위의 효과, 없으면 직전 출력과 NONE. OFF이면 순위 4~7, DEGRADED/FAULT이면 순위 6을 활성에서 제외하고 억제된 명령의 reason_code를 설정. override 지속은 순위 6 효과(reason OVERRIDE)로 반영. 상태로 적용되지 않은 운전자 명령은 별도 이유를 만들지 않고, 활성 규칙이 없는 주기의 reason_code는 state 이유(FAULT: SENSOR_FAULT, DEGRADED: DEGRADED_STALE, 그 외 정보성 이유 또는 NONE)로 하며 OFF에서는 순위 3 규칙의 IGNITION_OFF가 된다 (SRS-F-003, SRS 6.3) | 널이면 STATUS_ERR_PARAM | 동기, 상태 비보유 |
 | ARCH-I-007 | 제어 주기 실행 | C-013 → C-016, 테스트 | `Status_t Control_Init(Control_t *ctx /*out*/)`, `Status_t Control_Step(Control_t *ctx /*inout*/, const RawInput_t *raw /*in*/, CycleResult_t *out /*out*/)` | 사전: Init 후 호출, raw->timestamp_s는 단조 증가(10 ms 단위). 사후: out은 6.3 규칙과 SSR/SRS 요구를 만족하는 결과, 직전 출력 갱신 | 널이면 STATUS_ERR_PARAM, 미초기화 STATUS_ERR_STATE. 하위 컴포넌트 오류는 그대로 전파하고 직전 출력은 변경하지 않음 | 동기, 주기당 1회(10 ms), 스레드 비안전(호출자가 직렬화) |
 | ARCH-I-008 | 상태 표시 | (DOC-ARC-002 4장이 정의한다) | — | — | — | — |
 | ARCH-I-009 | 이벤트 기록 | (DOC-ARC-002 4장이 정의한다) | — | — | — | — |
