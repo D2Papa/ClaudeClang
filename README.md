@@ -12,6 +12,7 @@
 | `.claude/agents/code-reviewer.md` | 변경 코드 리뷰 (읽기 전용) |
 | `.claude/agents/test-runner.md` | 테스트 실행·실패 분석·수정 |
 | `.claude/agents/doc-writer.md` | 문서 작성·갱신 |
+| `.claude/agents/aspice-reviewer.md` | A-SPICE 산출물 엄격 리뷰 (`review` 스킬 적용, 부적합 전부 조치 전에는 다음 단계 진행 불가) |
 | `.claude/skills/commit/` | Conventional Commits 커밋 |
 | `.claude/skills/changelog/` | git 이력으로 CHANGELOG 생성 |
 | `.claude/skills/new-agent/` | 새 서브에이전트 생성 |
