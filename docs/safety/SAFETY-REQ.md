@@ -4,7 +4,7 @@
 |------|------|
 | 문서 ID | DOC-SAF-001 |
 | 버전 | 1.0 (Iter-0, 9차 리뷰 반려 조치본) |
-| 상태 | 초안 (재리뷰 대기) |
+| 상태 | 리뷰 승인 (aspice-reviewer 10차, 2026-11-27) |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 
 - 기능 안전 요구사항은 SRS(DOC-SRS-001)에 쓰지 않고 이 문서에서 관리한다. SRS는 `SSR-nnn` ID만 참조하며, 안전 규칙의 효과·조건·상태 복귀는 이 문서에만 서술한다.
@@ -26,22 +26,22 @@
 
 | ID | 제목 | 기술 (shall) | 검증 방법 / 합격 기준 | 상위 추적 | 상태 |
 |----|------|--------------|------------------------|-----------|------|
-| SSR-001 | 충돌 긴급 해제 | SW는 crash_status가 유효한 CONFIRMED인 동안 매 평가주기에 좌, 우 출력을 RELEASE로 하고 reason_code CRASH_CONFIRMED를 기록해야 한다. 이 규칙은 다른 모든 명령과 규칙보다 우선한다. | 시험: CONFIRMED 주입 후 유지되는 모든 주기에서 두 출력 RELEASE, 동시 LOCK 명령·접근위험·ISOFIX·자동잠금 입력이 있어도 RELEASE | OEM-SR-001, OEM-IF-002 | 초안 |
-| SSR-002 | 충돌 해제 시간 | SW는 crash_status가 CONFIRMED가 된 시점부터 300 ms(30 평가주기) 이내에 좌, 우 출력을 RELEASE로 해야 한다. | 시험: 논리 시간 기준 30주기 이내 RELEASE, DEGRADED, FAULT 상태에서도 동일 | OEM-SR-001 | 초안 |
-| SSR-003 | 충돌 PENDING | SW는 crash_status가 PENDING이어도 출력을 변경하는 규칙을 만들지 않아야 한다. 출력은 다른 규칙이 결정하고 다른 규칙이 없으면 직전 출력을 유지하며, 다른 reason_code가 없을 때 reason_code CRASH_PENDING을 기록한다. | 시험: PENDING 단독 주입 시 출력 불변+CRASH_PENDING, PENDING과 운전자 명령 동시 주입 시 명령 규칙대로 출력되고 reason_code는 CMD_APPLIED | OEM-SR-001, OEM-IF-002 | 초안 |
-| SSR-004 | 접근위험 LOCK | SW는 접근위험이 유효한 TRUE인 쪽 도어 출력을 LOCK으로 하고 reason_code APPROACH_RISK_LOCK을 기록해야 한다. 단 SRS-F-007, SRS-F-030에 따라 override가 성립한 도어는 제외한다. | 시험: rear_left_approach_risk=TRUE → 좌 LOCK(우 불변), rear_right 대칭, override 성립 도어는 RELEASE 유지 | OEM-SR-002, OEM-IF-003 | 초안 |
-| SSR-005 | 해제 억제 | SW는 접근위험이 TRUE인 도어에 대한 unlock 요청을 적용하지 않고 reason_code APPROACH_RISK_SUPPRESSED를 기록해야 한다. SRS-F-007 override 조건을 만족한 요청은 제외한다. | 시험: unlock 요청 후 해당 도어 LOCK 유지+APPROACH_RISK_SUPPRESSED | OEM-SR-002, OEM-IF-003 | 초안 |
-| SSR-006 | 좌우 독립 | SW는 좌, 우 도어의 접근위험 판정, 억제, 출력을 서로 독립적으로 처리해야 한다. | 시험: 좌 TRUE/우 FALSE에서 우 unlock은 적용(차속 < 3 km/h), 좌 unlock은 억제 | OEM-SR-002, OEM-IF-003 | 초안 |
-| SSR-007 | 입력 검증 거절 | SW는 OEM-IF-001, 002, 003, 004, 007, 008, 009 입력의 누락, 형식 오류, 범위 오류, 값 집합 밖 값을 평가 전에 거절하고 해당 입력을 INVALID로 처리해야 한다. INVALID 입력은 그 입력을 조건으로 하는 규칙에 사용하지 않는다. 거절된 IF-004 명령은 무시하고 reason_code INPUT_INVALID를 기록한다. gear가 INVALID이어도 필수 입력 판정과 DEGRADED에는 영향이 없고 input_validity에만 표시한다. | 시험: 속도 -0.1, 300.1, 문자열, 누락, 미등록 enum, gear 'X' 각각이 거절되고 규칙 조건에 사용되지 않음, gear 'X' 단독은 DEGRADED를 일으키지 않음 | OEM-SR-003, OEM-IF-001, OEM-IF-002, OEM-IF-003, OEM-IF-004, OEM-IF-007, OEM-IF-008, OEM-IF-009 | 초안 |
-| SSR-008 | stale 판정 | SW는 필수 입력의 fresh 조건(SRS 6.1)을 벗어나면, 즉 시간 차가 200 ms를 초과하면 그 입력을 stale로 판정해야 한다. | 시험(주기 단위): 20주기(200 ms) 경과 fresh, 21주기(210 ms) 경과 stale | OEM-SR-003 | 초안 |
-| SSR-009 | DEGRADED 전이 시간 | SW는 필수 입력이 stale 또는 INVALID가 된 시점부터 100 ms(10 평가주기) 이내에 state를 DEGRADED로 하고 reason_code DEGRADED_STALE을 기록해야 한다. SSR-015에 따라 state가 OFF 또는 FAULT로 결정되는 경우에는 DEGRADED로 전이하지 않는다. | 시험: stale 판정 주기부터 10주기 이내 state=DEGRADED, DEGRADED_STALE, ignition_on=FALSE 또는 sensor_fault=TRUE 동시 시 OFF 또는 FAULT | OEM-SR-003 | 초안 |
-| SSR-010 | DEGRADED 명령 미적용 | SW는 state가 DEGRADED인 동안 운전자 명령(OEM-IF-004)을 적용하지 않고, 어떤 규칙도 출력을 정하지 않으면 직전 출력을 유지해야 한다. | 시험: DEGRADED 중 운전자 명령 후 출력 불변, 규칙 입력(CONFIRMED, 긴급, 접근위험, ISOFIX, 자동잠금)은 SSR-013, SSR-016에 따라 적용 | OEM-SR-003 | 초안 |
-| SSR-011 | sensor_fault 명령 미적용 | SW는 sensor_fault가 유효한 TRUE인 동안 매 평가주기에 새 명령(OEM-IF-004)을 적용하지 않고, 어떤 규칙도 출력을 정하지 않으면 직전 출력을 유지해야 한다. | 시험: sensor_fault TRUE 첫 주기와 이후 주기에서 운전자 명령 후 출력 불변, 규칙 입력이 없으면 출력 불변 | OEM-SR-004, OEM-IF-009 | 초안 |
-| SSR-012 | FAULT 상태 표시 | SW는 sensor_fault가 TRUE인 첫 평가주기에 state를 FAULT로 하고 경고코드 W-001과 reason_code SENSOR_FAULT를 제공해야 한다. | 시험: 첫 주기에 FAULT, W-001, SENSOR_FAULT | OEM-SR-004, OEM-IF-009 | 초안 |
-| SSR-013 | FAULT/DEGRADED 예외 | SW는 FAULT 또는 DEGRADED 상태에서도 유효한 crash CONFIRMED(SSR-001), 긴급 강제 해제(SRS-F-014), ignition off(SRS-F-016) 규칙을 적용해야 한다. | 시험: sensor_fault TRUE 및 필수 입력 stale 상태 각각에서 세 규칙이 적용됨 | OEM-SR-004, OEM-SR-001, OEM-SR-003 | 초안 |
-| SSR-016 | FAULT/DEGRADED 중 LOCK 규칙 | SW는 FAULT 또는 DEGRADED 상태에서도 매 평가주기에 해당 입력이 유효하면 접근위험 LOCK(SSR-004), ISOFIX 강제 잠금(SRS-F-015), 자동 잠금(SRS-F-004)을 적용해야 한다. | 시험: sensor_fault TRUE 및 필수 입력 stale 상태 각각에서 세 규칙이 적용됨 | OEM-SR-004, OEM-SR-003, OEM-SR-002, OEM-FR-002, OEM-FR-006 | 초안 |
-| SSR-014 | FAULT/DEGRADED 복귀 | SW는 sensor_fault가 유효한 FALSE가 된 다음 평가주기에 FAULT 조건을 해제하고, 모든 필수 입력이 유효해진 다음 평가주기에 DEGRADED 조건을 해제해야 한다. 해제 후 state는 SSR-015에 따라 결정한다. | 시험: 조건 해소 다음 주기에 해당 조건이 사라지고 남은 조건에 따라 state가 결정됨 | OEM-SR-003, OEM-SR-004 | 초안 |
-| SSR-015 | state 결정 | SW는 state를 ignition_on이 유효한 FALSE이면 OFF, 아니면 sensor_fault가 유효한 TRUE이면 FAULT, 아니면 필수 입력이 하나라도 stale 또는 INVALID이면 DEGRADED, 아니면 NORMAL로 정해야 한다. | 시험: 조건 8가지 조합(ignition, fault, stale 각 참/거짓)에서 기대 state 일치 | OEM-SR-003, OEM-SR-004 | 초안 |
+| SSR-001 | 충돌 긴급 해제 | SW는 crash_status가 유효한 CONFIRMED인 동안 매 평가주기에 좌, 우 출력을 RELEASE로 하고 reason_code CRASH_CONFIRMED를 기록해야 한다. 이 규칙은 다른 모든 명령과 규칙보다 우선한다. | 시험: CONFIRMED 주입 후 유지되는 모든 주기에서 두 출력 RELEASE, 동시 LOCK 명령·접근위험·ISOFIX·자동잠금 입력이 있어도 RELEASE | OEM-SR-001, OEM-IF-002 | 리뷰됨 |
+| SSR-002 | 충돌 해제 시간 | SW는 crash_status가 CONFIRMED가 된 시점부터 300 ms(30 평가주기) 이내에 좌, 우 출력을 RELEASE로 해야 한다. | 시험: 논리 시간 기준 30주기 이내 RELEASE, DEGRADED, FAULT 상태에서도 동일 | OEM-SR-001 | 리뷰됨 |
+| SSR-003 | 충돌 PENDING | SW는 crash_status가 PENDING이어도 출력을 변경하는 규칙을 만들지 않아야 한다. 출력은 다른 규칙이 결정하고 다른 규칙이 없으면 직전 출력을 유지하며, 다른 reason_code가 없을 때 reason_code CRASH_PENDING을 기록한다. | 시험: PENDING 단독 주입 시 출력 불변+CRASH_PENDING, PENDING과 운전자 명령 동시 주입 시 명령 규칙대로 출력되고 reason_code는 CMD_APPLIED | OEM-SR-001, OEM-IF-002 | 리뷰됨 |
+| SSR-004 | 접근위험 LOCK | SW는 접근위험이 유효한 TRUE인 쪽 도어 출력을 LOCK으로 하고 reason_code APPROACH_RISK_LOCK을 기록해야 한다. 단 SRS-F-007, SRS-F-030에 따라 override가 성립한 도어는 제외한다. | 시험: rear_left_approach_risk=TRUE → 좌 LOCK(우 불변), rear_right 대칭, override 성립 도어는 RELEASE 유지 | OEM-SR-002, OEM-IF-003 | 리뷰됨 |
+| SSR-005 | 해제 억제 | SW는 접근위험이 TRUE인 도어에 대한 unlock 요청을 적용하지 않고 reason_code APPROACH_RISK_SUPPRESSED를 기록해야 한다. SRS-F-007 override 조건을 만족한 요청은 제외한다. | 시험: unlock 요청 후 해당 도어 LOCK 유지+APPROACH_RISK_SUPPRESSED | OEM-SR-002, OEM-IF-003 | 리뷰됨 |
+| SSR-006 | 좌우 독립 | SW는 좌, 우 도어의 접근위험 판정, 억제, 출력을 서로 독립적으로 처리해야 한다. | 시험: 좌 TRUE/우 FALSE에서 우 unlock은 적용(차속 < 3 km/h), 좌 unlock은 억제 | OEM-SR-002, OEM-IF-003 | 리뷰됨 |
+| SSR-007 | 입력 검증 거절 | SW는 OEM-IF-001, 002, 003, 004, 007, 008, 009 입력의 누락, 형식 오류, 범위 오류, 값 집합 밖 값을 평가 전에 거절하고 해당 입력을 INVALID로 처리해야 한다. INVALID 입력은 그 입력을 조건으로 하는 규칙에 사용하지 않는다. 거절된 IF-004 명령은 무시하고 reason_code INPUT_INVALID를 기록한다. gear가 INVALID이어도 필수 입력 판정과 DEGRADED에는 영향이 없고 input_validity에만 표시한다. | 시험: 속도 -0.1, 300.1, 문자열, 누락, 미등록 enum, gear 'X' 각각이 거절되고 규칙 조건에 사용되지 않음, gear 'X' 단독은 DEGRADED를 일으키지 않음 | OEM-SR-003, OEM-IF-001, OEM-IF-002, OEM-IF-003, OEM-IF-004, OEM-IF-007, OEM-IF-008, OEM-IF-009 | 리뷰됨 |
+| SSR-008 | stale 판정 | SW는 필수 입력의 fresh 조건(SRS 6.1)을 벗어나면, 즉 시간 차가 200 ms를 초과하면 그 입력을 stale로 판정해야 한다. | 시험(주기 단위): 20주기(200 ms) 경과 fresh, 21주기(210 ms) 경과 stale | OEM-SR-003 | 리뷰됨 |
+| SSR-009 | DEGRADED 전이 시간 | SW는 필수 입력이 stale 또는 INVALID가 된 시점부터 100 ms(10 평가주기) 이내에 state를 DEGRADED로 하고 reason_code DEGRADED_STALE을 기록해야 한다. SSR-015에 따라 state가 OFF 또는 FAULT로 결정되는 경우에는 DEGRADED로 전이하지 않는다. | 시험: stale 판정 주기부터 10주기 이내 state=DEGRADED, DEGRADED_STALE, ignition_on=FALSE 또는 sensor_fault=TRUE 동시 시 OFF 또는 FAULT | OEM-SR-003 | 리뷰됨 |
+| SSR-010 | DEGRADED 명령 미적용 | SW는 state가 DEGRADED인 동안 운전자 명령(OEM-IF-004)을 적용하지 않고, 어떤 규칙도 출력을 정하지 않으면 직전 출력을 유지해야 한다. | 시험: DEGRADED 중 운전자 명령 후 출력 불변, 규칙 입력(CONFIRMED, 긴급, 접근위험, ISOFIX, 자동잠금)은 SSR-013, SSR-016에 따라 적용 | OEM-SR-003 | 리뷰됨 |
+| SSR-011 | sensor_fault 명령 미적용 | SW는 sensor_fault가 유효한 TRUE인 동안 매 평가주기에 새 명령(OEM-IF-004)을 적용하지 않고, 어떤 규칙도 출력을 정하지 않으면 직전 출력을 유지해야 한다. | 시험: sensor_fault TRUE 첫 주기와 이후 주기에서 운전자 명령 후 출력 불변, 규칙 입력이 없으면 출력 불변 | OEM-SR-004, OEM-IF-009 | 리뷰됨 |
+| SSR-012 | FAULT 상태 표시 | SW는 sensor_fault가 TRUE인 첫 평가주기에 state를 FAULT로 하고 경고코드 W-001과 reason_code SENSOR_FAULT를 제공해야 한다. | 시험: 첫 주기에 FAULT, W-001, SENSOR_FAULT | OEM-SR-004, OEM-IF-009 | 리뷰됨 |
+| SSR-013 | FAULT/DEGRADED 예외 | SW는 FAULT 또는 DEGRADED 상태에서도 유효한 crash CONFIRMED(SSR-001), 긴급 강제 해제(SRS-F-014), ignition off(SRS-F-016) 규칙을 적용해야 한다. | 시험: sensor_fault TRUE 및 필수 입력 stale 상태 각각에서 세 규칙이 적용됨 | OEM-SR-004, OEM-SR-001, OEM-SR-003 | 리뷰됨 |
+| SSR-016 | FAULT/DEGRADED 중 LOCK 규칙 | SW는 FAULT 또는 DEGRADED 상태에서도 매 평가주기에 해당 입력이 유효하면 접근위험 LOCK(SSR-004), ISOFIX 강제 잠금(SRS-F-015), 자동 잠금(SRS-F-004)을 적용해야 한다. | 시험: sensor_fault TRUE 및 필수 입력 stale 상태 각각에서 세 규칙이 적용됨 | OEM-SR-004, OEM-SR-003, OEM-SR-002, OEM-FR-002, OEM-FR-006 | 리뷰됨 |
+| SSR-014 | FAULT/DEGRADED 복귀 | SW는 sensor_fault가 유효한 FALSE가 된 다음 평가주기에 FAULT 조건을 해제하고, 모든 필수 입력이 유효해진 다음 평가주기에 DEGRADED 조건을 해제해야 한다. 해제 후 state는 SSR-015에 따라 결정한다. | 시험: 조건 해소 다음 주기에 해당 조건이 사라지고 남은 조건에 따라 state가 결정됨 | OEM-SR-003, OEM-SR-004 | 리뷰됨 |
+| SSR-015 | state 결정 | SW는 state를 ignition_on이 유효한 FALSE이면 OFF, 아니면 sensor_fault가 유효한 TRUE이면 FAULT, 아니면 필수 입력이 하나라도 stale 또는 INVALID이면 DEGRADED, 아니면 NORMAL로 정해야 한다. | 시험: 조건 8가지 조합(ignition, fault, stale 각 참/거짓)에서 기대 state 일치 | OEM-SR-003, OEM-SR-004 | 리뷰됨 |
 
 ## 3. 안전 문서 후속 계획
 
