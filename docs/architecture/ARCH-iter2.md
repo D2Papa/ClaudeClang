@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-ARC-002 |
-| 버전 | 0.3 (2차 설계 리뷰 반려 조치본) |
+| 버전 | 0.4 (3차 설계 리뷰 반려 조치본) |
 | 상태 | 초안 (재리뷰 대기) |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | DOC-ARC-001 v0.2 (ARCH-C-014~016 정의, 이 문서가 구체화), DOC-SRS-001 v1.0 |
@@ -18,7 +18,8 @@ DOC-ARC-001의 ARCH-C-014(StatusPresenter), ARCH-C-015(EventRecorder), ARCH-C-01
 - ARCH-D-09: 이벤트 ID는 64비트 정수로 하며 1부터 증가한다 (오버플로로 인한 중복 없음).
 - ARCH-D-10 (A-21): SRS 6.2는 경고코드 값으로 W-001만 정의한다. 경고가 없을 때의 표시 문자열 `"NONE"`은 SRS가 정하지 않아 설계가 정한 표시값이다.
 - ARCH-D-11: Web은 제어 주기와 이력을 호출하기 전에 컨텍스트를 초기화하고(Web_Init) 논리 시각을 주기 번호에서 만들어(단조 증가) 넘기므로, Control_Step과 Event_Record, Event_Query는 Web 경로에서 오류를 반환하지 않는다. 따라서 Web은 이 호출의 반환값으로 분기하지 않는다. HTTP 500은 **응답 본문 상한을 넘는 직렬화 실패**에서만 발생한다. 본문 상한은 `Web_t`의 값(기본 `WEB_BODY_CAPACITY`)이며 시험이 줄일 수 있다.
-- ARCH-D-12: 표시 전(첫 `POST /step` 이전)의 `GET /status`는 출력 RELEASE, state NORMAL, 이유 NONE, 경고 없음이고 입력 유효성은 전부 INVALID(아직 입력이 관측되지 않음)로 응답한다.
+- ARCH-D-12: 평가된 주기가 아직 없을 때(첫 `POST /step` 이전) `GET /status`는 HTTP 204(내용 없음, 빈 본문)로 응답한다. 값을 만들어 내지 않으므로 SSR-015(state 결정)와 충돌하지 않는다.
+- ARCH-D-13: 응답 본문 상한은 `Web_SetBodyLimit`으로만 바꾸며 1 이상 `WEB_BODY_CAPACITY` 이하여야 한다 (버퍼 넘침 방지). `Web_Init`은 상한을 `WEB_BODY_CAPACITY`로 설정한다.
 
 ## 2. 정적 구조
 
@@ -47,7 +48,7 @@ flowchart LR
 |----|------|-----------------|------|----------------|-----------|-------------|
 | ARCH-I-008 | 상태 표시 | C-014 → C-016 | `Status_t Presenter_Build(const CycleResult_t *res /*in*/, PresentedStatus_t *out /*out*/)`; `Status_t Presenter_Serialize(const PresentedStatus_t *st /*in*/, char *buf /*out*/, size_t cap /*in, 1 이상*/, int *http_status /*out: 200 또는 500*/)` | Build 사후: 좌/우 출력, state, 요약 priority_reason, 요약 reason_code, 경고코드("NONE"/"W-001", ARCH-D-10), input_validity 13항목이 SRS 6.2 열거형 이름으로 채워진다. Serialize 사후: 성공이면 buf에 JSON과 http_status=200, 용량 부족이면 buf를 빈 문자열로 하고 http_status=500 | 널이면 STATUS_ERR_PARAM(http_status가 널이 아니면 500). 용량 부족은 오류 코드가 아니라 http_status=500 | 동기, 상태 비보유, 스레드 안전 |
 | ARCH-I-009 | 이벤트 기록 | C-015 → C-016 | `Status_t Event_Init(Event_t *ctx /*out*/)`; `Status_t Event_Record(Event_t *ctx /*inout*/, const CycleResult_t *res /*in*/, double timestamp_s /*in*/)`; `Status_t Event_Query(const Event_t *ctx /*in*/, EventEntry_t *out /*out*/, size_t cap /*in*/, size_t *count /*out*/)` | Record 사후: 직전 기록 기준과 (좌/우 출력, state, reason_code_summary) 중 하나라도 다르면 이벤트 1건 추가(ID는 1부터 64비트로 증가, 중복 없음), 최대 100건 보존(가장 오래된 것부터 덮어씀). Query 사후: 보존된 이벤트를 오래된 순서로 out에 복사하고 count 설정 | 널이면 STATUS_ERR_PARAM, 미초기화면 STATUS_ERR_STATE, Query에서 cap이 보존 건수보다 작으면 STATUS_ERR_PARAM | 동기, 컨텍스트 소유자 단일 스레드, 메모리만 사용 |
-| ARCH-I-010 | Web 요청 처리 | C-016 → 어댑터 | `Status_t Web_Init(Web_t *ctx /*out*/)`; `Status_t Web_Handle(Web_t *ctx /*inout*/, const WebRequest_t *req /*in*/, WebResponse_t *resp /*out*/)`. WebRequest_t = method, path, body(널이 아닌 문자열, 본문이 없으면 빈 문자열). WebResponse_t = status(int), content_type(문자열), body(고정 크기 버퍼 `WEB_BODY_CAPACITY`) | 경로·메서드 표: `GET /` HTML 화면, `GET /status` 마지막 상태 JSON, `GET /history` 이벤트 JSON 배열, `POST /step` 본문의 `이름=값&...`으로 입력을 구성해 한 주기를 실행하고 상태 JSON, `POST /reset` 초기화. 성공은 200, 알 수 없는 경로 404, 경로는 있으나 메서드가 다르면 405, 본문 구문·이름 오류 400, 응답 본문 상한을 넘는 직렬화 실패 500 | 인자 널이면 STATUS_ERR_PARAM. HTTP 오류는 resp->status로 표현하고 반환값은 STATUS_OK | 동기, 요청 1건씩 직렬 처리 |
+| ARCH-I-010 | Web 요청 처리 | C-016 → 어댑터 | `Status_t Web_Init(Web_t *ctx /*out*/)`; `Status_t Web_SetBodyLimit(Web_t *ctx /*inout*/, size_t limit /*in, 1 이상 WEB_BODY_CAPACITY 이하*/)`; `Status_t Web_Handle(Web_t *ctx /*inout*/, const WebRequest_t *req /*in*/, WebResponse_t *resp /*out*/)`. WebRequest_t = method, path, body(널이 아닌 문자열, 본문이 없으면 빈 문자열). WebResponse_t = status(int), content_type(문자열), body(고정 크기 버퍼 `WEB_BODY_CAPACITY`) | 경로·메서드 표: `GET /` HTML 화면, `GET /status` 마지막 상태 JSON, `GET /history` 이벤트 JSON 배열, `POST /step` 본문의 `이름=값&...`으로 입력을 구성해 한 주기를 실행하고 상태 JSON, `POST /reset` 초기화. 성공은 200(평가된 주기가 없을 때의 `GET /status`는 204), 알 수 없는 경로 404, 경로는 있으나 메서드가 다르면 405, 본문 구문·이름 오류 400, 응답 본문 상한을 넘는 경우 500(`GET /`의 화면, `GET /status`와 `POST /step`의 직렬화, `GET /history`의 이력 쓰기) | 인자 널이면 STATUS_ERR_PARAM(SetBodyLimit은 limit이 범위 밖이어도 ERR_PARAM). HTTP 오류는 resp->status로 표현하고 반환값은 STATUS_OK | 동기, 요청 1건씩 직렬 처리 |
 
 ## 5. 동적 구조
 

@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-DDS-002 |
-| 버전 | 0.3 (2차 설계 리뷰 반려 조치본) |
+| 버전 | 0.4 (3차 설계 리뷰 반려 조치본) |
 | 상태 | 초안 (재리뷰 대기) |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | DOC-ARC-002 v0.2, DOC-DDS-001 v0.2 (공통 규칙), DOC-SRS-001 v1.0 |
@@ -85,19 +85,20 @@
 | ID | 시그니처 | 동작 | 추적 |
 |----|----------|------|------|
 | DD-F-051 | `Status_t Web_Init(Web_t *ctx)` | 널이면 ERR_PARAM. Control_Init, Event_Init, has_last=0, cycle=0, body_limit=WEB_BODY_CAPACITY, initialized=1 | SRS-C-004 |
+| DD-F-070 | `Status_t Web_SetBodyLimit(Web_t *ctx, size_t limit)` | 사전 조건: Web_Init 완료. ctx가 널이거나 미초기화이거나 limit이 0이거나 WEB_BODY_CAPACITY보다 크면 ERR_PARAM. 아니면 body_limit=limit (ARCH-D-13: 버퍼 넘침 방지) | SRS-C-004, SRS-F-023 |
 | DD-F-052 | `Status_t Web_Handle(Web_t *ctx, const WebRequest_t *req, WebResponse_t *resp)` | ctx/req/resp 또는 req의 method/path/body가 널이거나 미초기화면 ERR_PARAM(미초기화는 ERR_STATE). 아니면 DD-F-053으로 경로 번호를 찾아 없으면 404, DD-F-054로 메서드를 검사해 다르면 405, 아니면 DD-F-055로 경로별 처리 | SRS-C-004, SRS-F-018 |
 | DD-F-053 | `static int Web_FindRoute(const char *path)` | 경로 표 `ROUTES[ROUTE_COUNT] = {{"/","GET"},{"/status","GET"},{"/history","GET"},{"/step","POST"},{"/reset","POST"}}`에서 경로가 같은 항목의 번호, 없으면 -1 | SRS-C-004 |
 | DD-F-054 | `static int Web_MethodAllowed(int route, const char *method)` | ROUTES[route].method와 같으면 1 | SRS-C-004 |
 | DD-F-055 | `static Status_t Web_Dispatch(Web_t *ctx, int route, const char *body, WebResponse_t *resp)` | route에 따라 DD-F-056(화면), 057(상태), 058(이력), 059(step), 060(reset) 호출 | SRS-C-004 |
-| DD-F-056 | `static Status_t Web_RespondPage(const Web_t *ctx, WebResponse_t *resp)` | DD-F-070으로 HTML을 얻어 본문 상한(ctx->body_limit)보다 길면 500, 아니면 복사하고 200, `text/html` | SRS-C-004 |
-| DD-F-057 | `static Status_t Web_RespondStatus(const Web_t *ctx, WebResponse_t *resp)` | has_last가 0이면 초기 결과(출력 RELEASE, state NORMAL, 이유 NONE, 경고 0, input_validity 0 = 전부 INVALID: 아직 입력이 관측되지 않음, ARCH-D-12)로, 아니면 last로 Presenter_Build한 뒤 ctx->body_limit를 용량으로 Presenter_Serialize. http_status 500이면 resp->status=500 | SRS-F-018, 023 |
+| DD-F-056 | `static Status_t Web_RespondPage(const Web_t *ctx, WebResponse_t *resp)` | DD-F-061으로 HTML을 얻어 본문 상한(ctx->body_limit)보다 길면 500, 아니면 복사하고 200, `text/html` | SRS-C-004 |
+| DD-F-057 | `static Status_t Web_RespondStatus(const Web_t *ctx, WebResponse_t *resp)` | has_last가 0이면 status=204, 본문 빈 문자열, content_type `text/plain`(ARCH-D-12). 아니면 last로 Presenter_Build한 뒤 ctx->body_limit를 용량으로 Presenter_Serialize. http_status 500이면 resp->status=500 | SRS-F-018, 023 |
 | DD-F-058 | `static Status_t Web_RespondHistory(const Web_t *ctx, WebResponse_t *resp)` | HISTORY_CAPACITY 크기의 지역 배열로 Event_Query를 호출(오류가 없다, ARCH-D-11)하고 JSON 배열 `[{"id":..,"timestamp_s":..,"lock_left":..,"lock_right":..,"state":..,"reason_code":..},...]`을 DD-F-062로 쓴다. 쓰기가 본문 상한(ctx->body_limit)을 넘으면 500 | SRS-F-021, 024 |
 | DD-F-059 | `static Status_t Web_RespondStep(Web_t *ctx, const char *body, WebResponse_t *resp)` | WebParser_ParseBody(DD-F-063)로 본문을 입력으로 변환(실패 시 400 `{"error":"bad request"}`). 성공하면 DD-F-064로 한 주기를 실행하고 DD-F-057로 응답 | SRS-C-004, SRS-F-025 |
 | DD-F-060 | `static Status_t Web_RespondReset(Web_t *ctx, WebResponse_t *resp)` | Web_Init 후 `{"reset":true}` 200 | SRS-C-004 |
 | DD-F-062 | `static int Web_AppendEvent(char *buf, size_t cap, size_t *pos, const EventEntry_t *e, int first)` | 이벤트 하나를 JSON 객체로 이어 쓴다 (snprintf, 용량 부족이면 0) | SRS-F-024 |
 | DD-F-063 | `int WebParser_ParseBody(const char *body, int cycle, RawInput_t *raw)` (DD-M-019, 인자가 널이면 0) | DD-F-065로 기본 입력을 만든 뒤 본문을 `&`로 쪼개 쌍마다 DD-F-066으로 적용. 구문·이름 오류면 0, 모두 적용하면 1 | SRS-C-004, SRS-Q-003 |
 | DD-F-064 | `static Status_t Web_ExecuteCycle(Web_t *ctx, const RawInput_t *raw)` | Control_Step으로 last를 갱신하고(has_last=1), Event_Record로 이력을 기록하고, cycle++ 한다. Web_Init과 단조 시각이 보장되어(ARCH-D-11) 하위 호출은 오류를 반환하지 않으므로 반환값으로 분기하지 않고 항상 STATUS_OK | SRS-C-004, SRS-F-025 |
-| DD-F-070 | `Status_t WebPage_Get(const char **html, size_t *length)` (DD-M-018) | 널이면 ERR_PARAM. 아니면 HTML 상수(`WEB_PAGE`: 입력 폼 16개 필드, 전송과 결과 표시 fetch 스크립트)와 그 길이를 돌려준다 | SRS-C-004 |
+| DD-F-061 | `Status_t WebPage_Get(const char **html, size_t *length)` (DD-M-018) | 널이면 ERR_PARAM. 아니면 HTML 상수(`WEB_PAGE`: 입력 폼 16개 필드, 전송과 결과 표시 fetch 스크립트)와 그 길이를 돌려준다 | SRS-C-004 |
 | DD-F-065 | `static Status_t Web_DefaultRaw(int cycle, RawInput_t *raw)` | cycle×CYCLE_PERIOD_S 시각의 정상 입력(속도 0, gear P, 충돌 NONE, 접근위험·화재·과온·성인·ISOFIX·sensor_fault FALSE, ignition TRUE, source_timestamp는 시각과 같음, 명령 없음) | SRS-C-004 |
 | DD-F-066 | `static int Web_ApplyField(RawInput_t *raw, const char *name, size_t name_len, const char *value)` | `WEB_FIELDS`에서 이름이 같은 항목을 찾아(없으면 0) DD-F-067로 값을 변환해 `(RawValue_t *)((char *)raw + offset)`에 대입하고 1 | SRS-C-004 |
 | DD-F-067 | `static Status_t Web_ParseValue(int kind, const char *text, RawValue_t *out)` | text가 "absent"이면 RAW_ABSENT. NUMBER는 DD-F-068, BOOLEAN과 ENUM은 DD-F-069로 구문 분석해 성공하면 각각 RAW_NUMBER(number), RAW_BOOLEAN(boolean), RAW_ENUM(enum_id), 실패하면 RAW_OTHER | SRS-C-004, SSR-007 |
@@ -129,14 +130,14 @@
 | SRS-F-020 | DD-F-046, DD-F-047, DD-F-049 |
 | SRS-F-021 | DD-F-049, DD-F-050, DD-F-058 |
 | SRS-F-022 | DD-F-040, DD-F-043 |
-| SRS-F-023 | DD-F-042, DD-F-044, DD-F-057 |
+| SRS-F-023 | DD-F-042, DD-F-044, DD-F-057, DD-F-070 |
 | SRS-F-024 | DD-F-047, DD-F-049, DD-F-058, DD-F-062 |
 | SRS-F-025 | DD-F-046, DD-F-047, DD-F-048, DD-F-059, DD-F-064 |
 | SRS-F-026 | DD-F-046, DD-F-050 |
 | SRS-Q-002 | DD-F-049, DD-F-058 |
 | SRS-Q-003 | DD-F-043, DD-F-063 |
 | SRS-L-006 | DD-F-049 |
-| SRS-C-004 | DD-F-051, DD-F-052, DD-F-053, DD-F-054, DD-F-055, DD-F-056, DD-F-059, DD-F-060, DD-F-063, DD-F-064, DD-F-065, DD-F-066, DD-F-067, DD-F-070 |
+| SRS-C-004 | DD-F-051, DD-F-070, DD-F-052, DD-F-053, DD-F-054, DD-F-055, DD-F-056, DD-F-059, DD-F-060, DD-F-063, DD-F-064, DD-F-065, DD-F-066, DD-F-067, DD-F-061 |
 
 ## 6. 점검표 결과
 
