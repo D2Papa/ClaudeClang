@@ -45,18 +45,20 @@ pipeline {
             post {
                 always {
                     // 스위트별로 따로 기록한다 (TDD 커버리지와 단위 테스트 커버리지는 합산하지 않는다)
-                    recordCoverage(
-                        id: 'unit-coverage', name: 'Unit Test Coverage',
-                        tools: [[parser: 'COBERTURA', pattern: 'reports/coverage/unit/cobertura.xml']],
-                        failOnError: false, skipPublishingChecks: true)
-                    recordCoverage(
-                        id: 'tdd-coverage', name: 'TDD Test Coverage',
-                        tools: [[parser: 'COBERTURA', pattern: 'reports/coverage/tdd/cobertura.xml']],
-                        failOnError: false, skipPublishingChecks: true)
-                    recordCoverage(
-                        id: 'integration-coverage', name: 'Integration Test Coverage',
-                        tools: [[parser: 'COBERTURA', pattern: 'reports/coverage/integration/cobertura.xml']],
-                        failOnError: false, skipPublishingChecks: true)
+                    // 결과 파일이 있는 스위트만 기록한다 (아직 없는 스위트는 건너뛴다)
+                    script {
+                        [[id: 'unit', name: 'Unit Test Coverage'],
+                         [id: 'tdd', name: 'TDD Test Coverage'],
+                         [id: 'integration', name: 'Integration Test Coverage']].each { suite ->
+                            def report = "reports/coverage/${suite.id}/cobertura.xml"
+                            if (fileExists(report)) {
+                                recordCoverage(
+                                    id: "${suite.id}-coverage", name: suite.name,
+                                    tools: [[parser: 'COBERTURA', pattern: report]],
+                                    failOnError: false, skipPublishingChecks: true)
+                            }
+                        }
+                    }
                     // MC/DC 상세는 LLVM HTML 리포트로 확인한다
                     publishHTML(target: [
                         reportName: 'Unit MC/DC Coverage (LLVM)', reportDir: 'reports/coverage/unit/html',
