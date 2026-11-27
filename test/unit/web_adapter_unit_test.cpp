@@ -62,6 +62,20 @@ struct Pair
     }
 };
 
+/** 파일 디스크립터 한도를 바꾸고 소멸할 때(단정 실패 시에도) 원래 값으로 되돌리는 도우미 */
+struct NofileGuard
+{
+    rlimit old{};
+    explicit NofileGuard(rlim_t soft)
+    {
+        EXPECT_EQ(0, getrlimit(RLIMIT_NOFILE, &old));
+        rlimit changed = old;
+        changed.rlim_cur = soft;
+        EXPECT_EQ(0, setrlimit(RLIMIT_NOFILE, &changed));
+    }
+    ~NofileGuard() { setrlimit(RLIMIT_NOFILE, &old); }
+};
+
 int PortOf(int server)
 {
     sockaddr_in addr{};
@@ -100,7 +114,7 @@ std::unique_ptr<Web_t> NewWeb()
     return web;
 }
 
-/** 목적: 본문 없는 요청 읽기. 입력: "GET /status" 헤더만. 기대: 1과 요청 문자열 그대로. 추적: UT-150 -> WebAdapter_ReadRequest. 기법: 동치 클래스 */
+/** 목적: 본문 없는 요청 읽기. 입력: "GET /status" 헤더만. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 1과 요청 문자열 그대로. 추적: UT-150 -> WebAdapter_ReadRequest. 기법: 동치 클래스 */
 TEST(WebAdapterUnit, ReadRequest_HeaderOnly_ReturnsOne)
 {
     Pair p;
@@ -110,7 +124,7 @@ TEST(WebAdapterUnit, ReadRequest_HeaderOnly_ReturnsOne)
     EXPECT_STREQ("GET /status HTTP/1.1\r\nHost: x\r\n\r\n", buf);
 }
 
-/** 목적: Content-Length만큼 본문까지 읽는다. 입력: POST 헤더와 본문 "speed=3.0". 기대: 1, 버퍼에 본문 포함. 추적: UT-151 -> WebAdapter_ReadRequest. 기법: 동치 클래스 */
+/** 목적: Content-Length만큼 본문까지 읽는다. 입력: POST 헤더와 본문 "speed=3.0". 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 1, 버퍼에 본문 포함. 추적: UT-151 -> WebAdapter_ReadRequest. 기법: 동치 클래스 */
 TEST(WebAdapterUnit, ReadRequest_WithBody_ReadsBody)
 {
     Pair p;
@@ -120,7 +134,7 @@ TEST(WebAdapterUnit, ReadRequest_WithBody_ReadsBody)
     EXPECT_NE(nullptr, std::strstr(buf, "\r\n\r\nspeed=3.0"));
 }
 
-/** 목적: 본문이 선언보다 짧고 상대가 연결을 닫으면 읽은 만큼만 두고 끝낸다. 입력: Content-Length 100에 본문 5바이트 후 종료. 기대: 1(헤더는 읽음), 본문 5바이트. 추적: UT-152 -> WebAdapter_ReadRequest. 기법: 경계값, MC/DC */
+/** 목적: 본문이 선언보다 짧고 상대가 연결을 닫으면 읽은 만큼만 두고 끝낸다. 입력: Content-Length 100에 본문 5바이트 후 종료. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 1(헤더는 읽음), 본문 5바이트. 추적: UT-152 -> WebAdapter_ReadRequest. 기법: 경계값, MC/DC */
 TEST(WebAdapterUnit, ReadRequest_ShortBodyThenClose_ReturnsPartial)
 {
     Pair p;
@@ -131,7 +145,7 @@ TEST(WebAdapterUnit, ReadRequest_ShortBodyThenClose_ReturnsPartial)
     EXPECT_NE(nullptr, std::strstr(buf, "\r\n\r\nabcde"));
 }
 
-/** 목적: 헤더가 끝나기 전에 연결이 닫히면 실패. 입력: "GET /" 후 종료. 기대: 0. 추적: UT-153 -> WebAdapter_ReadRequest. 기법: 오류 추정, MC/DC */
+/** 목적: 헤더가 끝나기 전에 연결이 닫히면 실패. 입력: "GET /" 후 종료. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 0. 추적: UT-153 -> WebAdapter_ReadRequest. 기법: 오류 추정, MC/DC */
 TEST(WebAdapterUnit, ReadRequest_ClosedBeforeHeaderEnd_ReturnsZero)
 {
     Pair p;
@@ -141,7 +155,7 @@ TEST(WebAdapterUnit, ReadRequest_ClosedBeforeHeaderEnd_ReturnsZero)
     EXPECT_EQ(0, WebAdapter_ReadRequest(p.a, buf, sizeof(buf)));
 }
 
-/** 목적: 버퍼가 차도록 헤더가 끝나지 않으면 실패. 입력: 용량 16 버퍼에 헤더 끝 없는 40바이트. 기대: 0. 추적: UT-154 -> WebAdapter_ReadRequest. 기법: 경계값, MC/DC */
+/** 목적: 버퍼가 차도록 헤더가 끝나지 않으면 실패. 입력: 용량 16 버퍼에 헤더 끝 없는 40바이트. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 0. 추적: UT-154 -> WebAdapter_ReadRequest. 기법: 경계값, MC/DC */
 TEST(WebAdapterUnit, ReadRequest_BufferFullWithoutHeaderEnd_ReturnsZero)
 {
     Pair p;
@@ -150,7 +164,7 @@ TEST(WebAdapterUnit, ReadRequest_BufferFullWithoutHeaderEnd_ReturnsZero)
     EXPECT_EQ(0, WebAdapter_ReadRequest(p.a, buf, sizeof(buf)));
 }
 
-/** 목적: 본문이 버퍼보다 크면 버퍼가 찰 때까지만 읽는다. 입력: 용량 64 버퍼, Content-Length 200 본문 200바이트. 기대: 1. 추적: UT-155 -> WebAdapter_ReadRequest. 기법: 경계값, MC/DC */
+/** 목적: 본문이 버퍼보다 크면 버퍼가 찰 때까지만 읽는다. 입력: 용량 64 버퍼, Content-Length 200 본문 200바이트. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 1. 추적: UT-155 -> WebAdapter_ReadRequest. 기법: 경계값, MC/DC */
 TEST(WebAdapterUnit, ReadRequest_BodyLargerThanBuffer_StopsAtCapacity)
 {
     Pair p;
@@ -160,7 +174,7 @@ TEST(WebAdapterUnit, ReadRequest_BodyLargerThanBuffer_StopsAtCapacity)
     EXPECT_EQ(63U, std::strlen(buf));
 }
 
-/** 목적: 요청 처리와 HTTP 응답 형식. 입력: GET /status(평가 전), POST /step 본문, 알 수 없는 경로, 63자 초과 경로. 기대: 204, 200+JSON, 404, 404 (Content-Length와 Connection: close 포함). 추적: UT-156 -> WebAdapter_Serve, SRS-C-004. 기법: 동치 클래스 */
+/** 목적: 요청 처리와 HTTP 응답 형식. 입력: GET /status(평가 전), POST /step 본문, 알 수 없는 경로, 63자 초과 경로. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 204, 200+JSON, 404, 404 (Content-Length와 Connection: close 포함). 추적: UT-156 -> WebAdapter_Serve, SRS-C-004. 기법: 동치 클래스 */
 TEST(WebAdapterUnit, Serve_RoutesProduceHttpResponses)
 {
     auto web = NewWeb();
@@ -192,7 +206,7 @@ TEST(WebAdapterUnit, Serve_RoutesProduceHttpResponses)
     }
 }
 
-/** 목적: 요청 라인이 없으면 응답하지 않고, 헤더 끝이 없어도 요청 라인만으로 처리하며, 미초기화 Web은 500. 입력: "x", "GET /status HTTP/1.1"(CRLF 없음), 0으로 채운 Web_t. 기대: 0과 무응답 / 1과 204 / 1과 500. 추적: UT-157 -> WebAdapter_Serve. 기법: 오류 추정, MC/DC */
+/** 목적: 요청 라인이 없으면 응답하지 않고, 헤더 끝이 없어도 요청 라인만으로 처리하며, 미초기화 Web은 500. 입력: "x", "GET /status HTTP/1.1"(CRLF 없음), 0으로 채운 Web_t. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 0과 무응답 / 1과 204 / 1과 500. 추적: UT-157 -> WebAdapter_Serve. 기법: 오류 추정, MC/DC */
 TEST(WebAdapterUnit, Serve_MalformedAndUninitialized)
 {
     auto web = NewWeb();
@@ -215,25 +229,21 @@ TEST(WebAdapterUnit, Serve_MalformedAndUninitialized)
     }
 }
 
-/** 목적: 수신 소켓 생성. 입력: 포트 0, 이미 쓰는 포트, 파일 디스크립터 한도 0. 기대: 성공(0 이상) / 실패(-1) / 실패(-1). 추적: UT-158 -> WebAdapter_Listen. 기법: 오류 추정, MC/DC */
+/** 목적: 수신 소켓 생성. 입력: 포트 0, 이미 쓰는 포트, 파일 디스크립터 한도 0. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 성공(0 이상) / 실패(-1) / 실패(-1). 추적: UT-158 -> WebAdapter_Listen. 기법: 오류 추정, MC/DC */
 TEST(WebAdapterUnit, Listen_SuccessAndFailures)
 {
     int first = WebAdapter_Listen(0);
     ASSERT_GE(first, 0);
     int port = PortOf(first);
     EXPECT_EQ(-1, WebAdapter_Listen(port));
-    rlimit old{};
-    ASSERT_EQ(0, getrlimit(RLIMIT_NOFILE, &old));
-    rlimit zero = old;
-    zero.rlim_cur = 0;
-    ASSERT_EQ(0, setrlimit(RLIMIT_NOFILE, &zero));
-    int exhausted = WebAdapter_Listen(0);
-    ASSERT_EQ(0, setrlimit(RLIMIT_NOFILE, &old));
-    EXPECT_EQ(-1, exhausted);
+    {
+        NofileGuard guard(0);
+        EXPECT_EQ(-1, WebAdapter_Listen(0));
+    }
     close(first);
 }
 
-/** 목적: 연결 처리 루프. 입력: 연결 2건(정상 요청, 요청 없이 종료), 최대 2건 / 최대 0건 / 잘못된 수신 소켓. 기대: 2 / 0 / 0, 정상 요청에는 HTTP 응답. 추적: UT-159 -> WebAdapter_Run. 기법: 경계값, MC/DC */
+/** 목적: 연결 처리 루프. 입력: 연결 2건(정상 요청, 요청 없이 종료), 최대 2건 / 최대 0건 / 잘못된 수신 소켓. 절차: 입력값을 구성하고 대상을 호출한 뒤 반환값과 출력을 기대값과 비교한다(입력이 여러 개이면 입력별로 반복하거나 순서대로 넣는다). 기대: 2 / 0 / 0, 정상 요청에는 HTTP 응답. 추적: UT-159 -> WebAdapter_Run. 기법: 경계값, MC/DC */
 TEST(WebAdapterUnit, Run_ServesConnectionsAndStops)
 {
     auto web = NewWeb();

@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-DDS-002 |
-| 버전 | 0.5 (4차 설계 리뷰 반려 조치본) |
+| 버전 | 0.6 (구현 리뷰 N-01 반영: 소켓 어댑터 모듈 분리) |
 | 상태 | 승인 (aspice-reviewer 10차, 2026-11-27). 입력 SWE.1은 12차 재리뷰에서 승인 |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | DOC-ARC-002 v0.2, DOC-DDS-001 v0.2 (공통 규칙), DOC-SRS-001 v1.0 |
@@ -55,7 +55,8 @@
 | DD-M-016 | web/web_handler.c/.h | ARCH-C-016 | 경로와 메서드를 검사해 제어 주기, 이력, 표시를 조합한 응답을 만든다 | DD-I-010 Web_Init, Web_Handle | DD-M-013, 014, 015, 018, 019 공개 헤더 | Web_t, 경로 표 |
 | DD-M-018 | web/web_page.c/.h | ARCH-C-016 | 시험 화면(HTML)을 제공한다 | DD-I-011 WebPage_Get | 없음 | HTML 상수 |
 | DD-M-019 | web/web_request_parser.c/.h | ARCH-C-016 | 요청 본문(`이름=값&...`)을 제어 입력으로 해석한다 | DD-I-012 WebParser_ParseBody | common | 필드 표 `WEB_FIELDS` |
-| DD-M-017 | web/web_main.c | ARCH-C-016 | 소켓으로 요청을 받아 Web_Handle에 넘기고 응답을 보낸다 | 기준 미만(진입점) | DD-M-016 공개 헤더, POSIX 소켓 | 없음 |
+| DD-M-017 | web/web_main.c | ARCH-C-016 | 포트를 열고 연결 처리를 시작하는 진입점(`main` 한 함수) | 기준 미만(진입점) | DD-M-020 공개 헤더 | 없음 |
+| DD-M-020 | web/web_adapter.c/.h | ARCH-C-016 | 소켓에서 HTTP 요청을 읽어 Web_Handle에 넘기고 응답을 보낸다 | DD-I-013 WebAdapter_ReadRequest, WebAdapter_Serve, WebAdapter_Listen, WebAdapter_Run | DD-M-016 공개 헤더, POSIX 소켓 | 없음 (요청 버퍼는 자동 변수) |
 
 ## 3. 함수
 
@@ -107,9 +108,20 @@
 
 값 검증(범위, 값 집합, 유한성)은 Web이 하지 않는다. 파싱된 값은 Iter-1의 InputValidator(DD-F-002~005, SSR-007)가 평가 전에 검증하므로 무효 입력이 규칙에 쓰이지 않는다.
 
+### DD-M-020 web_adapter
+
+| ID | 시그니처 | 동작 | 추적 |
+|----|----------|------|------|
+| DD-F-071 | `int WebAdapter_ReadRequest(int fd, char *buf, size_t cap)` | 헤더 끝(빈 줄)까지 읽고, 읽었으면 DD-F-075로 Content-Length만큼 본문을 더 읽는다. 연결이 끝나거나 버퍼가 차면 멈춘다. 헤더를 읽었으면 1, 아니면 0 | SRS-C-004 |
+| DD-F-072 | `int WebAdapter_Serve(int fd, Web_t *web, const char *buf)` | 요청 라인에서 메서드와 경로(최대 63자, 더 길면 잘려 404)를 해석하고(실패하면 0) 본문을 찾아 WebRequest_t를 만들어 Web_Handle을 호출한다. Web_Handle이 STATUS_OK가 아니면 500 응답. HTTP 응답(상태줄, Content-Type, Content-Length, Connection: close)과 본문을 보낸다 | SRS-C-004 |
+| DD-F-073 | `int WebAdapter_Listen(int port)` | 루프백 주소의 TCP 수신 소켓을 만들어 bind, listen 한다. 어느 단계든 실패하면 소켓을 닫고 -1 | SRS-C-004 |
+| DD-F-074 | `int WebAdapter_Run(int server, Web_t *web, int max_requests)` | 연결을 accept해 DD-F-071, DD-F-072로 처리하고 닫는 일을 max_requests건까지 반복한다. accept가 실패하면 멈춘다. 처리한 연결 수 반환 | SRS-C-004 |
+| DD-F-075 | `static size_t Adapter_ReadBody(int fd, char *buf, size_t *total, size_t cap)` | Content-Length(없으면 0)만큼 본문을 더 읽는다. 연결이 끝나거나 버퍼가 차면 멈춘다 | SRS-C-004 |
+| DD-F-076 | `static long Adapter_Fill(int fd, char *buf, size_t *total, size_t cap)` | recv로 바이트를 읽어 버퍼 끝에 붙이고 종료 문자를 둔다. 읽은 바이트 수 반환 | SRS-C-004 |
+
 ### DD-M-017 web_main
 
-`main(int argc, char **argv)`: 포트(기본 `WEB_DEFAULT_PORT`)로 TCP 수신 소켓을 열고, 연결마다 요청 라인과 Content-Length 본문을 읽어 WebRequest_t를 만든다(본문이 없으면 `""`). Web_Handle 결과를 HTTP/1.1 응답으로 보낸다. 요청 1건씩 직렬 처리한다. 호출되는 함수가 없는 진입점이라 인터페이스 정의 기준 미만이고, 시연으로 검증한다.
+`main(int argc, char **argv)`: 포트(기본 `WEB_DEFAULT_PORT`)로 WebAdapter_Listen을 호출하고 Web_Init 후 WebAdapter_Run으로 연결을 사실상 무한히 처리한다(최대 INT_MAX건). 소켓 처리 로직은 모두 DD-M-020이 한다. 호출되는 함수가 없는 진입점이라 인터페이스 정의 기준 미만이며, 커버리지 측정에서 제외되는 사용자 승인 예외 하나다(`docs/test/COVERAGE-EXCEPTIONS.md`). `scripts/demo/web_demo.sh` 시연으로 검증한다.
 
 ## 4. 크기와 복잡도 계획 (CCN 10 이하, 80라인 이하)
 
@@ -137,13 +149,13 @@
 | SRS-Q-002 | DD-F-049, DD-F-058 |
 | SRS-Q-003 | DD-F-043, DD-F-063 |
 | SRS-L-006 | DD-F-049 |
-| SRS-C-004 | DD-F-051, DD-F-070, DD-F-052, DD-F-053, DD-F-054, DD-F-055, DD-F-056, DD-F-059, DD-F-060, DD-F-063, DD-F-064, DD-F-065, DD-F-066, DD-F-067, DD-F-061 |
+| SRS-C-004 | DD-F-071, DD-F-072, DD-F-073, DD-F-074, DD-F-075, DD-F-076, DD-F-051, DD-F-070, DD-F-052, DD-F-053, DD-F-054, DD-F-055, DD-F-056, DD-F-059, DD-F-060, DD-F-063, DD-F-064, DD-F-065, DD-F-066, DD-F-067, DD-F-061 |
 
 ## 6. 점검표 결과
 
 | 항목 | 결과 |
 |------|------|
-| 인터페이스 | DD-M-014~016 ARCH-I-008~010과 1:1, DD-M-018, 019는 컴포넌트 내부 인터페이스(DD-I-011, 012). web_main은 기준 미만 |
+| 인터페이스 | DD-M-014~016 ARCH-I-008~010과 1:1, DD-M-018, 019, 020은 컴포넌트 내부 인터페이스(DD-I-011, 012, 013). web_main은 기준 미만 |
 | 의존 | web_handler만 다른 모듈(ControlCycle, Presenter, EventRecorder)의 공개 헤더를 호출한다 |
 | 단일 책임 | 모듈: 요청 처리(web_handler), 화면(web_page), 입력 해석(web_request_parser) 분리. 요청 처리 안에서도 라우팅, 상태, 이력, step, reset 분리 |
 | 반환·추적 | 모든 함수가 Status_t 또는 정수 반환, 단일 반환 |

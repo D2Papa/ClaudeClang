@@ -5,7 +5,7 @@
 | 문서 ID | DOC-TRC-001 |
 | 버전 | 1.7 (Iter-1, Iter-2 설계 반영) |
 | 상태 | scripts/docs/gen_trace.py로 생성 (리뷰 생략: Iter-1은 사용자 지시) |
-| 입력 문서 버전 | SRS v1.6, SAFETY-REQ v1.2, ASSUMPTIONS v1.7, ARCH v0.7, ARCH-iter2 v0.5, DDS v0.8, DDS-iter2 v0.5 |
+| 입력 문서 버전 | SRS v1.6, SAFETY-REQ v1.2, ASSUMPTIONS v1.7, ARCH v0.7, ARCH-iter2 v0.6, DDS v0.8, DDS-iter2 v0.6 |
 
 하향 추적은 문서와 코드의 추적 표기에서 스크립트로 생성한다. 빈 칸은 해당 이터레이션 범위 밖이거나 누락이다.
 ID는 항상 접두사를 포함한 전체 표기를 쓴다.
@@ -17,7 +17,7 @@ ID는 항상 접두사를 포함한 전체 표기를 쓴다.
 | SRS-C-001 | SRS | 프로젝트 결정(A-11), OEM-SWR-001 3장 | ARCH-C-013 | DD-F-026 |  |  |  | 검사 |
 | SRS-C-002 | SRS | OEM-IF-005 | ARCH-C-013 | DD-F-026 | control_cycle.c, control_cycle.h |  |  | 검사 |
 | SRS-C-003 | SRS | OEM-IF-007 | ARCH-C-001 | DD-F-002 | input_validator.c, input_validator.h | UT-004 |  | ST-011 |
-| SRS-C-004 | SRS | OEM-SWR-001 3장, OEM-FR-004 | ARCH-C-016 | DD-F-051, DD-F-052, DD-F-053, DD-F-054, DD-F-055, DD-F-056, DD-F-059, DD-F-060, DD-F-061, DD-F-063, DD-F-064, DD-F-065, DD-F-066, DD-F-067, DD-F-070 | web_adapter.c, web_adapter.h, web_handler.c, web_handler.h, web_main.c, web_page.c, web_page.h, web_request_parser.c, web_request_parser.h | UT-133, UT-156 | IT-025 | 검사 |
+| SRS-C-004 | SRS | OEM-SWR-001 3장, OEM-FR-004 | ARCH-C-016 | DD-F-051, DD-F-052, DD-F-053, DD-F-054, DD-F-055, DD-F-056, DD-F-059, DD-F-060, DD-F-061, DD-F-063, DD-F-064, DD-F-065, DD-F-066, DD-F-067, DD-F-070, DD-F-071, DD-F-072, DD-F-073, DD-F-074, DD-F-075, DD-F-076 | web_adapter.c, web_adapter.h, web_handler.c, web_handler.h, web_main.c, web_page.c, web_page.h, web_request_parser.c, web_request_parser.h | UT-133, UT-156 | IT-025 | 검사 |
 | SRS-C-005 | SRS | OEM-NFR-001, OEM-SR-001, OEM-SR-003 | ARCH-C-013 | DD-F-025, DD-F-026 | control_cycle.c, control_cycle.h |  |  | ST-014 |
 | SRS-F-001 | SRS | OEM-FR-001, OEM-IF-004 | ARCH-C-001, ARCH-C-009 | DD-F-001, DD-F-005, DD-F-015 | driver_command_rule.c, driver_command_rule.h, input_validator.c, input_validator.h | UT-011, UT-013 |  | ST-001 |
 | SRS-F-002 | SRS | OEM-FR-001, OEM-IF-004, OEM-IF-005 | ARCH-C-009 | DD-F-015, DD-F-016 | driver_command_rule.c, driver_command_rule.h, input_validator.c | UT-013, UT-051, UT-053 | IT-006 | ST-001 |

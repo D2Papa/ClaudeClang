@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-ARC-002 |
-| 버전 | 0.5 (4차 설계 리뷰 반려 조치본) |
+| 버전 | 0.6 (구현 리뷰 N-01 반영) |
 | 상태 | 승인 (aspice-reviewer 10차, 2026-11-27). 입력 SWE.1은 12차 재리뷰에서 승인 |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | DOC-ARC-001 v0.2 (ARCH-C-014~016 정의, 이 문서가 구체화), DOC-SRS-001 v1.0 |
@@ -25,7 +25,7 @@ DOC-ARC-001의 ARCH-C-014(StatusPresenter), ARCH-C-015(EventRecorder), ARCH-C-01
 
 ```mermaid
 flowchart LR
-    H[web_main 어댑터] -->|I-010| C16[ARCH-C-016 WebSimulator]
+    H[web_adapter 소켓 어댑터] -->|I-010| C16[ARCH-C-016 WebSimulator]
     C16 -->|I-007| C13[ARCH-C-013 ControlCycle]
     C16 -->|I-009| C15[ARCH-C-015 EventRecorder]
     C16 -->|I-008| C14[ARCH-C-014 StatusPresenter]
@@ -40,7 +40,7 @@ flowchart LR
 |----|------|----------------|---------|---------|-----------|------|
 | ARCH-C-014 | StatusPresenter | 한 주기의 최종 결과를 표시 항목으로 만들고 JSON으로 직렬화한다. | ARCH-I-008 | — (CycleResult_t는 호출자가 넘기는 데이터이며 ARCH-I-007을 호출하지 않는다) | SRS-F-018, SRS-F-019, SRS-F-022, SRS-F-023, SRS-Q-003 | 2 |
 | ARCH-C-015 | EventRecorder | 결정이 바뀐 주기를 고유 ID 이벤트로 기록하고 최근 100건만 메모리에 보존한다. | ARCH-I-009 | — | SRS-F-020, SRS-F-021, SRS-F-024, SRS-F-025, SRS-F-026, SRS-L-006, SRS-Q-002 | 2 |
-| ARCH-C-016 | WebSimulator | 시험 입력을 받아 제어 주기를 실행하고 상태와 이력을 HTTP로 보여 준다. (모듈: 요청 처리 web_handler, 화면 web_page, 입력 해석 web_request_parser, 어댑터 web_main) | ARCH-I-010 | ARCH-I-007, ARCH-I-008, ARCH-I-009 | SRS-C-004 | 2 |
+| ARCH-C-016 | WebSimulator | 시험 입력을 받아 제어 주기를 실행하고 상태와 이력을 HTTP로 보여 준다. (모듈: 요청 처리 web_handler, 화면 web_page, 입력 해석 web_request_parser, 소켓 어댑터 web_adapter, 진입점 web_main) | ARCH-I-010 | ARCH-I-007, ARCH-I-008, ARCH-I-009 | SRS-C-004 | 2 |
 
 ## 4. 인터페이스 정의
 

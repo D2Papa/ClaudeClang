@@ -162,6 +162,7 @@ int WebAdapter_Listen(int port)
         }
         if (rc != 0)
         {
+            /* 반환값을 쓰지 않는 호출: 실패한 소켓의 정리이며 실패해도 할 수 있는 조치가 없다. */
             close(server);
             server = -1;
         }
@@ -185,6 +186,7 @@ int WebAdapter_Run(int server, Web_t *web, int max_requests)
                 /* 반환값을 쓰지 않는 호출: 요청 라인을 해석하지 못해도 연결만 닫고 다음으로 넘어간다. */
                 WebAdapter_Serve(fd, web, buf);
             }
+            /* 반환값을 쓰지 않는 호출: 처리가 끝난 연결의 정리이며 실패해도 다음 연결을 계속 처리한다. */
             close(fd);
             served += 1;
         }

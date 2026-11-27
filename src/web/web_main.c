@@ -46,6 +46,7 @@ int main(int argc, char **argv)
     {
         printf("web_simulator: http://localhost:%d/\n", port);
         fflush(stdout);
+        /* 반환값을 쓰지 않는 호출: 처리한 연결 수이며 이 진입점은 그 값을 쓰지 않고 종료 처리만 한다. */
         WebAdapter_Run(server, &web, INT_MAX);
     }
     perror("web_simulator");
