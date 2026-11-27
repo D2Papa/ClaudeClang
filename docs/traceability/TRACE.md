@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-TRC-001 |
-| 버전 | 1.1 (Iter-1) |
+| 버전 | 1.2 (Iter-1, Iter-2 설계 반영) |
 | 상태 | scripts/docs/gen_trace.py로 생성 (리뷰 생략: Iter-1은 사용자 지시) |
 
 하향 추적은 문서와 코드의 추적 표기에서 스크립트로 생성한다. 빈 칸은 해당 이터레이션 범위 밖이거나 누락이다.
@@ -13,29 +13,29 @@ ID는 항상 접두사를 포함한 전체 표기를 쓴다.
 
 | 요구 ID | 문서 | 상위 요구 | 아키텍처 | 상세 설계 | 소스 | 단위 테스트 | 통합 테스트 | 시스템 테스트 |
 |---------|------|-----------|----------|-----------|------|-------------|-------------|---------------|
-| SRS-C-001 | SRS | 프로젝트 결정(A-11), OEM-SWR-001 3장 | ARCH-C-013 | DD-F-026 |  |  |  |  |
-| SRS-C-002 | SRS | OEM-IF-005 | ARCH-C-013 | DD-F-026 | control_cycle.c, control_cycle.h |  |  |  |
+| SRS-C-001 | SRS | 프로젝트 결정(A-11), OEM-SWR-001 3장 | ARCH-C-013 | DD-F-026 |  |  |  | 검사 |
+| SRS-C-002 | SRS | OEM-IF-005 | ARCH-C-013 | DD-F-026 | control_cycle.c, control_cycle.h |  |  | 검사 |
 | SRS-C-003 | SRS | OEM-IF-007 | ARCH-C-001 | DD-F-002 | input_validator.c, input_validator.h | UT-004 |  | ST-011 |
-| SRS-C-004 | SRS | OEM-SWR-001 3장, OEM-FR-004 | ARCH-C-016 |  |  |  |  |  |
+| SRS-C-004 | SRS | OEM-SWR-001 3장, OEM-FR-004 | ARCH-C-016 | DD-F-051, DD-F-052, DD-F-053, DD-F-054, DD-F-055, DD-F-056, DD-F-059, DD-F-060, DD-F-061, DD-F-063, DD-F-064, DD-F-065, DD-F-066, DD-F-067, DD-F-070 |  |  |  |  |
 | SRS-C-005 | SRS | OEM-NFR-001, OEM-SR-001, OEM-SR-003 | ARCH-C-013 | DD-F-025, DD-F-026 | control_cycle.c, control_cycle.h |  |  | ST-014 |
 | SRS-F-001 | SRS | OEM-FR-001, OEM-IF-004 | ARCH-C-001, ARCH-C-009 | DD-F-001, DD-F-005, DD-F-015 | driver_command_rule.c, driver_command_rule.h, input_validator.c, input_validator.h | UT-011, UT-013 |  | ST-001 |
 | SRS-F-002 | SRS | OEM-FR-001, OEM-IF-004, OEM-IF-005 | ARCH-C-009 | DD-F-015, DD-F-016 | driver_command_rule.c, driver_command_rule.h, input_validator.c | UT-013, UT-051, UT-053 | IT-006 | ST-001 |
-| SRS-F-003 | SRS | OEM-FR-001, OEM-IF-001 | ARCH-C-009 | DD-F-015, DD-F-024 | arbiter.c, driver_command_rule.c, driver_command_rule.h | UT-052, UT-078, UT-079 | IT-004 | ST-002 |
+| SRS-F-003 | SRS | OEM-FR-001, OEM-IF-001 | ARCH-C-009 | DD-F-015, DD-F-024, DD-F-029 | arbiter.c, driver_command_rule.c, driver_command_rule.h | UT-052, UT-078, UT-079 | IT-004 | ST-002 |
 | SRS-F-004 | SRS | OEM-FR-002, OEM-IF-001 | ARCH-C-010 | DD-F-017 | auto_lock_rule.c, auto_lock_rule.h | UT-049 | IT-004 | ST-003 |
 | SRS-F-007 | SRS | OEM-FR-003, OEM-SR-002 | ARCH-C-009, ARCH-C-011 | DD-F-018, DD-F-019, DD-F-020, DD-F-027 | override_manager.c, override_manager.h | UT-061, UT-062, UT-088 | IT-002 | ST-004 |
 | SRS-F-014 | SRS | OEM-FR-005, OEM-IF-007 | ARCH-C-005 | DD-F-011 | emergency_rule.c, emergency_rule.h | UT-043 | IT-007 | ST-005 |
 | SRS-F-015 | SRS | OEM-FR-006, OEM-IF-008 | ARCH-C-008 | DD-F-014 | isofix_rule.c, isofix_rule.h | UT-048 |  | ST-006 |
 | SRS-F-016 | SRS | OEM-FR-007, OEM-IF-009 | ARCH-C-003, ARCH-C-006 | DD-F-008, DD-F-012 | ignition_rule.c, ignition_rule.h, state_manager.c, state_manager.h | UT-044 | IT-005 | ST-007 |
 | SRS-F-017 | SRS | OEM-SR-001, OEM-SR-002, OEM-FR-002, OEM-FR-005, OEM-FR-006, OEM-FR-007 | ARCH-C-012 | DD-F-021, DD-F-023 | arbiter.c, arbiter.h | UT-071, UT-073 | IT-004, IT-007 | ST-008 |
-| SRS-F-018 | SRS | OEM-FR-004 | ARCH-C-014 |  |  |  |  |  |
-| SRS-F-019 | SRS | OEM-FR-004, OEM-IF-006 | ARCH-C-014 |  | control_cycle.c | UT-083 |  |  |
-| SRS-F-020 | SRS | OEM-NFR-002 | ARCH-C-015 |  |  |  |  |  |
-| SRS-F-021 | SRS | OEM-NFR-002 | ARCH-C-015 |  |  |  |  |  |
-| SRS-F-022 | SRS | OEM-IF-006 | ARCH-C-014 |  |  |  |  |  |
-| SRS-F-023 | SRS | OEM-IF-006 | ARCH-C-014 |  |  |  |  |  |
-| SRS-F-024 | SRS | OEM-NFR-002 | ARCH-C-015 |  |  |  |  |  |
-| SRS-F-025 | SRS | OEM-NFR-002 | ARCH-C-015 |  |  |  |  |  |
-| SRS-F-026 | SRS | OEM-NFR-002 | ARCH-C-015 |  |  |  |  |  |
+| SRS-F-018 | SRS | OEM-FR-004 | ARCH-C-014 | DD-F-040, DD-F-042, DD-F-043, DD-F-045, DD-F-052, DD-F-057 |  |  |  |  |
+| SRS-F-019 | SRS | OEM-FR-004, OEM-IF-006 | ARCH-C-014 | DD-F-040, DD-F-041, DD-F-043, DD-F-045 | control_cycle.c | UT-083 |  |  |
+| SRS-F-020 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-046, DD-F-047, DD-F-049 |  |  |  |  |
+| SRS-F-021 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-049, DD-F-050, DD-F-058 |  |  |  |  |
+| SRS-F-022 | SRS | OEM-IF-006 | ARCH-C-014 | DD-F-021, DD-F-029, DD-F-040, DD-F-043 |  |  |  |  |
+| SRS-F-023 | SRS | OEM-IF-006 | ARCH-C-014 | DD-F-042, DD-F-044, DD-F-057, DD-F-070 |  |  |  |  |
+| SRS-F-024 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-047, DD-F-049, DD-F-058, DD-F-062 |  |  |  |  |
+| SRS-F-025 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-046, DD-F-047, DD-F-048, DD-F-059, DD-F-064 |  |  |  |  |
+| SRS-F-026 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-046, DD-F-050 |  |  |  |  |
 | SRS-F-027 | SRS | OEM-FR-007, OEM-IF-009 | ARCH-C-003 | DD-F-008 | state_manager.c, state_manager.h |  |  | ST-007 |
 | SRS-F-028 | SRS | OEM-FR-004, OEM-IF-006 | ARCH-C-012 | DD-F-021, DD-F-023 | arbiter.c, arbiter.h | UT-072, UT-073 |  | ST-008 |
 | SRS-F-029 | SRS | OEM-FR-003, OEM-IF-006 | ARCH-C-009, ARCH-C-011, ARCH-C-012 | DD-F-019, DD-F-023 | arbiter.c, override_manager.c, override_manager.h | UT-077, UT-088 | IT-002 | ST-004 |
@@ -43,11 +43,11 @@ ID는 항상 접두사를 포함한 전체 표기를 쓴다.
 | SRS-F-031 | SRS | OEM-FR-007, OEM-IF-009 | ARCH-C-012 | DD-F-021, DD-F-022 | arbiter.c, arbiter.h | UT-075 | IT-005 | ST-007 |
 | SRS-L-004 | SRS | OEM-FR-002 | ARCH-C-009, ARCH-C-010 | DD-F-015, DD-F-017 | auto_lock_rule.c, auto_lock_rule.h, driver_command_rule.c, driver_command_rule.h, params.h | UT-052 |  | ST-002, ST-003 |
 | SRS-L-005 | SRS | OEM-FR-003 | ARCH-C-011 | DD-F-020 | override_manager.c, override_manager.h, params.h | UT-063 |  | ST-004 |
-| SRS-L-006 | SRS | OEM-NFR-002 | ARCH-C-015 |  | params.h |  |  |  |
+| SRS-L-006 | SRS | OEM-NFR-002 | ARCH-C-015 | DD-F-049 | params.h |  |  |  |
 | SRS-L-007 | SRS | OEM-IF-001 | ARCH-C-001 | DD-F-003 | input_validator.c, input_validator.h, params.h | UT-005 |  | ST-011 |
 | SRS-Q-001 | SRS | OEM-NFR-001 | ARCH-C-013 | DD-F-025, DD-F-026 | control_cycle.c, control_cycle.h | UT-084, UT-091 |  | ST-014 |
-| SRS-Q-002 | SRS | OEM-NFR-002 | ARCH-C-014, ARCH-C-015 |  |  |  |  |  |
-| SRS-Q-003 | SRS | OEM-IF-001, OEM-IF-002, OEM-IF-003, OEM-IF-004, OEM-IF-005, OEM-IF-006, OEM-IF-007, OEM-IF-008, OEM-IF-009 | ARCH-C-001, ARCH-C-014 | DD-F-001 | input_validator.h | UT-002 |  |  |
+| SRS-Q-002 | SRS | OEM-NFR-002 | ARCH-C-014, ARCH-C-015 | DD-F-049, DD-F-058 |  |  |  |  |
+| SRS-Q-003 | SRS | OEM-IF-001, OEM-IF-002, OEM-IF-003, OEM-IF-004, OEM-IF-005, OEM-IF-006, OEM-IF-007, OEM-IF-008, OEM-IF-009 | ARCH-C-001, ARCH-C-014 | DD-F-001, DD-F-043, DD-F-063 | input_validator.h | UT-002 |  |  |
 | SSR-001 | 안전(DOC-SAF-001) | OEM-SR-001, OEM-IF-002 | ARCH-C-004 | DD-F-010 | crash_rule.c, crash_rule.h | UT-042, UT-085 | IT-007 | ST-009 |
 | SSR-002 | 안전(DOC-SAF-001) | OEM-SR-001 | ARCH-C-004, ARCH-C-013 | DD-F-010, DD-F-026 | control_cycle.c, control_cycle.h, crash_rule.c, crash_rule.h | UT-085 |  | ST-009 |
 | SSR-003 | 안전(DOC-SAF-001) | OEM-SR-001, OEM-IF-002 | ARCH-C-004 | DD-F-010, DD-F-024 | crash_rule.c, crash_rule.h | UT-042, UT-078 |  | ST-009 |
@@ -104,5 +104,6 @@ ID는 항상 접두사를 포함한 전체 표기를 쓴다.
 
 - 고아 요구(상위 없음): 없음 (SRS-F-017은 파생 요구로 상위 OEM 요구를 명시)
 - OEM 요구 중 도출 요구 없음: 없음 (OEM-SR 4, FR 7, NFR 2, IF 9 모두 도출됨)
-- 시스템 테스트 칸이 빈 요구: Iter-2(표시, 이력, Web) 범위이거나 누락 (Iter-1 범위는 test/system/requirements_in_scope.txt)
+- 시스템 테스트 칸이 빈 요구 중 Iter-2(표시, 이력, Web) 설계 범위(구현 전): SRS-C-004, SRS-F-018, SRS-F-019, SRS-F-020, SRS-F-021, SRS-F-022, SRS-F-023, SRS-F-024, SRS-F-025, SRS-F-026, SRS-L-006, SRS-Q-002, SRS-Q-003
+- 시스템 테스트 칸이 빈 요구 중 Iter-2 범위가 아닌 것(누락): 없음
 - OEM SWR-019: 결번 (OEM 추적표에 없음)

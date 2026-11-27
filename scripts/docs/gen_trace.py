@@ -11,7 +11,7 @@ import pathlib
 import re
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
-VERSION = "1.1 (Iter-1)"
+VERSION = "1.2 (Iter-1, Iter-2 설계 반영)"
 ID_RE = re.compile(r"(?:SRS-[FQLC]-\d{3}|SSR-\d{3})")
 RANGE_RE = re.compile(r"(SRS-[FQLC]-|SSR-)(\d{3})~(\d{3})")
 
@@ -60,6 +60,16 @@ def design_map(path):
     return result
 
 
+def merge_maps(*maps):
+    """여러 문서의 {요구 ID: 값 목록}을 합집합으로 병합한다."""
+    result = {}
+    for m in maps:
+        for k, v in m.items():
+            result.setdefault(k, [])
+            result[k] += [x for x in v if x not in result[k]]
+    return result
+
+
 def collect_sources():
     result = {}
     for f in glob.glob(str(ROOT / "src" / "**" / "*.[ch]"), recursive=True):
@@ -94,12 +104,20 @@ def main():
     allreq = dict(srs)
     allreq.update(ssr)
 
-    arch = design_map("docs/architecture/ARCH.md")
-    dd = design_map("docs/detailed-design/DDS.md")
+    arch = merge_maps(design_map("docs/architecture/ARCH.md"), design_map("docs/architecture/ARCH-iter2.md"))
+    dd = merge_maps(design_map("docs/detailed-design/DDS.md"), design_map("docs/detailed-design/DDS-iter2.md"))
+    iter2 = set(design_map("docs/architecture/ARCH-iter2.md"))
     src = collect_sources()
     ut = collect_tests("unit", r"(UT-\d+) -> ([^.\n]*)")
     it = collect_tests("integration", r"(IT-\d+) 목적:.*?추적: ([^*\n]*)")
     st = collect_tests("system", r"/\*\* (ST-\d+)[^\n]*\n.*?RecordProperty\(\"requirements\", \"([^\"]*)\"\)")
+
+    scope_file = ROOT / "test" / "system" / "requirements_in_scope.txt"
+    if scope_file.exists():
+        for line in scope_file.read_text(encoding="utf-8").splitlines():
+            parts = line.split()
+            if len(parts) >= 2 and parts[1].startswith("inspect"):
+                st.setdefault(parts[0], set()).add("검사")
 
     reverse = {o: [] for o in OEM_REQ}
     for rid, up in allreq.items():
@@ -139,7 +157,8 @@ def main():
             "## 4. 추적 누락 목록", "",
             "- 고아 요구(상위 없음): 없음 (SRS-F-017은 파생 요구로 상위 OEM 요구를 명시)",
             "- OEM 요구 중 도출 요구 없음: " + (", ".join(missing) if missing else "없음 (OEM-SR 4, FR 7, NFR 2, IF 9 모두 도출됨)"),
-            "- 시스템 테스트 칸이 빈 요구: Iter-2(표시, 이력, Web) 범위이거나 누락 (Iter-1 범위는 test/system/requirements_in_scope.txt)",
+            "- 시스템 테스트 칸이 빈 요구 중 Iter-2(표시, 이력, Web) 설계 범위(구현 전): " + (", ".join(sorted(r for r in allreq if not st.get(r) and r in iter2)) or "없음"),
+            "- 시스템 테스트 칸이 빈 요구 중 Iter-2 범위가 아닌 것(누락): " + (", ".join(sorted(r for r in allreq if not st.get(r) and r not in iter2)) or "없음"),
             "- OEM SWR-019: 결번 (OEM 추적표에 없음)"]
     (ROOT / "docs" / "traceability" / "TRACE.md").write_text("\n".join(out) + "\n", encoding="utf-8")
     print("SRS %d, SSR %d, OEM 미도출 %s" % (len(srs), len(ssr), missing))

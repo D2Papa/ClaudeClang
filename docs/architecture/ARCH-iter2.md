@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-ARC-002 |
-| 버전 | 0.4 (3차 설계 리뷰 반려 조치본) |
+| 버전 | 0.5 (4차 설계 리뷰 반려 조치본) |
 | 상태 | 초안 (재리뷰 대기) |
 | 작성 | Claude Sonnet 5.5, 2026-11-27, 요청자 KYLee |
 | 입력 | DOC-ARC-001 v0.2 (ARCH-C-014~016 정의, 이 문서가 구체화), DOC-SRS-001 v1.0 |
@@ -18,7 +18,7 @@ DOC-ARC-001의 ARCH-C-014(StatusPresenter), ARCH-C-015(EventRecorder), ARCH-C-01
 - ARCH-D-09: 이벤트 ID는 64비트 정수로 하며 1부터 증가한다 (오버플로로 인한 중복 없음).
 - ARCH-D-10 (A-21): SRS 6.2는 경고코드 값으로 W-001만 정의한다. 경고가 없을 때의 표시 문자열 `"NONE"`은 SRS가 정하지 않아 설계가 정한 표시값이다.
 - ARCH-D-11: Web은 제어 주기와 이력을 호출하기 전에 컨텍스트를 초기화하고(Web_Init) 논리 시각을 주기 번호에서 만들어(단조 증가) 넘기므로, Control_Step과 Event_Record, Event_Query는 Web 경로에서 오류를 반환하지 않는다. 따라서 Web은 이 호출의 반환값으로 분기하지 않는다. HTTP 500은 **응답 본문 상한을 넘는 직렬화 실패**에서만 발생한다. 본문 상한은 `Web_t`의 값(기본 `WEB_BODY_CAPACITY`)이며 시험이 줄일 수 있다.
-- ARCH-D-12: 평가된 주기가 아직 없을 때(첫 `POST /step` 이전) `GET /status`는 HTTP 204(내용 없음, 빈 본문)로 응답한다. 값을 만들어 내지 않으므로 SSR-015(state 결정)와 충돌하지 않는다.
+- ARCH-D-12 (A-22, SRS-F-018): 평가된 주기가 아직 없을 때(첫 `POST /step` 이전) `GET /status`는 HTTP 204(내용 없음, 빈 본문)로 응답한다. 값을 만들어 내지 않으므로 SSR-015(state 결정)와 충돌하지 않는다.
 - ARCH-D-13: 응답 본문 상한은 `Web_SetBodyLimit`으로만 바꾸며 1 이상 `WEB_BODY_CAPACITY` 이하여야 한다 (버퍼 넘침 방지). `Web_Init`은 상한을 `WEB_BODY_CAPACITY`로 설정한다.
 
 ## 2. 정적 구조
