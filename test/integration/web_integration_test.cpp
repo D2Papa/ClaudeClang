@@ -14,10 +14,17 @@
  */
 #include <gtest/gtest.h>
 
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <unistd.h>
+
+#include <cstring>
 #include <memory>
 #include <string>
 
 extern "C" {
+#include "web/web_adapter.h"
 #include "web/web_handler.h"
 }
 
@@ -111,6 +118,37 @@ TEST_F(WebIntegration, HttpStatusCodes_AcrossRoutes)
     ASSERT_EQ(STATUS_OK, Web_SetBodyLimit(web_.get(), 16));
     EXPECT_EQ(500, Call("GET", "/status"));
     EXPECT_EQ(500, Call("GET", "/history"));
+}
+
+/** IT-025 목적: 소켓 어댑터 → Web_Handle → 제어 주기 → 이력까지 실제 TCP 연결로 이어진다 (ARCH-I-010 어댑터 경로). 입력: 로컬 수신 소켓에 연결해 POST /step(속도 3.0)과 GET /history를 차례로 보낸다. 기대: 각각 HTTP 200과 JSON(AUTO_LOCK, 이벤트 1건). 추적: ARCH-I-010, SRS-C-004 */
+TEST_F(WebIntegration, TcpRoundTrip_ThroughSocketAdapter)
+{
+    int server = WebAdapter_Listen(0);
+    ASSERT_GE(server, 0);
+    sockaddr_in bound{};
+    socklen_t len = sizeof(bound);
+    ASSERT_EQ(0, getsockname(server, reinterpret_cast<sockaddr *>(&bound), &len));
+    const char *requests[] = {"POST /step HTTP/1.1\r\nContent-Length: 9\r\n\r\nspeed=3.0", "GET /history HTTP/1.1\r\n\r\n"};
+    std::string responses[2];
+    for (int i = 0; i < 2; i++)
+    {
+        int client = socket(AF_INET, SOCK_STREAM, 0);
+        ASSERT_EQ(0, connect(client, reinterpret_cast<sockaddr *>(&bound), sizeof(bound)));
+        ASSERT_EQ(static_cast<ssize_t>(std::strlen(requests[i])), send(client, requests[i], std::strlen(requests[i]), 0));
+        ASSERT_EQ(1, WebAdapter_Run(server, web_.get(), 1));
+        char chunk[4096];
+        ssize_t n;
+        while ((n = recv(client, chunk, sizeof(chunk), 0)) > 0)
+        {
+            responses[i].append(chunk, static_cast<size_t>(n));
+        }
+        close(client);
+    }
+    close(server);
+    EXPECT_EQ(0U, responses[0].find("HTTP/1.1 200 X\r\n"));
+    EXPECT_NE(std::string::npos, responses[0].find("\"reason_code\":\"AUTO_LOCK\""));
+    EXPECT_EQ(0U, responses[1].find("HTTP/1.1 200 X\r\n"));
+    EXPECT_NE(std::string::npos, responses[1].find("[{\"id\":1,"));
 }
 
 } // namespace

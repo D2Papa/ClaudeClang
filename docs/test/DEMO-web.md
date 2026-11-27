@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |------|------|
 | 문서 ID | DOC-DEM-001 |
-| 대상 | web_simulator (src/web/web_main.c, ARCH-C-016 어댑터) |
+| 대상 | web_simulator (main: src/web/web_main.c, 소켓 처리: src/web/web_adapter.c, ARCH-C-016) |
 | 일자 | 2026-11-27 |
 | 기준 커밋 | 30e1789 (시연 후 변경은 주석 추가와 테스트 주석 보강뿐) |
 | 환경 | claudeclangbuild 컨테이너, 포트 8081, curl |
@@ -50,4 +50,4 @@ docker run --rm -v "${PWD}:/work" claudeclangbuild bash scripts/demo/web_demo.sh
 시연 결과: 성공
 ```
 
-요청 처리 로직(`Web_Handle`)은 단위·통합·시스템 테스트로 검증했고, 이 시연은 소켓 어댑터(`web_main.c`)를 검증한다.
+요청 처리 로직(`Web_Handle`)은 단위·통합·시스템 테스트로 검증했고, 소켓 처리(`web_adapter.c`)는 socketpair와 로컬 TCP 단위·통합 테스트로 검증했고, 이 시연은 `main`(포트 열기와 무한 루프)과 실제 프로세스 동작을 확인한다.

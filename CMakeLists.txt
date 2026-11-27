@@ -22,7 +22,8 @@ find_package(GTest REQUIRED)
 
 # 제품 코드: src/<모듈>/ 아래의 .c 파일을 모두 하나의 라이브러리로 묶는다.
 file(GLOB_RECURSE PRODUCT_SOURCES CONFIGURE_DEPENDS ${CMAKE_SOURCE_DIR}/src/*.c)
-# web_main.c는 소켓 어댑터(진입점)라서 제품 라이브러리와 테스트에서 제외하고 별도 실행 파일로 만든다.
+# web_main.c는 main 한 함수뿐인 진입점이라 제품 라이브러리와 커버리지 측정에서 제외하고 별도 실행 파일로 만든다
+# (사용자 승인된 유일한 예외, 2026-11-27). 소켓 처리 로직은 web_adapter.c에 있고 단위 테스트가 검증한다.
 list(FILTER PRODUCT_SOURCES EXCLUDE REGEX "web_main\.c$")
 add_library(product STATIC ${PRODUCT_SOURCES})
 add_executable(web_simulator ${CMAKE_SOURCE_DIR}/src/web/web_main.c)
