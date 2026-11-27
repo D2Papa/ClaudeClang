@@ -1,0 +1,22 @@
+# 설정 관리 (JCasC, Job DSL)
+configuration-as-code
+job-dsl
+
+# 파이프라인
+workflow-aggregator
+workflow-multibranch
+pipeline-stage-view
+pipeline-utility-steps
+docker-workflow
+timestamper
+ws-cleanup
+
+# 소스 (공개 저장소는 git, 토큰을 등록하면 GitHub PR 연동에 github-branch-source 사용)
+git
+github-branch-source
+
+# 결과 확인: 테스트(JUnit, 기본 포함), 정적 분석, 커버리지, HTML 리포트
+junit
+warnings-ng
+coverage
+htmlpublisher

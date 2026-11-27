@@ -1,0 +1,19 @@
+# Jenkins 실행: docker compose up -d --build   (http://localhost:8080)
+# 사전 준비: env.example 을 .env 로 복사하고 JENKINS_ADMIN_PASSWORD 를 설정한다. (.env 는 커밋하지 않는다)
+services:
+  jenkins:
+    build: .
+    image: claudeclang-jenkins
+    container_name: claudeclang-jenkins
+    user: root                       # docker.sock 접근용 (로컬 개발 PC 전용 구성)
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    volumes:
+      - jenkins_home:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+volumes:
+  jenkins_home:

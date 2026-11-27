@@ -16,9 +16,23 @@
     "deny": [
       "Read(./.env)",
       "Read(./.env.*)",
+      "Read(./ci/jenkins/.env)",
       "Read(./secrets/**)",
       "Bash(git push --force:*)",
       "PowerShell(git push --force:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$CLAUDE_PROJECT_DIR/scripts/hooks/lizard_check.py\""
+          }
+        ]
+      }
     ]
   }
 }

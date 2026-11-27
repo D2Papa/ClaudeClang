@@ -1,0 +1,43 @@
+jenkins:
+  systemMessage: "ClaudeClang CI (품질 기준 미달 시 빌드 실패)"
+  numExecutors: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "${JENKINS_ADMIN_PASSWORD}"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+unclassified:
+  location:
+    url: "http://localhost:8080/"
+
+jobs:
+  - script: >
+      multibranchPipelineJob('ClaudeClang') {
+        displayName('ClaudeClang')
+        branchSources {
+          git {
+            id('claudeclang-git')
+            remote('https://github.com/D2Papa/ClaudeClang.git')
+          }
+        }
+        factory {
+          workflowBranchProjectFactory {
+            scriptPath('Jenkinsfile')
+          }
+        }
+        orphanedItemStrategy {
+          discardOldItems {
+            numToKeep(20)
+          }
+        }
+        triggers {
+          periodicFolderTrigger {
+            interval('2m')
+          }
+        }
+      }
